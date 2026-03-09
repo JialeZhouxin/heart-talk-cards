@@ -24,3 +24,8 @@ Thumbs.db
 # Backup files
 *.bak
 *.backup
+
+# Local temp files
+.npm-cache/
+.spec-workflow/
+.tmp-script.js
