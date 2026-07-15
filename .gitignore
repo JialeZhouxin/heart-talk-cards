@@ -29,3 +29,6 @@ Thumbs.db
 .npm-cache/
 .spec-workflow/
 .tmp-script.js
+
+__pycache__/
+*.pyc

@@ -3,6 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#c27a3a">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="心语卡牌">
+    <link rel="manifest" href="./manifest.webmanifest">
+    <link rel="apple-touch-icon" href="./icons/icon-192.png">
     <title>心语卡牌</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -13,6 +19,7 @@
     <div class="container">
         <header>
             <div class="theme-switch-wrap">
+                <a class="filter-btn" href="./heart-talk-cards-offline.html" download style="text-decoration:none;display:inline-flex;align-items:center;">下载离线包</a>
                 <button class="filter-btn theme-toggle-btn" id="themeToggleBtn" type="button" aria-label="切换夜间护眼模式">夜间护眼</button>
             </div>
             <h1>心语卡牌</h1>
@@ -102,6 +109,7 @@
 
     <div id="toastContainer" aria-live="polite" aria-atomic="true"></div>
 
+    <script src="./src/pwa.js"></script>
     <script>
         (function loadAppScript() {
             const script = document.createElement('script');

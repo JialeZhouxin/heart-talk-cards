@@ -26,3 +26,26 @@
 
 - `file://` 场景自动加载 `src/app.bundle.js`
 - `http(s)://` 场景加载模块入口 `src/main.js`
+
+
+## 在线访问
+
+https://jialezhouxin.github.io/heart-talk-cards/
+
+## 安装到主屏幕（PWA）
+
+- **Android Chrome**：打开站点 → 菜单 →「安装应用」或「添加到主屏幕」
+- **iPhone Safari**：分享 →「添加到主屏幕」
+- 首次需联网加载并缓存；之后可离线打开（历史仍在本机）
+
+## 离线单文件包
+
+- 文件：`heart-talk-cards-offline.html`
+- 站点页也可点「下载离线包」
+- 用法：把 HTML 发给朋友 / 存手机 → 浏览器直接打开，无需服务器
+- 重建：`python scripts/build_offline_html.py`
+
+## 说明补充
+
+- 对话历史使用 `localStorage`，不会上传服务器
+- 外链 Google Fonts 在离线包中已去除，避免依赖网络字体

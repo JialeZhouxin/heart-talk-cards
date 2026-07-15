@@ -1,0 +1,1415 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#c27a3a">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="心语卡牌">
+    <link rel="manifest" href="./manifest.webmanifest">
+    <link rel="apple-touch-icon" href="./icons/icon-192.png">
+    <title>心语卡牌（离线包）</title>
+    </head>
+<body>
+
+    <div class="container" style="padding-bottom:0">
+      <div style="background:#e8f0ff;border:1px solid #b7c9ef;color:#1e2f5c;padding:10px 12px;border-radius:12px;margin:12px 0 0;font-size:14px;">
+        离线单文件包：可直接双击打开，无需联网。对话历史仍只保存在本机浏览器。
+      </div>
+    </div>
+<div class="container">
+        <header>
+            <div class="theme-switch-wrap">
+                <button class="filter-btn theme-toggle-btn" id="themeToggleBtn" type="button" aria-label="切换夜间护眼模式">夜间护眼</button>
+            </div>
+            <h1>心语卡牌</h1>
+            <p>用问题打开话匣子，让彼此更靠近一点</p>
+        </header>
+
+        <div class="filter-section">
+            <h3>选择卡牌类型</h3>
+            <div class="filter-buttons" id="categoryFilters">
+                <button class="filter-btn active" data-category="all">全部</button>
+                <button class="filter-btn" data-category="couple">情侣</button>
+                <button class="filter-btn" data-category="friend">朋友</button>
+                <button class="filter-btn" data-category="family">家庭</button>
+                <button class="filter-btn" data-category="self">自我</button>
+            </div>
+            <div class="filter-buttons" style="margin-top: 15px;" id="levelFilters">
+                <button class="filter-btn active" data-level="all">全部难度</button>
+                <button class="filter-btn" data-level="1">一级</button>
+                <button class="filter-btn" data-level="2">二级</button>
+                <button class="filter-btn" data-level="3">三级</button>
+            </div>
+        </div>
+
+        <div class="card-container" id="cardContainer">
+            <div class="empty-state" id="emptyState">
+                <p>点击“抽取卡牌”开始对话</p>
+                <p>适合情侣、朋友、家庭与自我探索场景</p>
+            </div>
+            <div id="cardContent" style="display: none;">
+                <div class="card-category" id="cardCategory"></div>
+                <div class="card-level" id="cardLevel"></div>
+                <div class="card-question" id="cardQuestion"></div>
+            </div>
+        </div>
+
+        <div class="controls">
+            <button class="btn" id="drawBtn">抽取卡牌</button>
+            <button class="btn btn-secondary" id="saveBtn" style="display: none;">保存回答</button>
+            <button class="btn btn-secondary" id="shareBtn" style="display: none;">分享</button>
+        </div>
+
+        <div class="history-section">
+            <h3>
+                对话历史
+                <button class="filter-btn" id="clearHistoryBtn" style="font-size: 0.8rem; padding: 5px 12px;">清空</button>
+            </h3>
+            <div class="history-list" id="historyList">
+                <div class="empty-state">
+                    <p>暂无对话记录</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="saveModal">
+        <div class="modal-content">
+            <h3>你的回答</h3>
+            <p id="saveModalQuestion" style="margin-bottom: 15px; color: #6b7280;"></p>
+            <textarea id="answerInput" placeholder="写下你的思考和感受..."></textarea>
+            <button class="btn" id="confirmSaveBtn">保存</button>
+            <button class="btn btn-secondary" id="cancelSaveBtn">取消</button>
+        </div>
+    </div>
+
+    <div class="modal" id="shareModal">
+        <div class="modal-content">
+            <h3>分享这张卡牌</h3>
+            <div class="share-preview" id="sharePreview">
+                <div class="question" id="shareQuestion"></div>
+                <div class="answer" id="shareAnswer"></div>
+            </div>
+            <button class="btn" id="copyShareBtn">复制内容</button>
+            <button class="btn btn-secondary" id="closeShareBtn">关闭</button>
+        </div>
+    </div>
+
+    <div class="modal" id="confirmModal">
+        <div class="modal-content">
+            <h3>请确认操作</h3>
+            <p id="confirmMessage" style="margin-bottom: 16px; color: #6b7280;"></p>
+            <div class="modal-actions">
+                <button class="btn btn-secondary" id="confirmCancelBtn">取消</button>
+                <button class="btn" id="confirmOkBtn">确认</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="toastContainer" aria-live="polite" aria-atomic="true"></div>
+
+    
+<style>
+﻿:root {
+    --bg-main: #f6ecdf;
+    --bg-secondary: #efe1cd;
+    --paper: #fff9f1;
+    --paper-strong: #fff5e8;
+    --text-primary: #3d2c1f;
+    --text-secondary: #715740;
+    --text-muted: #9a7f67;
+    --accent: #c27a3a;
+    --accent-strong: #a86428;
+    --accent-soft: #e7c6a2;
+    --line: #e4ccb0;
+    --success: #357a4c;
+    --danger: #a54a2a;
+    --shadow-soft: 0 10px 30px rgba(95, 60, 25, 0.12);
+    --shadow-card: 0 16px 34px rgba(95, 60, 25, 0.16);
+    --radius-xl: 26px;
+    --radius-lg: 18px;
+    --radius-md: 12px;
+}
+:root[data-theme='dark'] {
+    --bg-main: #1f1b17;
+    --bg-secondary: #2b241e;
+    --paper: #2f2821;
+    --paper-strong: #3a3027;
+    --text-primary: #f5e9d9;
+    --text-secondary: #e3ccb2;
+    --text-muted: #c1a88d;
+    --accent: #d69a5c;
+    --accent-strong: #ba7e40;
+    --line: #5a4a3a;
+    --success: #79b489;
+    --danger: #d37f63;
+    --shadow-soft: 0 12px 30px rgba(0, 0, 0, 0.3);
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html,
+body {
+    min-height: 100%;
+}
+
+body {
+    font-family: 'Noto Sans SC', 'Microsoft YaHei', sans-serif;
+    color: var(--text-primary);
+    background:
+        radial-gradient(circle at 12% 14%, rgba(255, 240, 220, 0.9) 0%, rgba(255, 240, 220, 0) 36%),
+        radial-gradient(circle at 86% 18%, rgba(244, 216, 183, 0.75) 0%, rgba(244, 216, 183, 0) 34%),
+        linear-gradient(160deg, var(--bg-main) 0%, var(--bg-secondary) 100%);
+    display: flex;
+    justify-content: center;
+    padding: 28px 18px calc(40px + env(safe-area-inset-bottom));
+    line-height: 1.55;
+    -webkit-tap-highlight-color: transparent;
+    transition: background 0.26s ease, color 0.2s ease;
+}
+
+.container {
+    width: 100%;
+    max-width: 760px;
+    position: relative;
+}
+
+header {
+    text-align: center;
+    margin-bottom: 26px;
+    animation: rise-in 0.5s ease-out both;
+}
+
+.theme-switch-wrap {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 10px;
+}
+.theme-toggle-btn {
+    min-width: 104px;
+    padding-inline: 14px;
+}
+
+header h1 {
+    font-family: 'Noto Serif SC', 'Songti SC', serif;
+    font-size: clamp(2rem, 4.3vw, 2.8rem);
+    letter-spacing: 0.04em;
+    color: #5c3d24;
+    margin-bottom: 8px;
+}
+
+header p {
+    color: var(--text-secondary);
+    font-size: 1.02rem;
+}
+
+.filter-section,
+.history-section,
+.card-container,
+.modal-content {
+    background: var(--paper);
+    border: 1px solid rgba(228, 204, 176, 0.78);
+    box-shadow: var(--shadow-soft);
+}
+
+.filter-section,
+.history-section {
+    border-radius: var(--radius-lg);
+    padding: 18px 18px 16px;
+}
+
+.filter-section {
+    margin-bottom: 18px;
+    animation: rise-in 0.55s ease-out both;
+}
+
+.filter-section h3,
+.history-section h3 {
+    font-family: 'Noto Serif SC', 'Songti SC', serif;
+    color: #69462c;
+    margin-bottom: 14px;
+    font-size: 1.06rem;
+}
+
+.filter-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.filter-btn {
+    border: 1px solid #d6b58f;
+    background: #fff7ee;
+    color: #80583a;
+    border-radius: 999px;
+    padding: 9px 15px;
+    font-size: 0.9rem;
+    min-height: 40px;
+    cursor: pointer;
+    transition: transform 0.18s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.18s ease, background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+
+.filter-btn:hover,
+.filter-btn.active {
+    background: linear-gradient(160deg, #d3955a 0%, #be7736 100%);
+    color: #fff;
+    border-color: #b46a2d;
+    box-shadow: 0 7px 14px rgba(167, 101, 44, 0.24);
+    transform: translateY(-1px);
+}
+
+.filter-btn:active {
+    transform: scale(0.98);
+}
+
+.card-container {
+    border-radius: var(--radius-xl);
+    padding: 34px 28px;
+    min-height: 312px;
+    margin-bottom: 18px;
+    position: relative;
+    overflow: hidden;
+    animation: rise-in 0.6s ease-out both;
+}
+
+.card-container::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background:
+        linear-gradient(130deg, rgba(255, 244, 228, 0.75) 0%, rgba(255, 244, 228, 0) 46%),
+        repeating-linear-gradient(0deg, rgba(191, 147, 107, 0.035) 0, rgba(191, 147, 107, 0.035) 1px, transparent 1px, transparent 6px);
+}
+
+#cardContent,
+#emptyState {
+    position: relative;
+    z-index: 1;
+}
+
+.empty-state {
+    text-align: center;
+    color: var(--text-secondary);
+    padding: 24px 12px;
+}
+
+.empty-state p + p {
+    margin-top: 10px;
+}
+
+.card-category {
+    font-size: 0.9rem;
+    color: #896a4d;
+    margin-bottom: 12px;
+    text-transform: none;
+}
+
+.card-level,
+.history-item .level-badge {
+    display: inline-flex;
+    align-items: center;
+    border-radius: 999px;
+    padding: 5px 13px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    border: 1px solid transparent;
+    margin-bottom: 16px;
+}
+
+.level-1 {
+    background: #f7ecdc;
+    color: #8f5d2f;
+    border-color: #e6c9a7;
+}
+
+.level-2 {
+    background: #f4e2cf;
+    color: #7b4625;
+    border-color: #dfbb93;
+}
+
+.level-3 {
+    background: #f0d9c7;
+    color: #6e2f1e;
+    border-color: #d8ab8d;
+}
+
+.card-question {
+    font-family: 'Noto Serif SC', 'Songti SC', serif;
+    font-size: clamp(1.28rem, 2.7vw, 1.68rem);
+    line-height: 1.75;
+    color: #422c1a;
+}
+
+.controls {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 20px;
+    animation: rise-in 0.65s ease-out both;
+}
+
+.btn {
+    border: none;
+    border-radius: 999px;
+    min-height: 44px;
+    padding: 12px 28px;
+    font-size: 0.98rem;
+    font-weight: 600;
+    cursor: pointer;
+    letter-spacing: 0.02em;
+    transition: transform 0.18s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.2s ease, filter 0.2s ease;
+}
+
+.btn:hover {
+    transform: translateY(-1px);
+}
+
+.btn:active {
+    transform: translateY(0) scale(0.98);
+}
+
+.btn {
+    background: linear-gradient(160deg, var(--accent) 0%, var(--accent-strong) 100%);
+    color: #fff;
+    box-shadow: 0 8px 18px rgba(166, 98, 38, 0.3);
+}
+
+.btn-secondary {
+    background: #fff3e5;
+    color: #875734;
+    border: 1px solid #e0bf9b;
+    box-shadow: 0 8px 16px rgba(113, 76, 40, 0.12);
+}
+
+.history-section {
+    margin-top: 4px;
+    animation: rise-in 0.7s ease-out both;
+}
+
+.history-section h3 {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+.history-list {
+    max-height: 420px;
+    overflow-y: auto;
+    padding-right: 4px;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+}
+
+.history-item {
+    background: var(--paper-strong);
+    border: 1px solid #ecd4b8;
+    border-left: 4px solid #c68449;
+    border-radius: var(--radius-md);
+    padding: 13px;
+    margin-bottom: 10px;
+}
+
+.history-item .timestamp {
+    color: var(--text-muted);
+    font-size: 0.78rem;
+    margin-bottom: 6px;
+}
+
+.history-item .question {
+    color: #4d331f;
+    font-weight: 600;
+    margin-bottom: 8px;
+}
+
+.history-item .answer {
+    background: #fffcf7;
+    border: 1px solid #edd9c3;
+    border-radius: 10px;
+    color: #65472f;
+    padding: 11px;
+    white-space: pre-wrap;
+}
+
+.modal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(74, 51, 33, 0.42);
+    backdrop-filter: blur(2px);
+    align-items: center;
+    justify-content: center;
+    z-index: 999;
+    padding: 20px;
+}
+
+.modal.active {
+    display: flex;
+}
+
+.modal-content {
+    border-radius: 20px;
+    width: min(540px, 100%);
+    padding: 24px 20px;
+    animation: pop-in 0.24s ease-out;
+}
+
+.modal-content h3 {
+    font-family: 'Noto Serif SC', 'Songti SC', serif;
+    color: #664327;
+    margin-bottom: 16px;
+}
+
+.modal-content textarea {
+    width: 100%;
+    min-height: 140px;
+    border: 1px solid #d7ba97;
+    border-radius: 10px;
+    background: #fffbf6;
+    color: #4c3422;
+    padding: 11px 12px;
+    resize: vertical;
+    margin-bottom: 14px;
+    font: inherit;
+}
+
+.modal-content textarea:focus-visible,
+.btn:focus-visible,
+.filter-btn:focus-visible {
+    outline: 2px solid #b96a2b;
+    outline-offset: 2px;
+}
+
+.modal-actions {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+}
+
+.modal-actions .btn {
+    min-width: 92px;
+}
+
+.share-preview {
+    border: 1px solid #e4c9a9;
+    border-radius: 14px;
+    background: linear-gradient(150deg, #fff5e7 0%, #f8e7d2 100%);
+    padding: 16px;
+    text-align: left;
+    margin-bottom: 16px;
+}
+
+.share-preview .question {
+    font-family: 'Noto Serif SC', 'Songti SC', serif;
+    color: #50341f;
+    font-size: 1.05rem;
+    margin-bottom: 9px;
+}
+
+.share-preview .answer {
+    color: #6a4a2f;
+    background: rgba(255, 255, 255, 0.65);
+    border-radius: 10px;
+    padding: 10px;
+    border: 1px solid #ead2b6;
+}
+
+#toastContainer {
+    position: fixed;
+    right: 18px;
+    bottom: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    z-index: 1200;
+}
+
+.toast {
+    min-width: 220px;
+    max-width: min(88vw, 320px);
+    background: #fff8ee;
+    border: 1px solid #e7c8a4;
+    color: #6b4a2d;
+    border-left: 4px solid var(--accent);
+    border-radius: 10px;
+    padding: 10px 12px;
+    box-shadow: 0 8px 22px rgba(95, 60, 25, 0.18);
+    opacity: 0;
+    transform: translateY(6px);
+    animation: toast-in 0.18s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+}
+
+.toast.toast-error {
+    border-left-color: var(--danger);
+}
+
+.toast.toast-success {
+    border-left-color: var(--success);
+}
+
+.toast.toast-hide {
+    animation: toast-out 0.18s ease forwards;
+}
+
+@keyframes rise-in {
+    from {
+        opacity: 0;
+        transform: translateY(14px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes pop-in {
+    from {
+        opacity: 0;
+        transform: translateY(10px) scale(0.98);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+@keyframes toast-in {
+    from {
+        opacity: 0;
+        transform: translateY(6px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes toast-out {
+    from {
+        opacity: 1;
+        transform: translateY(0);
+    }
+    to {
+        opacity: 0;
+        transform: translateY(4px);
+    }
+}
+
+@media (max-width: 600px) {
+    body {
+        padding: 16px 12px calc(26px + env(safe-area-inset-bottom));
+    }
+
+    header {
+        margin-bottom: 18px;
+    }
+
+    header p {
+        font-size: 0.95rem;
+    }
+
+    .card-container {
+        padding: 26px 18px;
+        min-height: 280px;
+    }
+
+    .card-question {
+        font-size: clamp(1.12rem, 4.7vw, 1.35rem);
+        line-height: 1.66;
+    }
+
+    .btn {
+        width: 100%;
+        min-height: 46px;
+        padding-top: 11px;
+        padding-bottom: 11px;
+    }
+
+    .controls {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 8px;
+    }
+
+    .filter-btn {
+        min-height: 44px;
+        padding: 8px 14px;
+    }
+
+    .filter-buttons {
+        gap: 8px;
+    }
+
+    .history-list {
+        max-height: 300px;
+    }
+
+    .modal-content {
+        padding: 20px 16px;
+    }
+
+    .modal-content textarea {
+        min-height: 120px;
+    }
+
+    #toastContainer {
+        left: 12px;
+        right: 12px;
+        bottom: 14px;
+    }
+
+    .modal-actions {
+        flex-direction: column-reverse;
+    }
+}
+
+@media (max-width: 360px) {
+    body {
+        padding: 14px 10px calc(20px + env(safe-area-inset-bottom));
+    }
+
+    header h1 {
+        font-size: 1.82rem;
+        letter-spacing: 0.02em;
+    }
+
+    header p {
+        font-size: 0.9rem;
+    }
+
+    .filter-section,
+    .history-section {
+        padding: 14px 12px;
+    }
+
+    .card-container {
+        min-height: 248px;
+        padding: 20px 14px;
+    }
+
+    .card-question {
+        font-size: 1.05rem;
+        line-height: 1.62;
+    }
+
+    .history-list {
+        max-height: 240px;
+    }
+
+    .btn {
+        min-height: 46px;
+        font-size: 0.94rem;
+    }
+}
+
+@media (min-width: 361px) and (max-width: 390px) {
+    body {
+        padding: 16px 12px calc(24px + env(safe-area-inset-bottom));
+    }
+
+    header h1 {
+        font-size: 2.02rem;
+    }
+
+    .card-container {
+        min-height: 268px;
+        padding: 24px 16px;
+    }
+
+    .card-question {
+        font-size: 1.12rem;
+        line-height: 1.64;
+    }
+
+    .history-list {
+        max-height: 276px;
+    }
+}
+
+@media (min-width: 391px) and (max-width: 430px) {
+    body {
+        padding: 18px 14px calc(24px + env(safe-area-inset-bottom));
+    }
+
+    header h1 {
+        font-size: 2.14rem;
+    }
+
+    .card-container {
+        min-height: 286px;
+        padding: 26px 18px;
+    }
+
+    .card-question {
+        font-size: 1.18rem;
+        line-height: 1.66;
+    }
+
+    .history-list {
+        max-height: 304px;
+    }
+}
+
+@media (max-width: 430px) and (max-height: 844px) {
+    .history-list {
+        max-height: 250px;
+    }
+}
+
+@media (max-width: 430px) and (min-height: 932px) {
+    .card-container {
+        min-height: 300px;
+    }
+
+    .history-list {
+        max-height: 340px;
+    }
+}
+
+@media (max-width: 420px) {
+    .filter-buttons .filter-btn {
+        flex: 1 1 calc(50% - 8px);
+        text-align: center;
+    }
+
+    .history-item {
+        padding: 11px;
+    }
+
+    .history-item .answer {
+        padding: 9px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+        animation: none !important;
+        transition: none !important;
+        scroll-behavior: auto !important;
+    }
+}
+
+:root[data-theme='dark'] header h1 { color: #f7e8d5; }
+:root[data-theme='dark'] .filter-section h3,
+:root[data-theme='dark'] .history-section h3 { color: #ecd2b5; }
+:root[data-theme='dark'] .card-category { color: #d4b493; }
+:root[data-theme='dark'] .card-question { color: #f7e7d2; }
+:root[data-theme='dark'] .history-item { border-color: #66513d; }
+:root[data-theme='dark'] .history-item .question { color: #efd9bf; }
+:root[data-theme='dark'] .history-item .answer {
+    background: #32281f;
+    border-color: #5b4835;
+    color: #e8d4bd;
+}
+:root[data-theme='dark'] .modal-content h3 { color: #f0d8bc; }
+:root[data-theme='dark'] .modal-content textarea {
+    background: #2b221a;
+    border-color: #69533d;
+    color: #f4e5d3;
+}
+:root[data-theme='dark'] .share-preview .question { color: #efd9bf; }
+:root[data-theme='dark'] .share-preview .answer {
+    background: rgba(42, 33, 25, 0.7);
+    border-color: #6e563f;
+    color: #f2dfc8;
+}
+:root[data-theme='dark'] .toast {
+    background: #32281f;
+    border-color: #6a523b;
+    color: #f3dfc8;
+}
+
+
+</style>
+<script>
+/*
+ * app.bundle.js
+ * ??????? file:// ?????????
+ * ???src/data + src/core + src/ui + src/main
+ */
+
+
+const cards = [
+            // ========== Level 1 - 轻松热身（36 张）==========
+            // 💕 情侣 - Level 1
+            { id: 1, level: 1, category: 'couple', question: '今天我最让你开心的一个举动是什么？' },
+            { id: 2, level: 1, category: 'couple', question: '你最喜欢我的哪个小习惯？' },
+            { id: 3, level: 1, category: 'couple', question: '我们一起做过最有趣的事是什么？' },
+            { id: 4, level: 1, category: 'couple', question: '你什么时候第一次对我心动？' },
+            { id: 5, level: 1, category: 'couple', question: '用三个词形容我们的关系' },
+            { id: 6, level: 1, category: 'couple', question: '你最喜欢我们一起做的哪件事？' },
+            { id: 7, level: 1, category: 'couple', question: '今天有什么想和我分享的小事吗？' },
+            { id: 8, level: 1, category: 'couple', question: '最近有什么让你开心的事？' },
+            { id: 9, level: 1, category: 'couple', question: '你理想中的周末是怎样度过的？' },
+            { id: 10, level: 1, category: 'couple', question: '如果能去任何地方旅行，你最想去哪里？' },
+            { id: 11, level: 1, category: 'couple', question: '你最近看过最好的电影是什么？' },
+            { id: 12, level: 1, category: 'couple', question: '最喜欢我做的哪道菜？' },
+            
+            // 👫 朋友 - Level 1
+            { id: 13, level: 1, category: 'friend', question: '我们第一次见面时，你对我的印象是什么？' },
+            { id: 14, level: 1, category: 'friend', question: '你最喜欢我们一起做的什么活动？' },
+            { id: 15, level: 1, category: 'friend', question: '用三个词形容我们的友谊' },
+            { id: 16, level: 1, category: 'friend', question: '最近有什么让你开心的小事？' },
+            { id: 17, level: 1, category: 'friend', question: '最近有什么新鲜事想分享吗？' },
+            { id: 18, level: 1, category: 'friend', question: '这周过得怎么样？' },
+            { id: 19, level: 1, category: 'friend', question: '最近有什么新的爱好或兴趣？' },
+            { id: 20, level: 1, category: 'friend', question: '推荐一本你最近喜欢的书' },
+            
+            // 👨‍👩‍ 家庭 - Level 1
+            { id: 21, level: 1, category: 'family', question: '家里最让你感到温暖的时刻是什么？' },
+            { id: 22, level: 1, category: 'family', question: '你最喜欢家里的哪个传统？' },
+            { id: 23, level: 1, category: 'family', question: '用三个词形容我们的家庭' },
+            { id: 24, level: 1, category: 'family', question: '小时候家里最让你温暖的传统是什么？' },
+            { id: 25, level: 1, category: 'family', question: '家人做的哪道菜让你最怀念？' },
+            { id: 26, level: 1, category: 'family', question: '你最想和家人一起完成的一件事是什么？' },
+            { id: 27, level: 1, category: 'family', question: '家里有什么有趣的故事？' },
+            { id: 28, level: 1, category: 'family', question: '最近和家人有什么开心的时刻？' },
+            
+            // 🧘 自我 - Level 1
+            { id: 29, level: 1, category: 'self', question: '今天最让你开心的小事是什么？' },
+            { id: 30, level: 1, category: 'self', question: '用三个词形容现在的自己' },
+            { id: 31, level: 1, category: 'self', question: '最近有什么新的发现或领悟？' },
+            { id: 32, level: 1, category: 'self', question: '最近有什么让你感到有成就感的事情？' },
+            { id: 33, level: 1, category: 'self', question: '今天有什么让你感恩的事情？' },
+            { id: 34, level: 1, category: 'self', question: '如果可以学习一项新技能，你想学什么？' },
+            { id: 35, level: 1, category: 'self', question: '最近有什么新的爱好或兴趣？' },
+            { id: 36, level: 1, category: 'self', question: '这周有什么小确幸？' },
+            
+            // ========== Level 2 - 情感深入（40 张）==========
+            // 💕 情侣 - Level 2
+            { id: 37, level: 2, category: 'couple', question: '这段关系让你变成了什么样的人？' },
+            { id: 38, level: 2, category: 'couple', question: '你觉得我们之间最健康的沟通方式是什么？' },
+            { id: 39, level: 2, category: 'couple', question: '你希望我们一年后的关系是什么样的？' },
+            { id: 40, level: 2, category: 'couple', question: '有什么是我做过让你感动但你没说过的事？' },
+            { id: 41, level: 2, category: 'couple', question: '你觉得我们处理冲突的方式健康吗？' },
+            { id: 42, level: 2, category: 'couple', question: '你什么时候第一次意识到你爱我？' },
+            { id: 43, level: 2, category: 'couple', question: '做什么事让你感觉最被爱？' },
+            { id: 44, level: 2, category: 'couple', question: '你理想中的亲密关系是什么样的？' },
+            { id: 45, level: 2, category: 'couple', question: '在我面前，你什么时候感觉最自在？' },
+            { id: 46, level: 2, category: 'couple', question: '在我们的关系中，你最感激的三个时刻是什么？' },
+            { id: 47, level: 2, category: 'couple', question: '你童年最难忘的经历是什么？它如何影响了你？' },
+            { id: 48, level: 2, category: 'couple', question: '你对未来的五年有什么样的憧憬？' },
+            { id: 49, level: 2, category: 'couple', question: '你觉得我们之间最珍贵的特质是什么？' },
+            { id: 50, level: 2, category: 'couple', question: '有什么话你一直想对我说，但还没说出口？' },
+            { id: 51, level: 2, category: 'couple', question: '我们第一次约会时你在想什么？' },
+            { id: 52, level: 2, category: 'couple', question: '我们一起经历的哪个挑战让你最骄傲？' },
+            { id: 53, level: 2, category: 'couple', question: '你认为爱情中最重要的是什么？' },
+            { id: 54, level: 2, category: 'couple', question: '什么让你感到真正的快乐和满足？' },
+            
+            // 👫 朋友 - Level 2
+            { id: 55, level: 2, category: 'friend', question: '这段友谊让你变成了什么样的人？' },
+            { id: 56, level: 2, category: 'friend', question: '有什么是你只愿意告诉我，不会告诉别人的？' },
+            { id: 57, level: 2, category: 'friend', question: '你觉得真正的朋友应该是什么样的？' },
+            { id: 58, level: 2, category: 'friend', question: '我们一起经历的最难忘的事是什么？' },
+            { id: 59, level: 2, category: 'friend', question: '你希望我们五年后的友谊是什么样的？' },
+            { id: 60, level: 2, category: 'friend', question: '你最珍视的友谊是怎样的？为什么它对你重要？' },
+            { id: 61, level: 2, category: 'friend', question: '在你人生低谷时，是谁帮助了你？发生了什么？' },
+            { id: 62, level: 2, category: 'friend', question: '你觉得我们之间的友谊最特别的地方是什么？' },
+            { id: 63, level: 2, category: 'friend', question: '什么书或电影对你影响最深？' },
+            { id: 64, level: 2, category: 'friend', question: '你如何定义成功？这个定义有过变化吗？' },
+            { id: 65, level: 2, category: 'friend', question: '过去一年你最大的成长是什么？' },
+            { id: 66, level: 2, category: 'friend', question: '你最大的优点和缺点分别是什么？' },
+            
+            // 👨‍👩‍ 家庭 - Level 2
+            { id: 67, level: 2, category: 'family', question: '成长过程中，我最让你骄傲的时刻是什么？' },
+            { id: 68, level: 2, category: 'family', question: '有什么是你一直想感谢但我没说的？' },
+            { id: 69, level: 2, category: 'family', question: '你觉得我们家最宝贵的价值观是什么？' },
+            { id: 70, level: 2, category: 'family', question: '家里有什么变化让你感触最深？' },
+            { id: 71, level: 2, category: 'family', question: '你希望我们家庭时间怎么度过？' },
+            { id: 72, level: 2, category: 'family', question: '父母教给你最重要的人生道理是什么？' },
+            { id: 73, level: 2, category: 'family', question: '你觉得家庭对你性格形成的最大影响是什么？' },
+            { id: 74, level: 2, category: 'family', question: '你想对小时候的自己说什么？' },
+            { id: 75, level: 2, category: 'family', question: '什么让你感到真正的快乐和满足？' },
+            { id: 76, level: 2, category: 'family', question: '你对"家"的理解这些年有什么变化？' },
+            
+            // 🧘 自我 - Level 2
+            { id: 77, level: 2, category: 'self', question: '你最喜欢自己的哪个特质？' },
+            { id: 78, level: 2, category: 'self', question: '过去一年你最大的成长是什么？' },
+            { id: 79, level: 2, category: 'self', question: '有什么是你一直想做但还没开始的？' },
+            { id: 80, level: 2, category: 'self', question: '你理想中的一天是什么样的？' },
+            { id: 81, level: 2, category: 'self', question: '什么让你感到最有意义？' },
+            { id: 82, level: 2, category: 'self', question: '你人生中最艰难的决定是什么？你是如何做出的？' },
+            { id: 83, level: 2, category: 'self', question: '什么让你感到真正的快乐和满足？' },
+            { id: 84, level: 2, category: 'self', question: '你最大的优点和缺点分别是什么？' },
+            { id: 85, level: 2, category: 'self', question: '过去一年你最大的成长是什么？' },
+            { id: 86, level: 2, category: 'self', question: '什么书或电影对你影响最深？' },
+            { id: 87, level: 2, category: 'self', question: '你如何定义成功？这个定义有过变化吗？' },
+            { id: 88, level: 2, category: 'self', question: '最近有什么新的发现或领悟？' },
+            { id: 89, level: 2, category: 'self', question: '你的长期目标是什么？' },
+            { id: 90, level: 2, category: 'self', question: '什么能给你带来内心的平静？' },
+            
+            // ========== Level 3 - 深度脆弱（24 张）==========
+            // 💕 情侣 - Level 3
+            { id: 91, level: 3, category: 'couple', question: '你在这段关系里最害怕失去什么？' },
+            { id: 92, level: 3, category: 'couple', question: '有什么是我做过让你受伤但你一直没说的？' },
+            { id: 93, level: 3, category: 'couple', question: '你觉得我们之间最大的挑战是什么？' },
+            { id: 94, level: 3, category: 'couple', question: '你准备好和我共度余生了吗？为什么？' },
+            { id: 95, level: 3, category: 'couple', question: '如果我们的关系只能保留一个回忆，你选择什么？' },
+            { id: 96, level: 3, category: 'couple', question: '你在这段关系里最需要什么，但一直没开口？' },
+            { id: 97, level: 3, category: 'couple', question: '有什么是你担心我会离开的原因？' },
+            { id: 98, level: 3, category: 'couple', question: '你希望我如何在你困难时支持你？' },
+            { id: 99, level: 3, category: 'couple', question: '你对婚姻和承诺的看法是什么？' },
+            { id: 100, level: 3, category: 'couple', question: '你害怕失去什么？这个恐惧如何影响你的生活？' }
+        ];
+
+
+function filterCards(cards, category, level) {
+    return cards.filter((card) => {
+        const categoryMatched = category === 'all' || card.category === category;
+        const levelMatched = level === 'all' || String(card.level) === String(level);
+        return categoryMatched && levelMatched;
+    });
+}
+
+function drawRandomCard(cards) {
+    if (!cards.length) return null;
+    const index = Math.floor(Math.random() * cards.length);
+    return cards[index];
+}
+
+
+const HISTORY_KEY = 'heartTalkHistory';
+
+function loadHistory() {
+    try {
+        const raw = localStorage.getItem(HISTORY_KEY);
+        if (!raw) return [];
+        const parsed = JSON.parse(raw);
+        return Array.isArray(parsed) ? parsed : [];
+    } catch {
+        return [];
+    }
+}
+
+function saveHistory(history) {
+    try {
+        localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
+        return true;
+    } catch {
+        return false;
+    }
+}
+
+function clearHistoryStore() {
+    try {
+        localStorage.removeItem(HISTORY_KEY);
+        return true;
+    } catch {
+        return false;
+    }
+}
+
+
+function createElement(tag, className, text) {
+    const node = document.createElement(tag);
+    if (className) node.className = className;
+    if (text !== undefined) node.textContent = text;
+    return node;
+}
+
+function renderCard({ currentCard, categoryNames, levelNames, elements }) {
+    const {
+        emptyState,
+        cardContent,
+        cardCategory,
+        cardLevel,
+        cardQuestion,
+        saveBtn,
+        shareBtn
+    } = elements;
+
+    if (!currentCard) {
+        emptyState.style.display = 'block';
+        cardContent.style.display = 'none';
+        saveBtn.style.display = 'none';
+        shareBtn.style.display = 'none';
+        return;
+    }
+
+    emptyState.style.display = 'none';
+    cardContent.style.display = 'block';
+    cardCategory.textContent = categoryNames[currentCard.category] || currentCard.category;
+    cardLevel.textContent = levelNames[String(currentCard.level)] || `第${currentCard.level}级`;
+    cardLevel.className = `card-level level-${currentCard.level}`;
+    cardQuestion.textContent = currentCard.question;
+    saveBtn.style.display = 'inline-block';
+    shareBtn.style.display = 'inline-block';
+}
+
+function renderHistory({ history, levelNames, historyList }) {
+    historyList.replaceChildren();
+
+    if (!history.length) {
+        const empty = createElement('div', 'empty-state');
+        empty.appendChild(createElement('p', '', '暂无对话记录'));
+        historyList.appendChild(empty);
+        return;
+    }
+
+    const fragment = document.createDocumentFragment();
+    history.forEach((item) => {
+        const wrapper = createElement('div', 'history-item');
+        wrapper.appendChild(createElement('div', 'timestamp', item.timestamp));
+
+        const badge = createElement('span', `level-badge level-${item.card.level}`);
+        badge.textContent = levelNames[String(item.card.level)] || `第${item.card.level}级`;
+        wrapper.appendChild(badge);
+
+        wrapper.appendChild(createElement('div', 'question', item.card.question));
+        wrapper.appendChild(createElement('div', 'answer', item.answer));
+        fragment.appendChild(wrapper);
+    });
+
+    historyList.appendChild(fragment);
+}
+
+
+
+const state = {
+    currentCard: null,
+    currentCategory: 'all',
+    currentLevel: 'all',
+    history: loadHistory()
+};
+
+const UI_TIMING = {
+    toastVisibleMs: 1800,
+    toastExitMs: 180
+};
+
+const THEME_KEY = 'heartTalkTheme';
+
+const elements = {
+    cardContainer: document.getElementById('cardContainer'),
+    emptyState: document.getElementById('emptyState'),
+    cardContent: document.getElementById('cardContent'),
+    cardCategory: document.getElementById('cardCategory'),
+    cardLevel: document.getElementById('cardLevel'),
+    cardQuestion: document.getElementById('cardQuestion'),
+    drawBtn: document.getElementById('drawBtn'),
+    saveBtn: document.getElementById('saveBtn'),
+    shareBtn: document.getElementById('shareBtn'),
+    historyList: document.getElementById('historyList'),
+    saveModal: document.getElementById('saveModal'),
+    shareModal: document.getElementById('shareModal'),
+    saveModalQuestion: document.getElementById('saveModalQuestion'),
+    answerInput: document.getElementById('answerInput'),
+    confirmSaveBtn: document.getElementById('confirmSaveBtn'),
+    cancelSaveBtn: document.getElementById('cancelSaveBtn'),
+    shareQuestion: document.getElementById('shareQuestion'),
+    shareAnswer: document.getElementById('shareAnswer'),
+    copyShareBtn: document.getElementById('copyShareBtn'),
+    closeShareBtn: document.getElementById('closeShareBtn'),
+    clearHistoryBtn: document.getElementById('clearHistoryBtn'),
+    categoryFilters: document.getElementById('categoryFilters'),
+    levelFilters: document.getElementById('levelFilters'),
+    toastContainer: document.getElementById('toastContainer'),
+    confirmModal: document.getElementById('confirmModal'),
+    confirmMessage: document.getElementById('confirmMessage'),
+    confirmOkBtn: document.getElementById('confirmOkBtn'),
+    confirmCancelBtn: document.getElementById('confirmCancelBtn'),
+    themeToggleBtn: document.getElementById('themeToggleBtn')
+};
+
+function buildNamesMap(selector, dataKey) {
+    const map = {};
+    document.querySelectorAll(selector).forEach((btn) => {
+        const key = btn.dataset[dataKey];
+        if (key && key !== 'all') {
+            map[key] = btn.textContent.trim();
+        }
+    });
+    return map;
+}
+
+const categoryNames = buildNamesMap('#categoryFilters .filter-btn', 'category');
+const levelNames = buildNamesMap('#levelFilters .filter-btn', 'level');
+
+function getSavedAnswerForCurrentCard() {
+    if (!state.currentCard) return '';
+    const item = state.history.find((entry) => entry.card.id === state.currentCard.id);
+    return item ? item.answer : '';
+}
+
+function refreshCardView() {
+    renderCard({
+        currentCard: state.currentCard,
+        categoryNames,
+        levelNames,
+        elements
+    });
+}
+
+function refreshHistoryView() {
+    renderHistory({
+        history: state.history,
+        levelNames,
+        historyList: elements.historyList
+    });
+}
+
+function getStoredTheme() {
+    const value = localStorage.getItem(THEME_KEY);
+    return value === 'dark' ? 'dark' : 'light';
+}
+
+function applyTheme(theme) {
+    document.documentElement.setAttribute('data-theme', theme);
+    const isDark = theme === 'dark';
+    elements.themeToggleBtn.textContent = isDark ? '暖色模式' : '夜间护眼';
+    elements.themeToggleBtn.setAttribute('aria-pressed', String(isDark));
+}
+
+function toggleTheme() {
+    const current = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
+    const next = current === 'dark' ? 'light' : 'dark';
+    localStorage.setItem(THEME_KEY, next);
+    applyTheme(next);
+    showToast(next === 'dark' ? '已切换到夜间护眼模式。' : '已切换到暖色模式。', 'success');
+}
+
+function showToast(message, type = 'info') {
+    const oldToasts = elements.toastContainer.querySelectorAll('.toast');
+    if (oldToasts.length >= 2) {
+        oldToasts[0].remove();
+    }
+
+    const toast = document.createElement('div');
+    toast.className = `toast ${type === 'error' ? 'toast-error' : type === 'success' ? 'toast-success' : ''}`.trim();
+    toast.textContent = message;
+    elements.toastContainer.appendChild(toast);
+
+    setTimeout(() => {
+        toast.classList.add('toast-hide');
+        setTimeout(() => {
+            toast.remove();
+        }, UI_TIMING.toastExitMs);
+    }, UI_TIMING.toastVisibleMs);
+}
+
+function showConfirm(message) {
+    return new Promise((resolve) => {
+        elements.confirmMessage.textContent = message;
+        elements.confirmModal.classList.add('active');
+
+        const cleanUp = () => {
+            elements.confirmModal.classList.remove('active');
+            elements.confirmOkBtn.removeEventListener('click', onConfirm);
+            elements.confirmCancelBtn.removeEventListener('click', onCancel);
+            elements.confirmModal.removeEventListener('click', onOverlayClick);
+            document.removeEventListener('keydown', onKeyDown);
+        };
+
+        const onConfirm = () => {
+            cleanUp();
+            resolve(true);
+        };
+
+        const onCancel = () => {
+            cleanUp();
+            resolve(false);
+        };
+
+        const onOverlayClick = (event) => {
+            if (event.target === elements.confirmModal) {
+                onCancel();
+            }
+        };
+
+        const onKeyDown = (event) => {
+            if (event.key === 'Escape') {
+                onCancel();
+            }
+        };
+
+        elements.confirmOkBtn.addEventListener('click', onConfirm);
+        elements.confirmCancelBtn.addEventListener('click', onCancel);
+        elements.confirmModal.addEventListener('click', onOverlayClick);
+        document.addEventListener('keydown', onKeyDown);
+    });
+}
+
+function drawCard() {
+    const filtered = filterCards(cards, state.currentCategory, state.currentLevel);
+    if (!filtered.length) {
+        showToast('当前筛选条件下没有可用卡牌，请调整筛选后重试。', 'error');
+        return;
+    }
+
+    state.currentCard = drawRandomCard(filtered);
+    refreshCardView();
+    elements.cardContainer.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+function openSaveModal() {
+    if (!state.currentCard) return;
+    elements.saveModalQuestion.textContent = state.currentCard.question;
+    elements.answerInput.value = '';
+    elements.saveModal.classList.add('active');
+    elements.answerInput.focus();
+}
+
+function closeSaveModal() {
+    elements.saveModal.classList.remove('active');
+}
+
+function saveAnswer() {
+    if (!state.currentCard) return;
+
+    const answer = elements.answerInput.value.trim();
+    if (!answer) {
+        showToast('请先输入你的回答。', 'error');
+        return;
+    }
+
+    const historyItem = {
+        id: Date.now(),
+        timestamp: new Date().toLocaleString('zh-CN'),
+        card: state.currentCard,
+        answer
+    };
+
+    state.history.unshift(historyItem);
+    if (!saveHistory(state.history)) {
+        showToast('保存失败，请检查浏览器存储权限。', 'error');
+        return;
+    }
+
+    refreshHistoryView();
+    closeSaveModal();
+    showToast('回答已保存。', 'success');
+}
+
+function openShareModal() {
+    if (!state.currentCard) return;
+
+    elements.shareQuestion.textContent = state.currentCard.question;
+    const answer = getSavedAnswerForCurrentCard() || '（点击“保存回答”后可展示你的回答）';
+    elements.shareAnswer.textContent = answer;
+    elements.shareModal.classList.add('active');
+}
+
+function closeShareModal() {
+    elements.shareModal.classList.remove('active');
+}
+
+function fallbackCopy(text) {
+    const textarea = document.createElement('textarea');
+    textarea.value = text;
+    textarea.style.position = 'fixed';
+    textarea.style.opacity = '0';
+    document.body.appendChild(textarea);
+    textarea.focus();
+    textarea.select();
+
+    let ok = false;
+    try {
+        ok = document.execCommand('copy');
+    } catch {
+        ok = false;
+    }
+
+    document.body.removeChild(textarea);
+    return ok;
+}
+
+async function copyShareLink() {
+    if (!state.currentCard) return;
+
+    const text = `心语卡牌\n\n${state.currentCard.question}\n\n来自心语卡牌`;
+
+    try {
+        if (navigator.clipboard?.writeText) {
+            await navigator.clipboard.writeText(text);
+            showToast('已复制到剪贴板。', 'success');
+            return;
+        }
+
+        if (fallbackCopy(text)) {
+            showToast('已复制到剪贴板。', 'success');
+            return;
+        }
+
+        showToast('复制失败，请手动复制。', 'error');
+    } catch {
+        if (fallbackCopy(text)) {
+            showToast('已复制到剪贴板。', 'success');
+            return;
+        }
+        showToast('复制失败，请手动复制。', 'error');
+    }
+}
+
+async function clearHistory() {
+    const confirmed = await showConfirm('确定要清空所有历史记录吗？此操作不可恢复。');
+    if (!confirmed) return;
+
+    state.history = [];
+    clearHistoryStore();
+    refreshHistoryView();
+    showToast('历史记录已清空。', 'success');
+}
+
+function setActiveFilterButton(container, target) {
+    if (!target.classList.contains('filter-btn')) return;
+    container.querySelectorAll('.filter-btn').forEach((btn) => btn.classList.remove('active'));
+    target.classList.add('active');
+}
+
+function setupEventListeners() {
+    elements.drawBtn.addEventListener('click', drawCard);
+    elements.saveBtn.addEventListener('click', openSaveModal);
+    elements.shareBtn.addEventListener('click', openShareModal);
+    elements.confirmSaveBtn.addEventListener('click', saveAnswer);
+    elements.cancelSaveBtn.addEventListener('click', closeSaveModal);
+    elements.closeShareBtn.addEventListener('click', closeShareModal);
+    elements.copyShareBtn.addEventListener('click', copyShareLink);
+    elements.clearHistoryBtn.addEventListener('click', clearHistory);
+    elements.themeToggleBtn.addEventListener('click', toggleTheme);
+
+    elements.categoryFilters.addEventListener('click', (event) => {
+        setActiveFilterButton(elements.categoryFilters, event.target);
+        if (event.target.dataset.category) {
+            state.currentCategory = event.target.dataset.category;
+        }
+    });
+
+    elements.levelFilters.addEventListener('click', (event) => {
+        setActiveFilterButton(elements.levelFilters, event.target);
+        if (event.target.dataset.level) {
+            state.currentLevel = event.target.dataset.level;
+        }
+    });
+
+    elements.saveModal.addEventListener('click', (event) => {
+        if (event.target === elements.saveModal) closeSaveModal();
+    });
+
+    elements.shareModal.addEventListener('click', (event) => {
+        if (event.target === elements.shareModal) closeShareModal();
+    });
+}
+
+function init() {
+    applyTheme(getStoredTheme());
+    refreshCardView();
+    refreshHistoryView();
+    setupEventListeners();
+}
+
+init();
+
+
+</script>
+
+</body>
+</html>
