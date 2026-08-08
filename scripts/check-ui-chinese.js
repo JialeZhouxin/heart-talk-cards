@@ -3,11 +3,13 @@ const path = require('path');
 
 const root = path.resolve(__dirname, '..');
 
+const app = path.join(root, 'heart-talk');
+
 const targets = {
-    html: path.join(root, 'index.html'),
-    main: path.join(root, 'src', 'main.js'),
-    render: path.join(root, 'src', 'ui', 'render.js'),
-    bundle: path.join(root, 'src', 'app.bundle.js')
+    html: path.join(app, 'index.html'),
+    main: path.join(app, 'src', 'main.js'),
+    render: path.join(app, 'src', 'ui', 'render.js'),
+    bundle: path.join(app, 'src', 'app.bundle.js')
 };
 
 function read(filePath) {

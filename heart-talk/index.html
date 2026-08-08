@@ -1,0 +1,127 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#c27a3a">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="心语卡牌">
+    <link rel="manifest" href="./manifest.webmanifest">
+    <link rel="apple-touch-icon" href="./icons/icon-192.png">
+    <title>心语卡牌</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;600;700&family=Noto+Serif+SC:wght@500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="./src/styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <a href="../" style="display:inline-block;font-size:0.85rem;color:#8a7561;text-decoration:none;margin-bottom:8px;">← 返回工具箱</a>
+            <div class="theme-switch-wrap">
+                <a class="filter-btn" href="./heart-talk-cards-offline.html" download style="text-decoration:none;display:inline-flex;align-items:center;">下载离线包</a>
+                <button class="filter-btn theme-toggle-btn" id="themeToggleBtn" type="button" aria-label="切换夜间护眼模式">夜间护眼</button>
+            </div>
+            <h1>心语卡牌</h1>
+            <p>用问题打开话匣子，让彼此更靠近一点</p>
+        </header>
+
+        <div class="filter-section">
+            <h3>选择卡牌类型</h3>
+            <div class="filter-buttons" id="categoryFilters">
+                <button class="filter-btn active" data-category="all">全部</button>
+                <button class="filter-btn" data-category="couple">情侣</button>
+                <button class="filter-btn" data-category="friend">朋友</button>
+                <button class="filter-btn" data-category="family">家庭</button>
+                <button class="filter-btn" data-category="self">自我</button>
+            </div>
+            <div class="filter-buttons" style="margin-top: 15px;" id="levelFilters">
+                <button class="filter-btn active" data-level="all">全部难度</button>
+                <button class="filter-btn" data-level="1">一级</button>
+                <button class="filter-btn" data-level="2">二级</button>
+                <button class="filter-btn" data-level="3">三级</button>
+            </div>
+        </div>
+
+        <div class="card-container" id="cardContainer">
+            <div class="empty-state" id="emptyState">
+                <p>点击“抽取卡牌”开始对话</p>
+                <p>适合情侣、朋友、家庭与自我探索场景</p>
+            </div>
+            <div id="cardContent" style="display: none;">
+                <div class="card-category" id="cardCategory"></div>
+                <div class="card-level" id="cardLevel"></div>
+                <div class="card-question" id="cardQuestion"></div>
+            </div>
+        </div>
+
+        <div class="controls">
+            <button class="btn" id="drawBtn">抽取卡牌</button>
+            <button class="btn btn-secondary" id="saveBtn" style="display: none;">保存回答</button>
+            <button class="btn btn-secondary" id="shareBtn" style="display: none;">分享</button>
+        </div>
+
+        <div class="history-section">
+            <h3>
+                对话历史
+                <button class="filter-btn" id="clearHistoryBtn" style="font-size: 0.8rem; padding: 5px 12px;">清空</button>
+            </h3>
+            <div class="history-list" id="historyList">
+                <div class="empty-state">
+                    <p>暂无对话记录</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="saveModal">
+        <div class="modal-content">
+            <h3>你的回答</h3>
+            <p id="saveModalQuestion" style="margin-bottom: 15px; color: #6b7280;"></p>
+            <textarea id="answerInput" placeholder="写下你的思考和感受..."></textarea>
+            <button class="btn" id="confirmSaveBtn">保存</button>
+            <button class="btn btn-secondary" id="cancelSaveBtn">取消</button>
+        </div>
+    </div>
+
+    <div class="modal" id="shareModal">
+        <div class="modal-content">
+            <h3>分享这张卡牌</h3>
+            <div class="share-preview" id="sharePreview">
+                <div class="question" id="shareQuestion"></div>
+                <div class="answer" id="shareAnswer"></div>
+            </div>
+            <button class="btn" id="copyShareBtn">复制内容</button>
+            <button class="btn btn-secondary" id="closeShareBtn">关闭</button>
+        </div>
+    </div>
+
+    <div class="modal" id="confirmModal">
+        <div class="modal-content">
+            <h3>请确认操作</h3>
+            <p id="confirmMessage" style="margin-bottom: 16px; color: #6b7280;"></p>
+            <div class="modal-actions">
+                <button class="btn btn-secondary" id="confirmCancelBtn">取消</button>
+                <button class="btn" id="confirmOkBtn">确认</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="toastContainer" aria-live="polite" aria-atomic="true"></div>
+
+    <script src="./src/pwa.js"></script>
+    <script>
+        (function loadAppScript() {
+            const script = document.createElement('script');
+            if (window.location.protocol === 'file:') {
+                script.src = './src/app.bundle.js';
+            } else {
+                script.type = 'module';
+                script.src = './src/main.js';
+            }
+            document.body.appendChild(script);
+        })();
+    </script>
+</body>
+</html>

@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#5b6db8">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-title" content="脑筋急转弯">
+    <title>脑筋急转弯</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: "Noto Sans SC", "Microsoft YaHei", sans-serif;
+            background: #eef0fa;
+            color: #2f3350;
+            min-height: 100vh;
+        }
+        .container { max-width: 640px; margin: 0 auto; padding: 32px 20px 48px; }
+        .topbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+        .back-link { color: #8a8fb8; text-decoration: none; font-size: 0.9rem; }
+        .back-link:hover { color: #5b6db8; }
+        header { text-align: center; margin-bottom: 28px; }
+        header h1 { font-size: 1.8rem; margin-bottom: 6px; }
+        header p { color: #8a8fb8; }
+        .progress { text-align: center; color: #8a8fb8; font-size: 0.9rem; margin-bottom: 16px; }
+        .card {
+            background: #fff;
+            border-radius: 20px;
+            padding: 40px 28px;
+            box-shadow: 0 4px 16px rgba(91,109,184,0.12);
+            min-height: 220px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        .question { font-size: 1.35rem; line-height: 1.7; text-align: center; }
+        .answer {
+            margin-top: 24px;
+            padding: 16px 20px;
+            border-radius: 12px;
+            background: #eef4ff;
+            border: 1px dashed #b9c6ee;
+            color: #3a4a8f;
+            font-size: 1.1rem;
+            text-align: center;
+            display: none;
+            line-height: 1.6;
+        }
+        .answer.show { display: block; animation: fadein 0.3s; }
+        @keyframes fadein { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; } }
+        .controls { display: flex; gap: 12px; margin-top: 20px; }
+        .btn {
+            flex: 1;
+            padding: 14px;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            cursor: pointer;
+            background: #5b6db8;
+            color: #fff;
+            transition: opacity 0.15s;
+        }
+        .btn:hover { opacity: 0.88; }
+        .btn.secondary { background: #e3e6f7; color: #5b6db8; }
+        .footer-note { text-align: center; margin-top: 24px; color: #a8accc; font-size: 0.85rem; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="topbar">
+            <a class="back-link" href="../">← 返回工具箱</a>
+            <a class="back-link" href="#" onclick="location.reload();return false;">重新开始</a>
+        </div>
+        <header>
+            <h1>🧠 脑筋急转弯</h1>
+            <p>考考你的脑洞</p>
+        </header>
+        <div class="progress" id="progress"></div>
+        <div class="card">
+            <div class="question" id="question"></div>
+            <div class="answer" id="answer"></div>
+        </div>
+        <div class="controls">
+            <button class="btn" id="revealBtn">揭晓答案</button>
+            <button class="btn secondary" id="nextBtn">下一题</button>
+        </div>
+        <div class="footer-note">答完所有题自动打乱再来一轮</div>
+    </div>
+    <script>
+        const QUESTIONS = [
+            { q: "什么东西越洗越脏？", a: "水" },
+            { q: "天气越热，什么东西爬得越高？", a: "温度计" },
+            { q: "什么东西倒立后会增加一半？", a: "数字 6（倒过来是 9）" },
+            { q: "什么东西越晒越湿？", a: "冰" },
+            { q: "什么路最窄？", a: "冤家路窄" },
+            { q: "什么门永远关不上？", a: "球门" },
+            { q: "什么书最贵？", a: "结婚证书" },
+            { q: "什么书买不到？", a: "遗书" },
+            { q: "什么车不能开？", a: "风车" },
+            { q: "什么车最长？", a: "塞车（堵车）" },
+            { q: "什么布剪不断？", a: "瀑布" },
+            { q: "什么马不吃草？", a: "木马" },
+            { q: "什么老鼠不怕猫？", a: "米老鼠" },
+            { q: "什么猫不抓老鼠？", a: "熊猫" },
+            { q: "什么狗不咬人？", a: "热狗" },
+            { q: "什么牛不吃草？", a: "蜗牛" },
+            { q: "什么鸡不下蛋？", a: "公鸡" },
+            { q: "什么人一年只上一天班？", a: "圣诞老人" },
+            { q: "什么花没有枝？", a: "雪花（烟花）" },
+            { q: "什么蛋不能吃？", a: "笨蛋（脸蛋）" },
+            { q: "什么鱼不能吃？", a: "木鱼" },
+            { q: "什么瓜不能吃？", a: "傻瓜" },
+            { q: "什么杯不能喝水？", a: "奖杯" },
+            { q: "什么伞不能遮雨？", a: "降落伞" },
+            { q: "什么表不能看时间？", a: "水表" },
+            { q: "什么床不能睡？", a: "河床" },
+            { q: "什么桥不能过人？", a: "彩虹桥" },
+            { q: "什么网不能捕鱼？", a: "互联网" },
+            { q: "什么帽不能戴？", a: "螺丝帽" },
+            { q: "什么纸不能写字？", a: "砂纸" },
+            { q: "什么竹子不长叶？", a: "爆竹" },
+            { q: "什么门最受欢迎？", a: "热门" },
+            { q: "什么头没有脸？", a: "馒头" },
+            { q: "什么东西有头没脚？", a: "枕头" },
+            { q: "什么东西有五个手指却不会干活？", a: "手套" },
+            { q: "什么东西有牙却不能咬？", a: "齿轮" },
+            { q: "什么东西有嘴不会说话？", a: "茶壶" },
+            { q: "什么东西有脚却不会走路？", a: "桌子椅子" },
+            { q: "什么东西越剪越大？", a: "洞" },
+            { q: "什么东西打破才能用？", a: "鸡蛋" },
+            { q: "什么东西越洗越小？", a: "肥皂" },
+            { q: "什么东西你打死也不吃？", a: "亏（吃亏）" },
+            { q: "什么灯最省电？", a: "关着的灯" },
+            { q: "什么山没人敢爬？", a: "刀山" },
+            { q: "什么海没有水？", a: "辞海" },
+            { q: "什么河没有水？", a: "银河" },
+            { q: "什么老虎不吃人？", a: "纸老虎" },
+            { q: "什么动物的屁股最危险？", a: "老虎（老虎屁股摸不得）" },
+            { q: "什么动物站着睡觉？", a: "马" },
+            { q: "什么动物有九条命？", a: "猫" },
+            { q: "什么动物最怕老鼠？", a: "大象" },
+            { q: "什么植物最害羞？", a: "含羞草" },
+            { q: "什么动物没有方向感？", a: "麋鹿（迷路）" },
+            { q: "什么字人人都会写错？", a: "「错」字" },
+            { q: "早晨四条腿、中午两条腿、晚上三条腿的是什么？", a: "人（婴儿爬、成人走、老人拄拐）" },
+            { q: "什么数去掉头是十三，去掉尾是四十？", a: "四十三" },
+            { q: "什么时候 1+1 不等于 2？", a: "算错的时候" },
+            { q: "什么东西没有嘴却能说话？", a: "回声" },
+            { q: "什么东西有尾巴却不会摇？", a: "彗星" },
+        ];
+        const $ = (id) => document.getElementById(id);
+        let queue = [];
+
+        function shuffle(arr) {
+            for (let i = arr.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [arr[i], arr[j]] = [arr[j], arr[i]];
+            }
+            return arr;
+        }
+        function next() {
+            if (!queue.length) queue = shuffle(QUESTIONS.slice());
+            const item = queue.pop();
+            $("answer").classList.remove("show");
+            $("revealBtn").textContent = "揭晓答案";
+            $("question").textContent = item.q;
+            $("answer").textContent = "答案：" + item.a;
+            const done = QUESTIONS.length - queue.length;
+            $("progress").textContent = `第 ${done} / ${QUESTIONS.length} 题`;
+        }
+        $("revealBtn").addEventListener("click", () => {
+            $("answer").classList.add("show");
+            $("revealBtn").textContent = "已揭晓";
+        });
+        $("nextBtn").addEventListener("click", next);
+        next();
+    </script>
+</body>
+</html>

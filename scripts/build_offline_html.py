@@ -7,13 +7,15 @@ import re
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-OUT = ROOT / "heart-talk-cards-offline.html"
+
+APP = ROOT / "heart-talk"
+OUT = APP / "heart-talk-cards-offline.html"
 
 
 def build() -> Path:
-    html = (ROOT / "index.html").read_text(encoding="utf-8")
-    css = (ROOT / "src" / "styles.css").read_text(encoding="utf-8")
-    js = (ROOT / "src" / "app.bundle.js").read_text(encoding="utf-8")
+    html = (APP / "index.html").read_text(encoding="utf-8")
+    css = (APP / "src" / "styles.css").read_text(encoding="utf-8")
+    js = (APP / "src" / "app.bundle.js").read_text(encoding="utf-8")
 
     # strip external font links (offline-friendly)
     html = re.sub(r'<link rel="preconnect"[^>]*>\s*', "", html)
@@ -36,6 +38,8 @@ def build() -> Path:
 """
     html = re.sub(r"<body>\s*", "<body>\n" + banner, html, count=1)
 
+    # remove back-to-toolbox link (pointless in a standalone file)
+    html = re.sub(r'<a href="\.\./"[\s\S]*?</a>\s*', '', html, count=1, flags=re.S)
     # remove online-only download button noise if present
     html = re.sub(
         r'<a class="filter-btn"[^>]*>\s*下载离线包\s*</a>\s*',
