@@ -157,16 +157,14 @@
                 repeating-linear-gradient(0deg, rgba(191, 147, 107, 0.035) 0, rgba(191, 147, 107, 0.035) 1px, transparent 1px, transparent 6px);
         }
 
+        .card-category, .card-content, .card-hint { position: relative; z-index: 1; }
+
         .card-category {
-            position: relative;
-            z-index: 1;
             font-size: 0.9rem;
             color: #896a4d;
             margin-bottom: 12px;
             text-align: center;
         }
-
-        .card-content, .card-hint { position: relative; z-index: 1; }
 
         .card-content {
             font-family: 'Noto Serif SC', 'Songti SC', serif;
@@ -175,6 +173,15 @@
             color: #422c1a;
             text-align: center;
         }
+        .card-content.word {
+            font-size: clamp(1.6rem, 4vw, 2.4rem);
+            font-weight: 700;
+            letter-spacing: 0.06em;
+        }
+        .card-content.masked {
+            color: #b49b7e;
+            letter-spacing: 0.2em;
+        }
 
         .card-hint {
             margin-top: 16px;
@@ -182,18 +189,6 @@
             font-size: 0.9rem;
             text-align: center;
             line-height: 1.7;
-        }
-
-        .rules {
-            position: relative;
-            z-index: 1;
-            background: var(--paper-strong);
-            border: 1px dashed #d9b98f;
-            border-radius: var(--radius-md);
-            padding: 16px 20px;
-            color: #65472f;
-            font-size: 0.95rem;
-            line-height: 1.8;
         }
 
         .controls {
@@ -249,6 +244,7 @@
             header p { font-size: 0.95rem; }
             .card-container { padding: 26px 18px; min-height: 280px; }
             .card-content { font-size: clamp(1.12rem, 4.7vw, 1.35rem); line-height: 1.66; }
+            .card-content.word { font-size: clamp(1.4rem, 6vw, 1.9rem); }
             .btn { width: 100%; min-height: 46px; padding-top: 11px; padding-bottom: 11px; }
             .controls { flex-direction: column; align-items: stretch; gap: 8px; }
             .filter-btn { min-height: 44px; padding: 8px 14px; }
@@ -260,6 +256,7 @@
             header p { font-size: 0.9rem; }
             .card-container { min-height: 248px; padding: 20px 14px; }
             .card-content { font-size: 1.05rem; line-height: 1.62; }
+            .card-content.word { font-size: 1.3rem; }
             .btn { min-height: 46px; font-size: 0.94rem; }
         }
 
@@ -273,8 +270,8 @@
 
         :root[data-theme='dark'] header h1 { color: #f7e8d5; }
         :root[data-theme='dark'] .card-content { color: #f7e7d2; }
+        :root[data-theme='dark'] .card-content.masked { color: #7d6853; }
         :root[data-theme='dark'] .card-category { color: #d4b493; }
-        :root[data-theme='dark'] .rules { background: #32281f; border-color: #5b4835; color: #e8d4bd; }
         :root[data-theme='dark'] .btn-secondary {
             background: #3a3027;
             color: #ecd2b5;
@@ -298,13 +295,9 @@
                 <button class="filter-btn active" data-mode="card">话题卡</button>
                 <button class="filter-btn" data-mode="team">默契测试</button>
                 <button class="filter-btn" data-mode="liar">两真一假</button>
+                <button class="filter-btn" data-mode="draw">你画我猜</button>
             </div>
-            <div class="filter-buttons" id="categoryFilters" style="margin-top: 12px;">
-                <button class="filter-btn active" data-cat="all">全部</button>
-                <button class="filter-btn" data-cat="light">轻松热场</button>
-                <button class="filter-btn" data-cat="deep">深入走心</button>
-                <button class="filter-btn" data-cat="funny">搞怪无厘头</button>
-            </div>
+            <div class="filter-buttons" id="categoryFilters" style="margin-top: 12px;"></div>
         </div>
         <div class="progress" id="progress"></div>
         <div class="card-container">
@@ -313,6 +306,7 @@
             <div class="card-hint" id="cardHint"></div>
         </div>
         <div class="controls">
+            <button class="btn btn-secondary" id="revealBtn" style="display:none;">我是画手，查看词语</button>
             <button class="btn" id="nextBtn">换一个</button>
         </div>
         <div class="footer-note">轮流抽题回答，答完自动打乱再来一轮</div>
@@ -393,11 +387,37 @@
             "家人不知道的秘密爱好",
             "网购踩过的坑",
         ];
-        const MODE_LABEL = { card: "话题卡", team: "默契测试", liar: "两真一假" };
+        const WORDS = {
+            easy: [
+                "苹果", "牙刷", "眼镜", "自行车", "飞机", "猫", "狗", "鱼", "太阳", "月亮",
+                "房子", "西瓜", "香蕉", "桌子", "椅子", "床", "闹钟", "书包", "蛋糕", "篮球",
+                "电脑", "手机", "水杯", "雨伞", "汽车",
+            ],
+            mid: [
+                "吃火锅", "打篮球", "刷牙", "打电话", "洗澡", "弹钢琴", "钓鱼", "开车", "睡懒觉", "大哭",
+                "跑步", "游泳", "跳舞", "唱歌", "拍照", "做饭", "扫地", "化妆", "理发", "骑单车",
+                "举重", "跳绳", "放风筝", "爬山", "潜水",
+            ],
+            hard: [
+                "画蛇添足", "守株待兔", "掩耳盗铃", "亡羊补牢", "对牛弹琴", "狐假虎威", "刻舟求剑", "拔苗助长",
+                "井底之蛙", "杯弓蛇影", "翻白眼", "打呼噜", "扎马步", "打太极", "跳广场舞",
+                "点外卖", "堵车", "加班", "相亲", "秀恩爱",
+            ],
+        };
+        const CATS = {
+            card: [["all", "全部"], ["light", "轻松热场"], ["deep", "深入走心"], ["funny", "搞怪无厘头"]],
+            draw: [["all", "全部"], ["easy", "简单 · 物品"], ["mid", "中等 · 动作"], ["hard", "困难 · 成语"]],
+        };
+        const CAT_LABEL = {
+            card: { all: "随机话题", light: "轻松热场", deep: "深入走心", funny: "搞怪无厘头" },
+            draw: { all: "随机词库", easy: "简单 · 物品", mid: "中等 · 动作", hard: "困难 · 成语" },
+        };
         const $ = (id) => document.getElementById(id);
         let mode = "card";
         let cat = "all";
-        const queues = { card: {}, team: [], liar: [] };
+        let revealed = false;
+        let currentWord = null;
+        const queues = { card: {}, team: [], liar: [], draw: {} };
 
         // 夜间护眼模式（与各工具一致）
         function applyTheme(theme) {
@@ -425,29 +445,69 @@
             return arr;
         }
 
+        function buildCategoryButtons() {
+            const defs = CATS[mode];
+            const wrap = $("categoryFilters");
+            if (!defs) { wrap.style.display = "none"; return; }
+            wrap.style.display = "";
+            wrap.innerHTML = defs.map(([key, label]) =>
+                `<button class="filter-btn${key === cat ? " active" : ""}" data-cat="${key}">${label}</button>`
+            ).join("");
+        }
+
+        function drawPool() {
+            return cat === "all" ? [...WORDS.easy, ...WORDS.mid, ...WORDS.hard] : WORDS[cat];
+        }
+
+        function maskWord(word) {
+            return word.replace(/[^\s]/g, "？");
+        }
+
         function next() {
+            revealed = false;
             if (mode === "card") {
                 const pool = cat === "all" ? [...TOPICS.light, ...TOPICS.deep, ...TOPICS.funny] : TOPICS[cat];
                 if (!queues.card[cat] || !queues.card[cat].length) queues.card[cat] = shuffle(pool.slice());
                 const item = queues.card[cat].pop();
-                const label = cat === "all" ? "随机话题" : { light: "轻松热场", deep: "深入走心", funny: "搞怪无厘头" }[cat];
-                $("cardCategory").textContent = "「" + label + "」";
+                $("cardCategory").textContent = "「" + CAT_LABEL.card[cat] + "」";
                 $("cardContent").textContent = item;
+                $("cardContent").className = "card-content";
                 $("cardHint").textContent = "轮到谁就谁来回答，其他人也可以补充";
-                const total = (cat === "all" ? TOPICS.light.length + TOPICS.deep.length + TOPICS.funny.length : TOPICS[cat].length);
-                $("progress").textContent = `第 ${total - queues.card[cat].length} / ${total} 题`;
+                $("progress").textContent = `第 ${pool.length - queues.card[cat].length} / ${pool.length} 题`;
             } else if (mode === "team") {
                 if (!queues.team.length) queues.team = shuffle(TEAM.slice());
                 $("cardCategory").textContent = "全员投票";
                 $("cardContent").textContent = "全组投票：" + queues.team.pop();
+                $("cardContent").className = "card-content";
                 $("cardHint").textContent = "每人轮流猜一个答案，得票最多的当选";
                 $("progress").textContent = `共 ${TEAM.length} 题 · 答完自动打乱`;
-            } else {
+            } else if (mode === "liar") {
                 if (!queues.liar.length) queues.liar = shuffle(LIAR.slice());
                 $("cardCategory").textContent = "本期主题";
                 $("cardContent").textContent = queues.liar.pop();
+                $("cardContent").className = "card-content";
                 $("cardHint").innerHTML = '规则：每人说 3 句话，<b>2 句真 1 句假</b>，其他人猜哪句是假的。<br>围绕主题编你的三句话，一轮猜完换下一个人。';
                 $("progress").textContent = `共 ${LIAR.length} 个主题 · 抽完自动打乱`;
+            } else {
+                const pool = drawPool();
+                if (!queues.draw[cat] || !queues.draw[cat].length) queues.draw[cat] = shuffle(pool.slice());
+                currentWord = queues.draw[cat].pop();
+                renderDraw();
+                $("progress").textContent = `第 ${pool.length - queues.draw[cat].length} / ${pool.length} 题`;
+            }
+        }
+
+        function renderDraw() {
+            $("cardCategory").textContent = "「" + CAT_LABEL.draw[cat] + "」";
+            $("cardContent").className = "card-content word" + (revealed ? "" : " masked");
+            if (revealed) {
+                $("cardContent").textContent = currentWord;
+                $("cardHint").textContent = "画出来，但不能写这个字本身哦";
+                $("revealBtn").textContent = "遮住词语";
+            } else {
+                $("cardContent").textContent = maskWord(currentWord);
+                $("cardHint").textContent = "词语已遮住 · 只有画手能查看，别偷看哦";
+                $("revealBtn").textContent = "我是画手，查看词语";
             }
         }
 
@@ -455,8 +515,10 @@
             const btn = e.target.closest(".filter-btn");
             if (!btn) return;
             mode = btn.dataset.mode;
+            cat = "all";
             document.querySelectorAll("#modeFilters .filter-btn").forEach((b) => b.classList.toggle("active", b === btn));
-            $("categoryFilters").style.display = mode === "card" ? "" : "none";
+            buildCategoryButtons();
+            $("revealBtn").style.display = mode === "draw" ? "" : "none";
             next();
         });
         $("categoryFilters").addEventListener("click", (e) => {
@@ -466,7 +528,13 @@
             document.querySelectorAll("#categoryFilters .filter-btn").forEach((b) => b.classList.toggle("active", b === btn));
             next();
         });
+        $("revealBtn").addEventListener("click", () => {
+            if (mode !== "draw" || !currentWord) return;
+            revealed = !revealed;
+            renderDraw();
+        });
         $("nextBtn").addEventListener("click", next);
+        buildCategoryButtons();
         next();
     </script>
 </body>
