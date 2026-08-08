@@ -5,34 +5,125 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="#c27a3a">
     <title>我的工具箱</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;600;700&family=Noto+Serif+SC:wght@500;600;700&display=swap" rel="stylesheet">
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            font-family: "Noto Sans SC", "Microsoft YaHei", sans-serif;
-            background: #f6ecdf;
-            color: #3d2f21;
-            min-height: 100vh;
+        :root {
+            --bg-main: #f6ecdf;
+            --bg-secondary: #efe1cd;
+            --paper: #fff9f1;
+            --text-primary: #3d2c1f;
+            --text-secondary: #715740;
+            --text-muted: #9a7f67;
+            --accent: #c27a3a;
+            --accent-strong: #a86428;
+            --line: #e4ccb0;
+            --shadow-soft: 0 10px 30px rgba(95, 60, 25, 0.12);
+            --radius-xl: 26px;
+            --radius-lg: 18px;
         }
-        .container { max-width: 720px; margin: 0 auto; padding: 48px 20px; }
-        header { text-align: center; margin-bottom: 36px; }
-        header h1 { font-size: 2rem; margin-bottom: 8px; }
-        header p { color: #8a7561; }
+        :root[data-theme='dark'] {
+            --bg-main: #1f1b17;
+            --bg-secondary: #2b241e;
+            --paper: #2f2821;
+            --text-primary: #f5e9d9;
+            --text-secondary: #e3ccb2;
+            --text-muted: #c1a88d;
+            --accent: #d69a5c;
+            --accent-strong: #ba7e40;
+            --line: #5a4a3a;
+            --shadow-soft: 0 12px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Noto Sans SC', 'Microsoft YaHei', sans-serif;
+            color: var(--text-primary);
+            background:
+                radial-gradient(circle at 12% 14%, rgba(255, 240, 220, 0.9) 0%, rgba(255, 240, 220, 0) 36%),
+                radial-gradient(circle at 86% 18%, rgba(244, 216, 183, 0.75) 0%, rgba(244, 216, 183, 0) 34%),
+                linear-gradient(160deg, var(--bg-main) 0%, var(--bg-secondary) 100%);
+            display: flex;
+            justify-content: center;
+            padding: 28px 18px calc(40px + env(safe-area-inset-bottom));
+            line-height: 1.55;
+            -webkit-tap-highlight-color: transparent;
+            transition: background 0.26s ease, color 0.2s ease;
+        }
+
+        .container { width: 100%; max-width: 760px; }
+
+        header { text-align: center; margin-bottom: 32px; animation: rise-in 0.5s ease-out both; }
+
+        header h1 {
+            font-family: 'Noto Serif SC', 'Songti SC', serif;
+            font-size: clamp(2rem, 4.3vw, 2.8rem);
+            letter-spacing: 0.04em;
+            color: #5c3d24;
+            margin-bottom: 8px;
+        }
+
+        header p { color: var(--text-secondary); font-size: 1.02rem; }
+
         .tool-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+
         .tool-card {
             display: block;
-            background: #fff;
-            border-radius: 16px;
-            padding: 24px;
+            background: var(--paper);
+            border: 1px solid rgba(228, 204, 176, 0.78);
+            box-shadow: var(--shadow-soft);
+            border-radius: var(--radius-xl);
+            padding: 28px 24px;
             text-decoration: none;
             color: inherit;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-            transition: transform 0.15s, box-shadow 0.15s;
+            transition: transform 0.2s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.2s ease, border-color 0.2s ease;
+            animation: rise-in 0.6s ease-out both;
         }
-        .tool-card:hover { transform: translateY(-3px); box-shadow: 0 6px 16px rgba(0,0,0,0.12); }
-        .tool-card .icon { font-size: 2.2rem; margin-bottom: 12px; }
-        .tool-card h2 { font-size: 1.2rem; margin-bottom: 6px; }
-        .tool-card p { font-size: 0.9rem; color: #8a7561; line-height: 1.5; }
-        @media (max-width: 520px) { .tool-grid { grid-template-columns: 1fr; } }
+        .tool-card:nth-child(2) { animation-delay: 0.1s; }
+        .tool-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 16px 34px rgba(95, 60, 25, 0.16);
+            border-color: var(--accent-soft, #e7c6a2);
+        }
+        .tool-card:focus-visible { outline: 2px solid #b96a2b; outline-offset: 2px; }
+
+        .tool-card .icon { font-size: 2.2rem; margin-bottom: 14px; }
+        .tool-card h2 {
+            font-family: 'Noto Serif SC', 'Songti SC', serif;
+            color: #69462c;
+            font-size: 1.25rem;
+            margin-bottom: 8px;
+        }
+        .tool-card p { font-size: 0.92rem; color: var(--text-secondary); line-height: 1.6; }
+
+        .footer-note {
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            margin-top: 28px;
+            animation: rise-in 0.7s ease-out both;
+        }
+
+        @keyframes rise-in {
+            from { opacity: 0; transform: translateY(14px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @media (max-width: 600px) {
+            body { padding: 16px 12px calc(26px + env(safe-area-inset-bottom)); }
+            header { margin-bottom: 24px; }
+            .tool-grid { grid-template-columns: 1fr; }
+            .tool-card { padding: 24px 20px; }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after { animation: none !important; transition: none !important; }
+        }
+
+        :root[data-theme='dark'] header h1 { color: #f7e8d5; }
+        :root[data-theme='dark'] .tool-card h2 { color: #ecd2b5; }
     </style>
 </head>
 <body>
@@ -53,6 +144,15 @@
                 <p>随机出题考脑洞，看看你的脑筋转不转得过来</p>
             </a>
         </div>
+        <div class="footer-note">一个仓库 · 多个小工具</div>
     </div>
+    <script>
+        // 夜间护眼模式（与各工具一致）
+        (function () {
+            const saved = (function () { try { return localStorage.getItem('brain-teaser-theme') || localStorage.getItem('theme'); } catch (e) { return null; } })();
+            const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+            document.documentElement.setAttribute('data-theme', saved || (prefersDark ? 'dark' : 'light'));
+        })();
+    </script>
 </body>
 </html>

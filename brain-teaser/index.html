@@ -3,86 +3,263 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="theme-color" content="#5b6db8">
+    <meta name="theme-color" content="#c27a3a">
     <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="apple-mobile-web-app-title" content="脑筋急转弯">
+    <link rel="apple-touch-icon" href="../heart-talk/icons/icon-192.png">
     <title>脑筋急转弯</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;600;700&family=Noto+Serif+SC:wght@500;600;700&display=swap" rel="stylesheet">
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            font-family: "Noto Sans SC", "Microsoft YaHei", sans-serif;
-            background: #eef0fa;
-            color: #2f3350;
-            min-height: 100vh;
+        :root {
+            --bg-main: #f6ecdf;
+            --bg-secondary: #efe1cd;
+            --paper: #fff9f1;
+            --paper-strong: #fff5e8;
+            --text-primary: #3d2c1f;
+            --text-secondary: #715740;
+            --text-muted: #9a7f67;
+            --accent: #c27a3a;
+            --accent-strong: #a86428;
+            --line: #e4ccb0;
+            --shadow-soft: 0 10px 30px rgba(95, 60, 25, 0.12);
+            --radius-xl: 26px;
+            --radius-lg: 18px;
+            --radius-md: 12px;
         }
-        .container { max-width: 640px; margin: 0 auto; padding: 32px 20px 48px; }
-        .topbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
-        .back-link { color: #8a8fb8; text-decoration: none; font-size: 0.9rem; }
-        .back-link:hover { color: #5b6db8; }
-        header { text-align: center; margin-bottom: 28px; }
-        header h1 { font-size: 1.8rem; margin-bottom: 6px; }
-        header p { color: #8a8fb8; }
-        .progress { text-align: center; color: #8a8fb8; font-size: 0.9rem; margin-bottom: 16px; }
-        .card {
-            background: #fff;
-            border-radius: 20px;
-            padding: 40px 28px;
-            box-shadow: 0 4px 16px rgba(91,109,184,0.12);
-            min-height: 220px;
+        :root[data-theme='dark'] {
+            --bg-main: #1f1b17;
+            --bg-secondary: #2b241e;
+            --paper: #2f2821;
+            --paper-strong: #3a3027;
+            --text-primary: #f5e9d9;
+            --text-secondary: #e3ccb2;
+            --text-muted: #c1a88d;
+            --accent: #d69a5c;
+            --accent-strong: #ba7e40;
+            --line: #5a4a3a;
+            --shadow-soft: 0 12px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Noto Sans SC', 'Microsoft YaHei', sans-serif;
+            color: var(--text-primary);
+            background:
+                radial-gradient(circle at 12% 14%, rgba(255, 240, 220, 0.9) 0%, rgba(255, 240, 220, 0) 36%),
+                radial-gradient(circle at 86% 18%, rgba(244, 216, 183, 0.75) 0%, rgba(244, 216, 183, 0) 34%),
+                linear-gradient(160deg, var(--bg-main) 0%, var(--bg-secondary) 100%);
+            display: flex;
+            justify-content: center;
+            padding: 28px 18px calc(40px + env(safe-area-inset-bottom));
+            line-height: 1.55;
+            -webkit-tap-highlight-color: transparent;
+            transition: background 0.26s ease, color 0.2s ease;
+        }
+
+        .container { width: 100%; max-width: 760px; position: relative; }
+
+        .topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 18px;
+            animation: rise-in 0.4s ease-out both;
+        }
+        .back-link {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 0.9rem;
+            padding: 6px 10px;
+            border-radius: 999px;
+            transition: color 0.2s ease;
+        }
+        .back-link:hover { color: var(--accent-strong); }
+        .theme-toggle-btn {
+            min-width: 104px;
+            padding: 9px 14px;
+        }
+
+        header { text-align: center; margin-bottom: 26px; animation: rise-in 0.5s ease-out both; }
+
+        header h1 {
+            font-family: 'Noto Serif SC', 'Songti SC', serif;
+            font-size: clamp(2rem, 4.3vw, 2.8rem);
+            letter-spacing: 0.04em;
+            color: #5c3d24;
+            margin-bottom: 8px;
+        }
+
+        header p { color: var(--text-secondary); font-size: 1.02rem; }
+
+        .progress {
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            margin-bottom: 14px;
+            animation: rise-in 0.55s ease-out both;
+        }
+
+        .card-container {
+            background: var(--paper);
+            border: 1px solid rgba(228, 204, 176, 0.78);
+            box-shadow: var(--shadow-soft);
+            border-radius: var(--radius-xl);
+            padding: 34px 28px;
+            min-height: 312px;
+            margin-bottom: 18px;
+            position: relative;
+            overflow: hidden;
             display: flex;
             flex-direction: column;
             justify-content: center;
+            animation: rise-in 0.6s ease-out both;
         }
-        .question { font-size: 1.35rem; line-height: 1.7; text-align: center; }
+
+        .card-container::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            background:
+                linear-gradient(130deg, rgba(255, 244, 228, 0.75) 0%, rgba(255, 244, 228, 0) 46%),
+                repeating-linear-gradient(0deg, rgba(191, 147, 107, 0.035) 0, rgba(191, 147, 107, 0.035) 1px, transparent 1px, transparent 6px);
+        }
+
+        .question, .answer { position: relative; z-index: 1; }
+
+        .question {
+            font-family: 'Noto Serif SC', 'Songti SC', serif;
+            font-size: clamp(1.28rem, 2.7vw, 1.68rem);
+            line-height: 1.75;
+            color: #422c1a;
+            text-align: center;
+        }
+
         .answer {
             margin-top: 24px;
             padding: 16px 20px;
-            border-radius: 12px;
-            background: #eef4ff;
-            border: 1px dashed #b9c6ee;
-            color: #3a4a8f;
-            font-size: 1.1rem;
+            border-radius: var(--radius-md);
+            background: var(--paper-strong);
+            border: 1px dashed #d9b98f;
+            color: #65472f;
+            font-size: 1.05rem;
             text-align: center;
+            line-height: 1.7;
             display: none;
-            line-height: 1.6;
         }
-        .answer.show { display: block; animation: fadein 0.3s; }
-        @keyframes fadein { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; } }
-        .controls { display: flex; gap: 12px; margin-top: 20px; }
+        .answer.show { display: block; animation: pop-in 0.24s ease-out; }
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 20px;
+            animation: rise-in 0.65s ease-out both;
+        }
+
         .btn {
-            flex: 1;
-            padding: 14px;
             border: none;
-            border-radius: 12px;
-            font-size: 1rem;
+            border-radius: 999px;
+            min-height: 44px;
+            padding: 12px 28px;
+            font-size: 0.98rem;
+            font-weight: 600;
             cursor: pointer;
-            background: #5b6db8;
-            color: #fff;
-            transition: opacity 0.15s;
+            letter-spacing: 0.02em;
+            transition: transform 0.18s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.2s ease, filter 0.2s ease;
         }
-        .btn:hover { opacity: 0.88; }
-        .btn.secondary { background: #e3e6f7; color: #5b6db8; }
-        .footer-note { text-align: center; margin-top: 24px; color: #a8accc; font-size: 0.85rem; }
+        .btn:hover { transform: translateY(-1px); }
+        .btn:active { transform: translateY(0) scale(0.98); }
+        .btn {
+            background: linear-gradient(160deg, var(--accent) 0%, var(--accent-strong) 100%);
+            color: #fff;
+            box-shadow: 0 8px 18px rgba(166, 98, 38, 0.3);
+        }
+        .btn-secondary {
+            background: #fff3e5;
+            color: #875734;
+            border: 1px solid #e0bf9b;
+            box-shadow: 0 8px 16px rgba(113, 76, 40, 0.12);
+        }
+        .btn:focus-visible { outline: 2px solid #b96a2b; outline-offset: 2px; }
+
+        .footer-note {
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            animation: rise-in 0.7s ease-out both;
+        }
+
+        @keyframes rise-in {
+            from { opacity: 0; transform: translateY(14px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes pop-in {
+            from { opacity: 0; transform: translateY(10px) scale(0.98); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        @media (max-width: 600px) {
+            body { padding: 16px 12px calc(26px + env(safe-area-inset-bottom)); }
+            header { margin-bottom: 18px; }
+            header p { font-size: 0.95rem; }
+            .card-container { padding: 26px 18px; min-height: 280px; }
+            .question { font-size: clamp(1.12rem, 4.7vw, 1.35rem); line-height: 1.66; }
+            .btn { width: 100%; min-height: 46px; padding-top: 11px; padding-bottom: 11px; }
+            .controls { flex-direction: column; align-items: stretch; gap: 8px; }
+        }
+
+        @media (max-width: 360px) {
+            body { padding: 14px 10px calc(20px + env(safe-area-inset-bottom)); }
+            header h1 { font-size: 1.82rem; letter-spacing: 0.02em; }
+            header p { font-size: 0.9rem; }
+            .card-container { min-height: 248px; padding: 20px 14px; }
+            .question { font-size: 1.05rem; line-height: 1.62; }
+            .btn { min-height: 46px; font-size: 0.94rem; }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after { animation: none !important; transition: none !important; }
+        }
+
+        :root[data-theme='dark'] header h1 { color: #f7e8d5; }
+        :root[data-theme='dark'] .question { color: #f7e7d2; }
+        :root[data-theme='dark'] .answer {
+            background: #32281f;
+            border-color: #5b4835;
+            color: #e8d4bd;
+        }
+        :root[data-theme='dark'] .btn-secondary {
+            background: #3a3027;
+            color: #ecd2b5;
+            border-color: #6a523b;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.25);
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="topbar">
             <a class="back-link" href="../">← 返回工具箱</a>
-            <a class="back-link" href="#" onclick="location.reload();return false;">重新开始</a>
+            <button class="btn-secondary btn theme-toggle-btn" id="themeToggleBtn" type="button" aria-label="切换夜间护眼模式">夜间护眼</button>
         </div>
         <header>
             <h1>🧠 脑筋急转弯</h1>
             <p>考考你的脑洞</p>
         </header>
         <div class="progress" id="progress"></div>
-        <div class="card">
+        <div class="card-container">
             <div class="question" id="question"></div>
             <div class="answer" id="answer"></div>
         </div>
         <div class="controls">
             <button class="btn" id="revealBtn">揭晓答案</button>
-            <button class="btn secondary" id="nextBtn">下一题</button>
+            <button class="btn btn-secondary" id="nextBtn">下一题</button>
         </div>
         <div class="footer-note">答完所有题自动打乱再来一轮</div>
     </div>
@@ -150,6 +327,24 @@
         ];
         const $ = (id) => document.getElementById(id);
         let queue = [];
+
+        // 夜间护眼模式（与心语卡牌一致）
+        function applyTheme(theme) {
+            document.documentElement.setAttribute('data-theme', theme);
+            $("themeToggleBtn").textContent = theme === 'dark' ? '暖色模式' : '夜间护眼';
+            $("themeToggleBtn").setAttribute('aria-pressed', String(theme === 'dark'));
+            try { localStorage.setItem('brain-teaser-theme', theme); } catch (e) {}
+        }
+        $("themeToggleBtn").addEventListener('click', () => {
+            const current = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
+            applyTheme(current === 'dark' ? 'light' : 'dark');
+        });
+        (function initTheme() {
+            let saved = null;
+            try { saved = localStorage.getItem('brain-teaser-theme'); } catch (e) {}
+            const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+            applyTheme(saved || (prefersDark ? 'dark' : 'light'));
+        })();
 
         function shuffle(arr) {
             for (let i = arr.length - 1; i > 0; i--) {
