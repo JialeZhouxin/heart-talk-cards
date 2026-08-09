@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#c27a3a">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="优点放大镜">
+    <link rel="apple-touch-icon" href="../heart-talk/icons/icon-192.png">
+    <title>优点放大镜</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;600;700&family=Noto+Serif+SC:wght@500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-main: #f6ecdf;
+            --bg-secondary: #efe1cd;
+            --paper: #fff9f1;
+            --paper-strong: #fff5e8;
+            --text-primary: #3d2c1f;
+            --text-secondary: #715740;
+            --text-muted: #9a7f67;
+            --accent: #c27a3a;
+            --accent-strong: #a86428;
+            --accent-soft: #e7c6a2;
+            --line: #e4ccb0;
+            --shadow-soft: 0 10px 30px rgba(95, 60, 25, 0.12);
+            --radius-xl: 26px;
+            --radius-lg: 18px;
+            --radius-md: 12px;
+        }
+        :root[data-theme='dark'] {
+            --bg-main: #1f1b17;
+            --bg-secondary: #2b241e;
+            --paper: #2f2821;
+            --paper-strong: #3a3027;
+            --text-primary: #f5e9d9;
+            --text-secondary: #e3ccb2;
+            --text-muted: #c1a88d;
+            --accent: #d69a5c;
+            --accent-strong: #ba7e40;
+            --line: #5a4a3a;
+            --shadow-soft: 0 12px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Noto Sans SC', 'Microsoft YaHei', sans-serif;
+            color: var(--text-primary);
+            background:
+                radial-gradient(circle at 12% 14%, rgba(255, 240, 220, 0.9) 0%, rgba(255, 240, 220, 0) 36%),
+                radial-gradient(circle at 86% 18%, rgba(244, 216, 183, 0.75) 0%, rgba(244, 216, 183, 0) 34%),
+                linear-gradient(160deg, var(--bg-main) 0%, var(--bg-secondary) 100%);
+            display: flex;
+            justify-content: center;
+            padding: 28px 18px calc(40px + env(safe-area-inset-bottom));
+            line-height: 1.55;
+            -webkit-tap-highlight-color: transparent;
+            transition: background 0.26s ease, color 0.2s ease;
+        }
+
+        .container { width: 100%; max-width: 760px; position: relative; }
+
+        .topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 18px;
+            animation: rise-in 0.4s ease-out both;
+        }
+        .back-link {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 0.9rem;
+            padding: 6px 10px;
+            border-radius: 999px;
+            transition: color 0.2s ease;
+        }
+        .back-link:hover { color: var(--accent-strong); }
+        .theme-toggle-btn { min-width: 104px; padding: 9px 14px; }
+
+        header { text-align: center; margin-bottom: 26px; animation: rise-in 0.5s ease-out both; }
+
+        header h1 {
+            font-family: 'Noto Serif SC', 'Songti SC', serif;
+            font-size: clamp(2rem, 4.3vw, 2.8rem);
+            letter-spacing: 0.04em;
+            color: #5c3d24;
+            margin-bottom: 8px;
+        }
+
+        header p { color: var(--text-secondary); font-size: 1.02rem; }
+
+        .filter-section {
+            background: var(--paper);
+            border: 1px solid rgba(228, 204, 176, 0.78);
+            box-shadow: var(--shadow-soft);
+            border-radius: var(--radius-lg);
+            padding: 14px 18px;
+            margin-bottom: 18px;
+            animation: rise-in 0.55s ease-out both;
+        }
+        .filter-buttons { display: flex; flex-wrap: wrap; gap: 10px; }
+        .filter-btn {
+            border: 1px solid #d6b58f;
+            background: #fff7ee;
+            color: #80583a;
+            border-radius: 999px;
+            padding: 9px 15px;
+            font-size: 0.9rem;
+            min-height: 40px;
+            cursor: pointer;
+            transition: transform 0.18s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.18s ease, background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+        }
+        .filter-btn:hover, .filter-btn.active {
+            background: linear-gradient(160deg, #d3955a 0%, #be7736 100%);
+            color: #fff;
+            border-color: #b46a2d;
+            box-shadow: 0 7px 14px rgba(167, 101, 44, 0.24);
+            transform: translateY(-1px);
+        }
+        .filter-btn:active { transform: scale(0.98); }
+
+        .progress {
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            margin-bottom: 14px;
+            animation: rise-in 0.55s ease-out both;
+        }
+
+        .card-container {
+            background: var(--paper);
+            border: 1px solid rgba(228, 204, 176, 0.78);
+            box-shadow: var(--shadow-soft);
+            border-radius: var(--radius-xl);
+            padding: 34px 28px;
+            min-height: 312px;
+            margin-bottom: 18px;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            animation: rise-in 0.6s ease-out both;
+        }
+
+        .card-container::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            background:
+                linear-gradient(130deg, rgba(255, 244, 228, 0.75) 0%, rgba(255, 244, 228, 0) 46%),
+                repeating-linear-gradient(0deg, rgba(191, 147, 107, 0.035) 0, rgba(191, 147, 107, 0.035) 1px, transparent 1px, transparent 6px);
+        }
+
+        .card-category, .card-content, .card-hint { position: relative; z-index: 1; }
+
+        .card-category {
+            font-size: 0.9rem;
+            color: #896a4d;
+            margin-bottom: 12px;
+            text-align: center;
+        }
+
+        .card-content {
+            font-family: 'Noto Serif SC', 'Songti SC', serif;
+            font-size: clamp(1.28rem, 2.7vw, 1.68rem);
+            line-height: 1.75;
+            color: #422c1a;
+            text-align: center;
+        }
+
+        .card-hint {
+            margin-top: 16px;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            text-align: center;
+            line-height: 1.7;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 20px;
+            animation: rise-in 0.65s ease-out both;
+        }
+
+        .btn {
+            border: none;
+            border-radius: 999px;
+            min-height: 44px;
+            padding: 12px 28px;
+            font-size: 0.98rem;
+            font-weight: 600;
+            cursor: pointer;
+            letter-spacing: 0.02em;
+            transition: transform 0.18s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.2s ease, filter 0.2s ease;
+        }
+        .btn:hover { transform: translateY(-1px); }
+        .btn:active { transform: translateY(0) scale(0.98); }
+        .btn {
+            background: linear-gradient(160deg, var(--accent) 0%, var(--accent-strong) 100%);
+            color: #fff;
+            box-shadow: 0 8px 18px rgba(166, 98, 38, 0.3);
+        }
+        .btn-secondary {
+            background: #fff3e5;
+            color: #875734;
+            border: 1px solid #e0bf9b;
+            box-shadow: 0 8px 16px rgba(113, 76, 40, 0.12);
+        }
+        .btn:focus-visible { outline: 2px solid #b96a2b; outline-offset: 2px; }
+
+        .footer-note {
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            animation: rise-in 0.7s ease-out both;
+        }
+
+        @keyframes rise-in {
+            from { opacity: 0; transform: translateY(14px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @media (max-width: 600px) {
+            body { padding: 16px 12px calc(26px + env(safe-area-inset-bottom)); }
+            header { margin-bottom: 18px; }
+            header p { font-size: 0.95rem; }
+            .card-container { padding: 26px 18px; min-height: 280px; }
+            .card-content { font-size: clamp(1.12rem, 4.7vw, 1.35rem); line-height: 1.66; }
+            .btn { width: 100%; min-height: 46px; padding-top: 11px; padding-bottom: 11px; }
+            .controls { flex-direction: column; align-items: stretch; gap: 8px; }
+            .filter-btn { min-height: 44px; padding: 8px 14px; }
+        }
+
+        @media (max-width: 360px) {
+            body { padding: 14px 10px calc(20px + env(safe-area-inset-bottom)); }
+            header h1 { font-size: 1.82rem; letter-spacing: 0.02em; }
+            header p { font-size: 0.9rem; }
+            .card-container { min-height: 248px; padding: 20px 14px; }
+            .card-content { font-size: 1.05rem; line-height: 1.62; }
+            .btn { min-height: 46px; font-size: 0.94rem; }
+        }
+
+        @media (max-width: 420px) {
+            .filter-buttons .filter-btn { flex: 1 1 calc(50% - 8px); text-align: center; }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after { animation: none !important; transition: none !important; }
+        }
+
+        :root[data-theme='dark'] header h1 { color: #f7e8d5; }
+        :root[data-theme='dark'] .card-content { color: #f7e7d2; }
+        :root[data-theme='dark'] .card-category { color: #d4b493; }
+        :root[data-theme='dark'] .btn-secondary {
+            background: #3a3027;
+            color: #ecd2b5;
+            border-color: #6a523b;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.25);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="topbar">
+            <a class="back-link" href="../">← 返回工具箱</a>
+            <button class="btn-secondary btn theme-toggle-btn" id="themeToggleBtn" type="button" aria-label="切换夜间护眼模式">夜间护眼</button>
+        </div>
+        <header>
+            <h1>🔍 优点放大镜</h1>
+            <p>引导大家发现彼此的闪光点</p>
+        </header>
+        <div class="filter-section">
+            <div class="filter-buttons" id="categoryFilters">
+                <button class="filter-btn active" data-cat="all">全部</button>
+                <button class="filter-btn" data-cat="pick">挑一个人夸</button>
+                <button class="filter-btn" data-cat="round">轮流夸</button>
+                <button class="filter-btn" data-cat="guess">猜着夸</button>
+            </div>
+        </div>
+        <div class="progress" id="progress"></div>
+        <div class="card-container">
+            <div class="card-category" id="cardCategory"></div>
+            <div class="card-content" id="cardContent"></div>
+            <div class="card-hint" id="cardHint"></div>
+        </div>
+        <div class="controls">
+            <button class="btn" id="nextBtn">换一张卡</button>
+        </div>
+        <div class="footer-note">夸人公式：具体事件 + 你的感受。比如「你上次帮我改简历，特别靠谱」</div>
+    </div>
+    <script>
+        const PROMPTS = {
+            pick: [
+                "挑一个人，说出 TA 最让你佩服的能力。",
+                "挑一个人，说说 TA 做过的一件暖心小事。",
+                "挑一个人，说出 TA 身上你想拥有的品质。",
+                "挑一个人，夸一夸 TA 今天的状态。",
+                "挑一个人，说说 TA 最可爱的小习惯。",
+                "挑一个人，说出 TA 帮过你的一件事。",
+                "挑一个人，说说 TA 哪句话让你印象最深。",
+            ],
+            round: [
+                "每人说说左边的人，一个优点。",
+                "每人说说右边的人，一个让你佩服的地方。",
+                "每人说出对面的人，最近做得最好的一件事。",
+                "全员轮流：「我觉得 XX 很擅长 XX」。",
+                "每人说出身边人一个不容易被注意到的细节优点。",
+                "轮流夸：说出下一位发言者的一个闪光点。",
+            ],
+            guess: [
+                "想一个人，说出 TA 的特征（不说名字），让大家猜是谁。",
+                "匿名写一句感谢的话给在座某个人，念出来大家猜对象。",
+                "描述一个场景：「我印象最深的是 TA 在 XX 的时候……」不说名字，大家猜。",
+                "说出一个人的三个优点，让大家猜你在说谁。",
+                "「彩虹屁接龙」：夸上一位发言者，再出下一张卡。",
+            ],
+        };
+        const CAT_LABEL = { all: "随机玩法", pick: "挑一个人夸", round: "轮流夸", guess: "猜着夸" };
+        const CAT_HINT = {
+            pick: "规则：夸要具体，说一件真实发生的事",
+            round: "规则：不能重复别人说过的优点",
+            guess: "规则：猜对了换下一个人出题",
+            all: "规则：夸要具体，说一件真实发生的事",
+        };
+        const $ = (id) => document.getElementById(id);
+        let cat = "all";
+        const queues = {};
+
+        // 夜间护眼模式（与各工具一致）
+        function applyTheme(theme) {
+            document.documentElement.setAttribute('data-theme', theme);
+            $("themeToggleBtn").textContent = theme === 'dark' ? '暖色模式' : '夜间护眼';
+            $("themeToggleBtn").setAttribute('aria-pressed', String(theme === 'dark'));
+            try { localStorage.setItem('praise-theme', theme); } catch (e) {}
+        }
+        $("themeToggleBtn").addEventListener('click', () => {
+            const current = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
+            applyTheme(current === 'dark' ? 'light' : 'dark');
+        });
+        (function initTheme() {
+            let saved = null;
+            try { saved = localStorage.getItem('praise-theme'); } catch (e) {}
+            const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+            applyTheme(saved || (prefersDark ? 'dark' : 'light'));
+        })();
+
+        function shuffle(arr) {
+            for (let i = arr.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [arr[i], arr[j]] = [arr[j], arr[i]];
+            }
+            return arr;
+        }
+
+        function pool() {
+            return cat === "all" ? Object.values(PROMPTS).flat() : PROMPTS[cat];
+        }
+
+        function next() {
+            const p = pool();
+            if (!queues[cat] || !queues[cat].length) queues[cat] = shuffle(p.slice());
+            const item = queues[cat].pop();
+            $("cardCategory").textContent = "「" + CAT_LABEL[cat] + "」";
+            $("cardContent").textContent = item;
+            $("cardHint").textContent = CAT_HINT[cat];
+            $("progress").textContent = `第 ${p.length - queues[cat].length} / ${p.length} 张`;
+        }
+
+        $("nextBtn").addEventListener("click", next);
+        $("categoryFilters").addEventListener("click", (e) => {
+            const btn = e.target.closest(".filter-btn");
+            if (!btn) return;
+            cat = btn.dataset.cat;
+            document.querySelectorAll("#categoryFilters .filter-btn").forEach((b) => b.classList.toggle("active", b === btn));
+            next();
+        });
+        next();
+    </script>
+</body>
+</html>
