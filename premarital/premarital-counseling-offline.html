@@ -1,0 +1,1562 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#2f5d50" />
+  <title>婚前辅导表单（离线包）</title>
+  <style>
+:root {
+  --bg: #f6ecdf;
+  --bg2: #efe1cd;
+  --card: #fff9f1;
+  --card2: #fff5e8;
+  --input: #fffbf6;
+  --text: #3d2c1f;
+  --muted: #715740;
+  --line: #e4ccb0;
+  --accent: #c27a3a;
+  --accent-strong: #a86428;
+  --match: #d9f2e3;
+  --near: #fff3cd;
+  --far: #f8d7da;
+  --missing: #efe9e0;
+}
+:root[data-theme='dark'] {
+  --bg: #1f1b17;
+  --bg2: #2b241e;
+  --card: #2f2821;
+  --card2: #3a3027;
+  --input: #2b221a;
+  --text: #f5e9d9;
+  --muted: #c1a88d;
+  --line: #5a4a3a;
+  --accent: #d69a5c;
+  --accent-strong: #ba7e40;
+  --match: #23402f;
+  --near: #40381f;
+  --far: #452a26;
+  --missing: #383028;
+}
+
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  font-family: "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+  background:
+    radial-gradient(circle at 12% 14%, rgba(255, 240, 220, 0.9) 0%, rgba(255, 240, 220, 0) 36%),
+    radial-gradient(circle at 86% 18%, rgba(244, 216, 183, 0.75) 0%, rgba(244, 216, 183, 0) 34%),
+    linear-gradient(160deg, var(--bg) 0%, var(--bg2) 100%);
+  color: var(--text);
+  line-height: 1.5;
+  transition: background 0.26s ease, color 0.2s ease;
+}
+a { color: var(--accent); }
+.wrap { max-width: 920px; margin: 0 auto; padding: 16px; }
+.top {
+  display: flex; flex-wrap: wrap; gap: 8px 16px;
+  align-items: center; justify-content: space-between;
+  margin-bottom: 12px;
+}
+.top nav { display: flex; gap: 12px; flex-wrap: wrap; }
+.note {
+  background: #fff3e0; border: 1px solid #e8cfa8;
+  padding: 10px 12px; border-radius: 8px; color: #7a5a2e;
+  margin-bottom: 16px; font-size: 14px;
+}
+.card {
+  background: var(--card); border: 1px solid var(--line);
+  border-radius: 12px; padding: 16px; margin-bottom: 12px;
+}
+h1, h2 {
+  font-family: 'Noto Serif SC', 'Songti SC', serif;
+  letter-spacing: 0.03em;
+}
+h1 { font-size: 1.4rem; margin: 0 0 8px; }
+h2 { font-size: 1.1rem; margin: 0 0 10px; }
+.muted { color: var(--muted); font-size: 14px; }
+.row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.btn {
+  appearance: none; border: 1px solid var(--line); background: var(--card);
+  color: var(--text); border-radius: 999px; padding: 10px 14px;
+  min-height: 44px; cursor: pointer; font-size: 15px;
+}
+.btn.primary {
+  background: linear-gradient(160deg, var(--accent) 0%, var(--accent-strong) 100%);
+  color: #fff; border-color: var(--accent-strong);
+}
+.btn:disabled { opacity: .5; cursor: not-allowed; }
+.progress { font-size: 14px; }
+.progress strong { color: var(--accent); }
+
+.chapter-nav {
+  display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px;
+}
+.chapter-nav button {
+  min-height: 40px; border-radius: 999px; border: 1px solid var(--line);
+  background: #fff; padding: 6px 12px; cursor: pointer; font-size: 13px;
+}
+.chapter-nav button.active {
+  background: linear-gradient(160deg, var(--accent) 0%, var(--accent-strong) 100%);
+  color: #fff; border-color: var(--accent-strong);
+}
+.item { border-top: 1px solid var(--line); padding: 14px 0; }
+.item:first-child { border-top: 0; }
+.prompt { font-weight: 600; margin-bottom: 8px; }
+.scale {
+  display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 6px;
+}
+.scale button {
+  min-height: 48px; border-radius: 10px; border: 1px solid var(--line);
+  background: #fff7ee; cursor: pointer; font-size: 14px;
+}
+.scale button.selected {
+  background: linear-gradient(160deg, var(--accent) 0%, var(--accent-strong) 100%);
+  color: #fff; border-color: var(--accent-strong);
+}
+.scale-labels {
+  display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px;
+  font-size: 11px; color: var(--muted); margin-top: 4px; text-align: center;
+}
+textarea {
+  width: 100%; min-height: 90px; border-radius: 10px; border: 1px solid var(--line);
+  background: var(--input); color: var(--text); padding: 10px; font: inherit; resize: vertical;
+}
+.pager { display: flex; justify-content: space-between; gap: 8px; margin-top: 12px; }
+
+.filters { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 12px; }
+.summary { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
+.pill {
+  border-radius: 999px; padding: 4px 10px; font-size: 13px; border: 1px solid var(--line);
+}
+.pill.match { background: var(--match); }
+.pill.near { background: var(--near); }
+.pill.far { background: var(--far); }
+.pill.missing { background: var(--missing); }
+
+.compare-row {
+  display: grid; grid-template-columns: 1fr auto auto auto;
+  gap: 8px; align-items: start; padding: 10px 0; border-top: 1px solid var(--line);
+}
+@media (max-width: 700px) {
+  .compare-row { grid-template-columns: 1fr 1fr; }
+  .compare-row .prompt { grid-column: 1 / -1; }
+  .scale { grid-template-columns: repeat(5, 1fr); }
+}
+.tag {
+  display: inline-block; min-width: 52px; text-align: center;
+  border-radius: 8px; padding: 6px 8px; font-size: 13px; font-weight: 600;
+}
+.tag.match { background: var(--match); }
+.tag.near { background: var(--near); }
+.tag.far { background: var(--far); }
+.tag.missing { background: var(--missing); }
+.open-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+}
+@media (max-width: 700px) {
+  .open-grid { grid-template-columns: 1fr; }
+}
+.open-box {
+  background: var(--card2); border: 1px solid var(--line); border-radius: 8px; padding: 8px;
+  white-space: pre-wrap; min-height: 48px; font-size: 14px;
+}
+.error { color: #a11; background: #fdecec; padding: 10px; border-radius: 8px; }
+:root[data-theme='dark'] .error { color: #f0b9b0; background: #45231f; }
+.form-card h2 { font-size: 1.15rem; }
+.pill {
+  border-radius: 999px; padding: 4px 10px; font-size: 13px; border: 1px solid var(--line);
+  background: #f7ecdc; color: #8f5d2f; white-space: nowrap;
+}
+
+.scale-legend {
+  background: #f7ecdc;
+  border: 1px solid #e6c9a7;
+  color: #7a5230;
+  border-radius: 10px;
+  padding: 10px 12px;
+  margin: 8px 0 12px;
+  font-size: 14px;
+  line-height: 1.55;
+}
+.scale-legend div + div { margin-top: 4px; }
+.scale button.scale-btn,
+.scale .scale-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  min-height: 56px;
+  padding: 6px 4px;
+  line-height: 1.2;
+}
+.scale-num { font-size: 16px; font-weight: 700; }
+.scale-mean {
+  font-size: 11px;
+  font-weight: 500;
+  opacity: .9;
+  white-space: normal;
+  word-break: break-all;
+}
+.scale button.selected .scale-mean { opacity: 1; }
+@media (max-width: 700px) {
+  .scale-mean { font-size: 10px; }
+  .scale-labels { font-size: 10px; }
+}
+
+
+/* ---- print report ---- */
+.print-report-meta { display: none; }
+.print-footer { display: none; }
+@media print {
+  @page { margin: 12mm; }
+  body {
+    background: #fff !important;
+    color: #000 !important;
+    font-size: 12pt;
+    line-height: 1.45;
+  }
+  .no-print,
+  nav,
+  .btn,
+  script { display: none !important; }
+  .wrap { max-width: none; margin: 0; padding: 0; }
+  .card {
+    border: none;
+    box-shadow: none;
+    padding: 0;
+    margin: 0 0 14px;
+    break-inside: avoid;
+  }
+  .note { display: none !important; }
+  .print-report-meta {
+    display: block !important;
+    margin-bottom: 14px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #222;
+  }
+  .print-title {
+    font-size: 18pt;
+    margin: 0 0 8px;
+  }
+  .print-report-meta p { margin: 4px 0; }
+  .summary { margin: 8px 0 12px; }
+  .pill, .tag {
+    border: 1px solid #444 !important;
+    color: #000 !important;
+    background: #fff !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  .tag.match, .pill.match { background: #d9f2e3 !important; }
+  .tag.near, .pill.near { background: #fff3cd !important; }
+  .tag.far, .pill.far { background: #f8d7da !important; }
+  .compare-row {
+    grid-template-columns: 1.4fr 1fr 1fr auto;
+    border-top: 1px solid #ccc;
+    padding: 8px 0;
+    break-inside: avoid;
+  }
+  .open-grid { grid-template-columns: 1fr 1fr; }
+  .open-box {
+    background: #fff !important;
+    border: 1px solid #999;
+    min-height: 36px;
+  }
+  .print-hide { display: none !important; }
+  .print-footer {
+    display: block !important;
+    margin-top: 18px;
+    padding-top: 10px;
+    border-top: 1px solid #666;
+    font-size: 10pt;
+    color: #333;
+  }
+  a { color: #000; text-decoration: none; }
+}
+
+:root[data-theme='dark'] .note {
+  background: #3a3027; border-color: #6a523b; color: #ecd2b5;
+}
+:root[data-theme='dark'] .scale button { background: #32281f; }
+:root[data-theme='dark'] .scale button.selected .scale-mean { color: #fff; }
+:root[data-theme='dark'] .pill { background: #3a3027; color: #ecd2b5; }
+:root[data-theme='dark'] .scale-legend {
+  background: #3a3027; border-color: #6a523b; color: #e8d4bd;
+}
+
+  .offline-banner {
+    background: #e8f0ff; border: 1px solid #b7c9ef; color: #1e2f5c;
+    padding: 10px 12px; border-radius: 8px; margin-bottom: 12px; font-size: 14px;
+  }
+  [hidden] { display: none !important; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="offline-banner">
+      离线单文件包：可直接双击打开，无需联网。数据仍只保存在本机浏览器。
+      分享本 HTML 文件即可给朋友使用；双方答案请用「导出 JSON」互传。
+    </div>
+  </div>
+  <div id="view-home"><div class="wrap">
+    <div class="top">
+      <h1>婚前辅导 · 多表单</h1>
+      <nav>
+        <a href="index.html">全部表单</a>
+      </nav>
+        <button class="btn" id="themeToggleBtn" type="button" style="min-height:36px;padding:6px 12px;font-size:13px;">夜间护眼</button>
+    </div>
+    <div class="note">
+      数据仅保存在本机浏览器，可离线使用。手机浏览器可「添加到主屏幕」当 App 用；点选表单填写与对照，支持导入导出。
+    </div>
+    <div id="error" class="error" hidden></div>
+
+    <div class="card">
+      <div class="row">
+        <button class="btn" id="btn-export" type="button">导出全部 JSON</button>
+        <label class="btn" for="file-import">导入 JSON</label>
+        <input id="file-import" type="file" accept="application/json,.json" hidden />
+        <a class="btn" href="premarital-counseling-offline.html" download>下载离线单文件</a>
+      </div>
+      <p class="muted" style="margin-top:10px">
+        导入会按文件覆盖对应表单答案。旧版单表导出仍可导入到「婚前关系评估」。
+      </p>
+    </div>
+
+    <div id="form-list"></div>
+  </div></div>
+  <div id="view-fill" hidden><div class="wrap">
+    <div class="top">
+      <h1 id="title">填写</h1>
+      <nav>
+        <a href="index.html">全部表单</a>
+        <a href="compare.html" id="link-compare">对照</a>
+      </nav>
+        <button class="btn" id="themeToggleBtn" type="button" style="min-height:36px;padding:6px 12px;font-size:13px;">夜间护眼</button>
+    </div>
+    <div class="note">自动保存到本机。点选程度前请先看「1–5 含义」；开放题直接输入。</div>
+    <div id="error" class="error" hidden></div>
+    <div class="card">
+      <div class="row" style="margin-bottom:10px">
+        <button class="btn" id="btn-export-form" type="button">导出本表</button>
+        <label class="btn" for="file-import-form">导入本表</label>
+        <input id="file-import-form" type="file" accept="application/json,.json" hidden />
+      </div>
+      <div class="row" style="justify-content:space-between">
+        <div id="chapter-title" class="muted"></div>
+        <div id="chapter-progress" class="progress"></div>
+      </div>
+      <div class="chapter-nav" id="chapters-nav"></div>
+      <div class="scale-legend" id="scale-legend" hidden></div>
+      <div id="items"></div>
+      <div class="pager">
+        <button class="btn" id="prev" type="button">上一章</button>
+        <button class="btn primary" id="next" type="button">下一章</button>
+      </div>
+    </div>
+  </div></div>
+  <div id="view-compare" hidden><div class="wrap">
+    <div class="top no-print">
+      <h1 id="page-title">双方对照</h1>
+      <nav>
+        <a href="index.html">全部表单</a>
+        <a href="fill.html?person=a" id="link-fill-a">填丈夫</a>
+        <a href="fill.html?person=b" id="link-fill-b">填妻子</a>
+      </nav>
+        <button class="btn" id="themeToggleBtn" type="button" style="min-height:36px;padding:6px 12px;font-size:13px;">夜间护眼</button>
+    </div>
+    <div class="note no-print">绿=一致 · 黄=差1 · 红=差≥2（量表/选择题）。开放题仅并排。</div>
+    <div id="error" class="error" hidden></div>
+
+    <div class="card">
+      <div class="row no-print" style="margin-bottom:10px">
+        <button class="btn" id="btn-export-form" type="button">导出本表</button>
+        <label class="btn" for="file-import-form">导入本表</label>
+        <input id="file-import-form" type="file" accept="application/json,.json" hidden />
+        <button class="btn primary" id="btn-print-report" type="button">打印报告</button>
+      </div>
+      <div class="print-report-meta" id="print-meta" hidden></div>
+      <div class="summary" id="summary"></div>
+      <div class="filters no-print" id="filters">
+        <label><input type="radio" name="filter" value="all_answered" /> 全部已填</label>
+        <label><input type="radio" name="filter" value="diff_only" checked /> 仅差异</label>
+        <label><input type="radio" name="filter" value="far_only" /> 仅红（差≥2）</label>
+      </div>
+      <p class="muted no-print" id="print-hint">打印默认按当前筛选（默认「仅差异」）；可勾选是否含开放题。</p>
+      <div class="row no-print" style="margin-bottom:10px">
+        <label><input type="checkbox" id="print-include-open" checked /> 打印含开放题</label>
+      </div>
+      <div id="list"></div>
+    </div>
+
+    <div class="card" id="open-section">
+      <h2>开放题并排</h2>
+      <p class="muted no-print">不做语义对比，仅并排查看。</p>
+      <div id="open-list"></div>
+    </div>
+    <div class="print-footer" id="print-footer" hidden>
+      隐私提示：本报告仅供婚前辅导使用，请勿外传；打印件请自行妥善保管或销毁。
+    </div>
+  </div></div>
+  <script>
+  window.__EMBED__ = {"catalog":{"version":1,"forms":[{"id":"assessment","title":"婚前关系评估","short":"评估","desc":"错误评估 + 理想特质量表，自动色标对照","file":"forms/assessment.json","compare":true},{"id":"intake","title":"交友/婚前约谈问卷","short":"约谈","desc":"背景、家庭、交往史等约谈信息","file":"forms/intake.json","compare":true},{"id":"expectations","title":"期待问卷 + 婚姻观提纲","short":"期待","desc":"对辅导、关系、婚姻的期待与讨论题","file":"forms/expectations.json","compare":true},{"id":"family","title":"原生家庭","short":"家庭","desc":"了解自己、父母与原生家庭影响","file":"forms/family.json","compare":true},{"id":"knowyou","title":"知己知彼与沟通","short":"沟通","desc":"优缺点、冲突与沟通期待","file":"forms/knowyou.json","compare":true},{"id":"roles","title":"夫妻角色概念比对","short":"角色","desc":"30 题角色态度量表 + 讨论提纲","file":"forms/roles.json","compare":true},{"id":"sex","title":"性观念与性知识","short":"性观念","desc":"同意/不同意/不确定问卷 + 讨论","file":"forms/sex.json","compare":true}]},"banks":{"forms/assessment.json":{"version":1,"scale":{"min":1,"max":5,"labels":["非常同意","同意","中立","不同意","非常不同意"]},"chapters":[{"id":"err1","title":"错误一: 太快决定结婚","part":"errors","items":[{"id":"err1_o1","type":"open","prompt":"你认识对方多久了？"},{"id":"err1_o2","type":"open","prompt":"你们交往多久了？"},{"id":"err1_o3","type":"open","prompt":"你觉得应该认识多久才论及婚嫁？ 请说明理由。"},{"id":"err1_l1","type":"likert","prompt":"我和对方已经讨论过彼此的背景"},{"id":"err1_l2","type":"likert","prompt":"我可以轻易说出对方的五大优点"},{"id":"err1_l3","type":"likert","prompt":"要对方说出我的五项缺点会很困难"},{"id":"err1_l4","type":"likert","prompt":"我通常可以猜出对方在压力下的反应"},{"id":"err1_l5","type":"likert","prompt":"我期待婚后不会有太多令我感到意外的事"},{"id":"err1_l6","type":"likert","prompt":"我在很多不同的活动层面观察过对方的表现"},{"id":"err1_l7","type":"likert","prompt":"我知道不同的季节会如何影响对方的心情"},{"id":"err1_l8","type":"likert","prompt":"当我隐瞒心事时，对方通常看得出来"},{"id":"err1_l9","type":"likert","prompt":"再交往久一点，并不能帮助我更认识对方"},{"id":"err1_l10","type":"likert","prompt":"我没有赶快结婚的压力"}]},{"id":"err2","title":"错误二: 太年轻就决定要结婚","part":"errors","items":[{"id":"err2_o1","type":"open","prompt":"你毕业多久了？"},{"id":"err2_o2","type":"open","prompt":"当你决定跟对方结婚时是几岁？"},{"id":"err2_l1","type":"likert","prompt":"我的父母认为我的年纪已经够大，可以结婚了"},{"id":"err2_l2","type":"likert","prompt":"我已经完成了大部份的正式教育"},{"id":"err2_l3","type":"likert","prompt":"以我目前的收入，要维持一个家庭绰绰有余"},{"id":"err2_l4","type":"likert","prompt":"我非常了解自己"},{"id":"err2_l5","type":"likert","prompt":"我已经脱离父母独立了"},{"id":"err2_l6","type":"likert","prompt":"我不太确定我的人生目标"},{"id":"err2_l7","type":"likert","prompt":"我已经历过很多人生的历练"},{"id":"err2_l8","type":"likert","prompt":"我不太清楚对方具有什么特质，能够帮助我享受一个美满的婚姻"},{"id":"err2_l9","type":"likert","prompt":"我已经长大成熟了"},{"id":"err2_l10","type":"likert","prompt":"我和对方都很清楚，我们在婚后各自该扮演什么样的角色"}]},{"id":"err3","title":"错误三: 一方或双方急着结婚","part":"errors","items":[{"id":"err3_o1","type":"open","prompt":"你跟对方交往多久后就论及婚嫁？"},{"id":"err3_l1","type":"likert","prompt":"我觉得至少交往一年再结婚是很明智的"},{"id":"err3_l2","type":"likert","prompt":"我和对方都很乐意讨论彼此之间可能存在的问题"},{"id":"err3_l3","type":"likert","prompt":"我们其中有一方此较急于结婚"},{"id":"err3_l4","type":"likert","prompt":"我们双方都不是刚从一段受伤的感情中抽身出来"},{"id":"err3_l5","type":"likert","prompt":"如果没有马上结婚，对方愿意等我"},{"id":"err3_l6","type":"likert","prompt":"结婚可以解除我对寂寞的恐惧感"},{"id":"err3_l7","type":"likert","prompt":"我一想到结婚就很兴奋"},{"id":"err3_l8","type":"likert","prompt":"我对结婚的决定必须从容不迫"},{"id":"err3_l9","type":"likert","prompt":"对方似乎急于结婚"},{"id":"err3_l10","type":"likert","prompt":"我感受到必须尽快结婚的压力"}]},{"id":"err4","title":"错误四: 为了讨好某人而选择一个对象","part":"errors","items":[{"id":"err4_o1","type":"open","prompt":"别人的看法在你的选择决定上占有多重要的份量？"},{"id":"err4_o2","type":"open","prompt":"在你的择偶决定上，你希望别人介入多少？"},{"id":"err4_o3","type":"open","prompt":"如果你没跟对方结婚，对方就会受不了。你会跟这样的人结婚吗？"},{"id":"err4_l1","type":"likert","prompt":"我父母对可能成为我结婚对象的看法，对我来说并不是很重要"},{"id":"err4_l2","type":"likert","prompt":"如果我父母极力反对我所选择的对象，我就不会跟这个人结婚"},{"id":"err4_l3","type":"likert","prompt":"在我的择偶决定上，最该觉得满意的人是我"},{"id":"err4_l4","type":"likert","prompt":"我会让别人替我作重要的决定"},{"id":"err4_l5","type":"likert","prompt":"如果我要求父母别过份担心我所选择的对象，他们会尊重我"},{"id":"err4_l6","type":"likert","prompt":"我已经准备妥当，一辈子不会后悔作这个结婚的决定"},{"id":"err4_l7","type":"likert","prompt":"我不太能够信任自己作重大决定的能力"},{"id":"err4_l8","type":"likert","prompt":"对方在作结婚的决定时，没有感受到外来的压力"},{"id":"err4_l9","type":"likert","prompt":"即使喜帖已经发出去，若是必要，我还是能够取消婚礼"},{"id":"err4_l10","type":"likert","prompt":"当父母或朋友告诉我，他们对我所交往对象的看法时，我会注意聆听"}]},{"id":"err5","title":"错误五: 认识的层面太窄","part":"errors","items":[{"id":"err5_o1","type":"open","prompt":"你交往过几个对象？"},{"id":"err5_l1","type":"likert","prompt":"我曾交往过很多对象，我知道自己想要什么样的伴侣"},{"id":"err5_l2","type":"likert","prompt":"对方丰富的人生历练常常令我感到惊讶"},{"id":"err5_l3","type":"likert","prompt":"我和对方已经谈论过很多不同层面的主题"},{"id":"err5_l4","type":"likert","prompt":"我和对方形影不离"},{"id":"err5_l5","type":"likert","prompt":"我和对方从不吵架"},{"id":"err5_l6","type":"likert","prompt":"我知道对方和小孩子互动的情形"},{"id":"err5_l7","type":"likert","prompt":"我和对方都比较喜欢独处"},{"id":"err5_l8","type":"likert","prompt":"对方很会处理金钱方面的事务"},{"id":"err5_l9","type":"likert","prompt":"发生出乎意料之外的情况时，对方的反应很少令我感到惊讶"},{"id":"err5_l10","type":"likert","prompt":"我和对方有很多共同爱好的活动"}]},{"id":"err6","title":"错误六: 两人有不切实际的期待","part":"errors","items":[{"id":"err6_o1","type":"open","prompt":"你对一个美满的婚姻有哪三大期待？"},{"id":"err6_o2","type":"open","prompt":"对方对一个美满的婚姻有哪三大期待？"},{"id":"err6_o3","type":"open","prompt":"你觉得要使你的婚姻幸福难不难？"},{"id":"err6_l1","type":"likert","prompt":"我觉得真爱可以轻易化解婚姻中一切的问题"},{"id":"err6_l2","type":"likert","prompt":"对方可以使我的人生变得很有意义"},{"id":"err6_l3","type":"likert","prompt":"我可以猜测出我和对方结婚后，最可能在哪些方面出现问题"},{"id":"err6_l4","type":"likert","prompt":"我知道新婚期间不都是甜蜜蜜的"},{"id":"err6_l5","type":"likert","prompt":"婚姻应该不会增加我生活上的压力"},{"id":"err6_l6","type":"likert","prompt":"我对婚姻的期待，主要是受到我父母婚姻的影响"},{"id":"err6_l7","type":"likert","prompt":"对方清楚了解他的父母在婚姻中所经历过的挣扎"},{"id":"err6_l8","type":"likert","prompt":"我和对方都相信婚姻是一项艰巨的挑战"},{"id":"err6_l9","type":"likert","prompt":"一旦结了婚，我绝不容许自己有离婚的念头"},{"id":"err6_l10","type":"likert","prompt":"我和对方对性的看法类似"}]},{"id":"err7","title":"错误七: 有严重的个性或行为问题","part":"errors","items":[{"id":"err7_o1","type":"open","prompt":"对方有没有任何令你担心的吸毒酗酒问题？"},{"id":"err7_l1","type":"likert","prompt":"对方喝酒会节制"},{"id":"err7_l2","type":"likert","prompt":"我从来不用担心对方会到处拈花惹草"},{"id":"err7_l3","type":"likert","prompt":"如果对方告诉我某件事，我知道我可以信任他所说的"},{"id":"err7_l4","type":"likert","prompt":"我相信对方会信守他所许下的承诺"},{"id":"err7_l5","type":"likert","prompt":"我想不出对方有什么特质令我感到不安"},{"id":"err7_l6","type":"likert","prompt":"过去我有一些令自己困扰的行为特质，但现在已经克服了"},{"id":"err7_l7","type":"likert","prompt":"对方至少有一项主要的性格缺陷，是我很希望可以根除的"},{"id":"err7_l8","type":"likert","prompt":"我可以毫不犹豫的跟对方结婚"},{"id":"err7_l9","type":"likert","prompt":"我的朋友常常警告我要留意对方的某项特质"},{"id":"err7_l10","type":"likert","prompt":"我不会要求对方有什么大改变，即使我有机会可以改变对方"}]},{"id":"trait1","title":"一、个性","part":"traits","items":[{"id":"trait1_o1","type":"open","prompt":"你比较喜欢安静、害羞，还是爱说话、交际的人？"},{"id":"trait1_o2","type":"open","prompt":"你会被风趣的人，还是严肃的人吸引？"},{"id":"trait1_o3","type":"open","prompt":"你比较喜欢坚强、独立的人，还是一切都让你作决定的人？"},{"id":"trait1_o4","type":"open","prompt":"你希望你的理想对象具有委婉或直率的特质？"},{"id":"trait1_l1","type":"likert","prompt":"我真希望对方也能让我决定一些事"},{"id":"trait1_l2","type":"likert","prompt":"我们在一起时，欢笑时刻并不多"},{"id":"trait1_l3","type":"likert","prompt":"我真希望对方能多跟我说说话"},{"id":"trait1_l4","type":"likert","prompt":"我很佩服对方认真的态度"},{"id":"trait1_l5","type":"likert","prompt":"我很欣当对方跟我在一起的温柔态度"},{"id":"trait1_l6","type":"likert","prompt":"有时我真希望对方可以先让我说话"},{"id":"trait1_l7","type":"likert","prompt":"我的朋友都觉得我和对方非常合适"},{"id":"trait1_l8","type":"likert","prompt":"我真希望自己可以像对方那么严谨"}]},{"id":"trait2","title":"二、聪明","part":"traits","items":[{"id":"trait2_o1","type":"open","prompt":"你觉得你的理想对象应该要有多聪明？"},{"id":"trait2_o2","type":"open","prompt":"你觉得理想的对象应该是思考型还是感觉型的人？"},{"id":"trait2_l1","type":"likert","prompt":"我在对方面前时常觉得自己很笨"},{"id":"trait2_l2","type":"likert","prompt":"我真希望对方的数学能好一点"},{"id":"trait2_l3","type":"likert","prompt":"我真希望对方能多一点思考，少一点感觉"},{"id":"trait2_l4","type":"likert","prompt":"我不晓得对方是否觉得我够聪明"},{"id":"trait2_l5","type":"likert","prompt":"我和对方的听明才智大致相当"},{"id":"trait2_l6","type":"likert","prompt":"我很喜欢对方在看完电影后，总会对剧情加以分析一番"},{"id":"trait2_l7","type":"likert","prompt":"有时对方说错话会让我觉得尴尬"},{"id":"trait2_l8","type":"likert","prompt":"我和对方经常针对各种不同的主题热烈讨论"}]},{"id":"trait3","title":"三、外貌","part":"traits","items":[{"id":"trait3_o1","type":"open","prompt":"描述一下你心目中理想对象的外在绦件。美貌"},{"id":"trait3_o2","type":"open","prompt":"对方的体重对你来说有多重要？"},{"id":"trait3_o3","type":"open","prompt":"如果对方的外在条件不是很好，你会介意吗？请说明。"},{"id":"trait3_o4","type":"open","prompt":"对于一个可能交往的对象，你觉得什么样的外表特质最重要？请"},{"id":"trait3_l1","type":"likert","prompt":"我真希望对方的身高能够再高一点"},{"id":"trait3_l2","type":"likert","prompt":"我第一眼就喜欢上对方的长相"},{"id":"trait3_l3","type":"likert","prompt":"我不希望对方再瘦下去"},{"id":"trait3_l4","type":"likert","prompt":"我想请对方换个发色或发型"},{"id":"trait3_l5","type":"likert","prompt":"我很欣赏对方一向穿着得体"},{"id":"trait3_l6","type":"likert","prompt":"对方总是保持整洁干净"},{"id":"trait3_l7","type":"likert","prompt":"对方有一点笨手笨脚的，这一点我不喜欢"},{"id":"trait3_l8","type":"likert","prompt":"被别人看见我们在一起，我想对方会觉得很荣幸"}]},{"id":"trait4","title":"四、企图心","part":"traits","items":[{"id":"trait4_o1","type":"open","prompt":"描述一下你对事业的企图心。做事开心最重要"},{"id":"trait4_o2","type":"open","prompt":"对你来说，放轻松还是不断冲剌事业比较重要？"},{"id":"trait4_l1","type":"likert","prompt":"我觉得对方是个有企图心的人"},{"id":"trait4_l2","type":"likert","prompt":"我和对方有许多共同的目标"},{"id":"trait4_l3","type":"likert","prompt":"真希望我和对方可以偶尔放慢脚步"},{"id":"trait4_l4","type":"likert","prompt":"对方似乎太拼命"},{"id":"trait4_l5","type":"likert","prompt":"我根本不在乎能不能「登上管理阶层」"},{"id":"trait4_l6","type":"likert","prompt":"对方很看重成功"},{"id":"trait4_l7","type":"likert","prompt":"我们其中有一方特别需要休息"},{"id":"trait4_l8","type":"likert","prompt":"我们两人都希望能够飞黄腾达"}]},{"id":"trait5","title":"五、吸引力","part":"traits","items":[{"id":"trait5_o1","type":"open","prompt":"你会被什么特质的人吸引？"},{"id":"trait5_o2","type":"open","prompt":"你有多重视浪漫的感觉？"},{"id":"trait5_o3","type":"open","prompt":"在你寻找结婚对象时，外表的吸引力占多大的份量？"},{"id":"trait5_l1","type":"likert","prompt":"我和对方互相吸引"},{"id":"trait5_l2","type":"likert","prompt":"我不太了解「吸引力」是怎么一回事"},{"id":"trait5_l3","type":"likert","prompt":"外表的吸引力在我们的感情中是很重要的一部份"},{"id":"trait5_l4","type":"likert","prompt":"我真希望对方能够更浪漫一点"},{"id":"trait5_l5","type":"likert","prompt":"对我而言，理智比浪漫重要"},{"id":"trait5_l6","type":"likert","prompt":"我渴望跟对方之间有更多情感的火花"}]},{"id":"trait6","title":"六、灵性（信仰）层面","part":"traits","items":[{"id":"trait6_o1","type":"open","prompt":"你会如何形容自己的信仰？"},{"id":"trait6_o2","type":"open","prompt":"如果你认为自己是一个有信仰的人，你如何表达你的信仰？"},{"id":"trait6_l1","type":"likert","prompt":"我和对方有类似的信仰背景"},{"id":"trait6_l2","type":"likert","prompt":"信仰问题对我很重要"},{"id":"trait6_l3","type":"likert","prompt":"我不喜欢参加教会的活动"},{"id":"trait6_l4","type":"likert","prompt":"我不明白对方能从祷告中得到什么好处"},{"id":"trait6_l5","type":"likert","prompt":"信仰是我个人的事，跟别人无关"},{"id":"trait6_l6","type":"likert","prompt":"信仰为我们的感情带来压力"},{"id":"trait6_l7","type":"likert","prompt":"我期待信仰在我们的婚姻中扮演很重要的角色"},{"id":"trait6_l8","type":"likert","prompt":"对方每次需要作什么决定，都会从圣经中去找答案，这一点我不喜欢"}]},{"id":"trait7","title":"七、品性","part":"traits","items":[{"id":"trait7_o1","type":"open","prompt":"描述一下配偶的哪一种品性特质对你来说最重要？"},{"id":"trait7_o2","type":"open","prompt":"如果你发现对方一再向你说谎，你会有何反应？"},{"id":"trait7_o3","type":"open","prompt":"你会如何描述自己的品性？"},{"id":"trait7_l1","type":"likert","prompt":"我偶尔会发现对方向我说谎"},{"id":"trait7_l2","type":"likert","prompt":"对方觉得我很值得信赖"},{"id":"trait7_l3","type":"likert","prompt":"我很欣赏对方为自己的信念坚持到底的勇气"},{"id":"trait7_l4","type":"likert","prompt":"我真希望对方能够有更坚定的价值观"},{"id":"trait7_l5","type":"likert","prompt":"我不能想象对方因任何原因而对我不忠"},{"id":"trait7_l6","type":"likert","prompt":"当对方买东西付帐时，店员多找了钱，我知道他会怎么做"},{"id":"trait7_l7","type":"likert","prompt":"对方非常有责任感"},{"id":"trait7_l8","type":"likert","prompt":"我真希望对方对有权柄的人能够更尊重一点"}]},{"id":"trait8","title":"八、创意","part":"traits","items":[{"id":"trait8_o1","type":"open","prompt":"对方有没有创意，这一点对你重不重要？请说明。"},{"id":"trait8_o2","type":"open","prompt":"哪一方面的创意对你来说最重要？"},{"id":"trait8_o3","type":"open","prompt":"你最欣赏哪一方面的创意？"},{"id":"trait8_l1","type":"likert","prompt":"对方是我所认识最具创意的人"},{"id":"trait8_l2","type":"likert","prompt":"我真希望对方少一点创意，多一点责任感"},{"id":"trait8_l3","type":"likert","prompt":"创意所付出的代价太高了"},{"id":"trait8_l4","type":"likert","prompt":"对方喜欢想一些不同的方式来增添生活情趣"},{"id":"trait8_l5","type":"likert","prompt":"我很惊讶我们在一起时竟然可以创意十足"},{"id":"trait8_l6","type":"likert","prompt":"我比对方还看重创意"},{"id":"trait8_l7","type":"likert","prompt":"我们的关系缺乏创意，这一点有时令我感到困扰"},{"id":"trait8_l8","type":"likert","prompt":"我们两人都喜欢想一些新点子来庆祝我们的爱情"}]},{"id":"trait9","title":"九、为人父母的能力","part":"traits","items":[{"id":"trait9_o1","type":"open","prompt":"你的父母是什么样的父母？"},{"id":"trait9_o2","type":"open","prompt":"在你的朋友或家庭里，什么样的为人父母之道最令你佩服？"},{"id":"trait9_o3","type":"open","prompt":"你想要孩子吗？"},{"id":"trait9_o4","type":"open","prompt":"想到为人父母，你会觉得兴奋还是焦虑？请说明。"},{"id":"trait9_l1","type":"likert","prompt":"我和对方已经详细讨论过生儿育女这方面的事"},{"id":"trait9_l2","type":"likert","prompt":"我觉得对方会是个好父母"},{"id":"trait9_l3","type":"likert","prompt":"我和对方对家庭都有信守承诺的决心"},{"id":"trait9_l4","type":"likert","prompt":"我可以想象对方跟我们的孩子一起玩的情景"},{"id":"trait9_l5","type":"likert","prompt":"我见过对方和小孩子互动的情形"},{"id":"trait9_l6","type":"likert","prompt":"我担心对方管教孩子的态度可能会比我严格"},{"id":"trait9_l7","type":"likert","prompt":"对方一想到肮脏的尿布就觉得恶心"},{"id":"trait9_l8","type":"likert","prompt":"我和对方都想一起帮忙朋友或家人看小孩"}]},{"id":"trait10","title":"十、真诚","part":"traits","items":[{"id":"trait10_o1","type":"open","prompt":"你在对方面前能够多自在的表现你自己？"},{"id":"trait10_l1","type":"likert","prompt":"我们两人不介意在别人面前有不同的意见"},{"id":"trait10_l2","type":"likert","prompt":"对方在别人前常会做出讨好别人的反应"},{"id":"trait10_l3","type":"likert","prompt":"我能够很自然的向对方坦白说出自己的意见"},{"id":"trait10_l4","type":"likert","prompt":"对方有时会让别人把期得和要求加诸在他身上"},{"id":"trait10_l5","type":"likert","prompt":"对方不太担心别人对他的看法"},{"id":"trait10_l6","type":"likert","prompt":"意见不同并不会造成我们两人的不快"},{"id":"trait10_l7","type":"likert","prompt":"我的亲友都觉得对方的情绪很稳定"},{"id":"trait10_l8","type":"likert","prompt":"我们双方都能够向自己和对方坦白"}]}],"id":"assessment","title":"婚前关系评估"},"assessment.json":{"version":1,"scale":{"min":1,"max":5,"labels":["非常同意","同意","中立","不同意","非常不同意"]},"chapters":[{"id":"err1","title":"错误一: 太快决定结婚","part":"errors","items":[{"id":"err1_o1","type":"open","prompt":"你认识对方多久了？"},{"id":"err1_o2","type":"open","prompt":"你们交往多久了？"},{"id":"err1_o3","type":"open","prompt":"你觉得应该认识多久才论及婚嫁？ 请说明理由。"},{"id":"err1_l1","type":"likert","prompt":"我和对方已经讨论过彼此的背景"},{"id":"err1_l2","type":"likert","prompt":"我可以轻易说出对方的五大优点"},{"id":"err1_l3","type":"likert","prompt":"要对方说出我的五项缺点会很困难"},{"id":"err1_l4","type":"likert","prompt":"我通常可以猜出对方在压力下的反应"},{"id":"err1_l5","type":"likert","prompt":"我期待婚后不会有太多令我感到意外的事"},{"id":"err1_l6","type":"likert","prompt":"我在很多不同的活动层面观察过对方的表现"},{"id":"err1_l7","type":"likert","prompt":"我知道不同的季节会如何影响对方的心情"},{"id":"err1_l8","type":"likert","prompt":"当我隐瞒心事时，对方通常看得出来"},{"id":"err1_l9","type":"likert","prompt":"再交往久一点，并不能帮助我更认识对方"},{"id":"err1_l10","type":"likert","prompt":"我没有赶快结婚的压力"}]},{"id":"err2","title":"错误二: 太年轻就决定要结婚","part":"errors","items":[{"id":"err2_o1","type":"open","prompt":"你毕业多久了？"},{"id":"err2_o2","type":"open","prompt":"当你决定跟对方结婚时是几岁？"},{"id":"err2_l1","type":"likert","prompt":"我的父母认为我的年纪已经够大，可以结婚了"},{"id":"err2_l2","type":"likert","prompt":"我已经完成了大部份的正式教育"},{"id":"err2_l3","type":"likert","prompt":"以我目前的收入，要维持一个家庭绰绰有余"},{"id":"err2_l4","type":"likert","prompt":"我非常了解自己"},{"id":"err2_l5","type":"likert","prompt":"我已经脱离父母独立了"},{"id":"err2_l6","type":"likert","prompt":"我不太确定我的人生目标"},{"id":"err2_l7","type":"likert","prompt":"我已经历过很多人生的历练"},{"id":"err2_l8","type":"likert","prompt":"我不太清楚对方具有什么特质，能够帮助我享受一个美满的婚姻"},{"id":"err2_l9","type":"likert","prompt":"我已经长大成熟了"},{"id":"err2_l10","type":"likert","prompt":"我和对方都很清楚，我们在婚后各自该扮演什么样的角色"}]},{"id":"err3","title":"错误三: 一方或双方急着结婚","part":"errors","items":[{"id":"err3_o1","type":"open","prompt":"你跟对方交往多久后就论及婚嫁？"},{"id":"err3_l1","type":"likert","prompt":"我觉得至少交往一年再结婚是很明智的"},{"id":"err3_l2","type":"likert","prompt":"我和对方都很乐意讨论彼此之间可能存在的问题"},{"id":"err3_l3","type":"likert","prompt":"我们其中有一方此较急于结婚"},{"id":"err3_l4","type":"likert","prompt":"我们双方都不是刚从一段受伤的感情中抽身出来"},{"id":"err3_l5","type":"likert","prompt":"如果没有马上结婚，对方愿意等我"},{"id":"err3_l6","type":"likert","prompt":"结婚可以解除我对寂寞的恐惧感"},{"id":"err3_l7","type":"likert","prompt":"我一想到结婚就很兴奋"},{"id":"err3_l8","type":"likert","prompt":"我对结婚的决定必须从容不迫"},{"id":"err3_l9","type":"likert","prompt":"对方似乎急于结婚"},{"id":"err3_l10","type":"likert","prompt":"我感受到必须尽快结婚的压力"}]},{"id":"err4","title":"错误四: 为了讨好某人而选择一个对象","part":"errors","items":[{"id":"err4_o1","type":"open","prompt":"别人的看法在你的选择决定上占有多重要的份量？"},{"id":"err4_o2","type":"open","prompt":"在你的择偶决定上，你希望别人介入多少？"},{"id":"err4_o3","type":"open","prompt":"如果你没跟对方结婚，对方就会受不了。你会跟这样的人结婚吗？"},{"id":"err4_l1","type":"likert","prompt":"我父母对可能成为我结婚对象的看法，对我来说并不是很重要"},{"id":"err4_l2","type":"likert","prompt":"如果我父母极力反对我所选择的对象，我就不会跟这个人结婚"},{"id":"err4_l3","type":"likert","prompt":"在我的择偶决定上，最该觉得满意的人是我"},{"id":"err4_l4","type":"likert","prompt":"我会让别人替我作重要的决定"},{"id":"err4_l5","type":"likert","prompt":"如果我要求父母别过份担心我所选择的对象，他们会尊重我"},{"id":"err4_l6","type":"likert","prompt":"我已经准备妥当，一辈子不会后悔作这个结婚的决定"},{"id":"err4_l7","type":"likert","prompt":"我不太能够信任自己作重大决定的能力"},{"id":"err4_l8","type":"likert","prompt":"对方在作结婚的决定时，没有感受到外来的压力"},{"id":"err4_l9","type":"likert","prompt":"即使喜帖已经发出去，若是必要，我还是能够取消婚礼"},{"id":"err4_l10","type":"likert","prompt":"当父母或朋友告诉我，他们对我所交往对象的看法时，我会注意聆听"}]},{"id":"err5","title":"错误五: 认识的层面太窄","part":"errors","items":[{"id":"err5_o1","type":"open","prompt":"你交往过几个对象？"},{"id":"err5_l1","type":"likert","prompt":"我曾交往过很多对象，我知道自己想要什么样的伴侣"},{"id":"err5_l2","type":"likert","prompt":"对方丰富的人生历练常常令我感到惊讶"},{"id":"err5_l3","type":"likert","prompt":"我和对方已经谈论过很多不同层面的主题"},{"id":"err5_l4","type":"likert","prompt":"我和对方形影不离"},{"id":"err5_l5","type":"likert","prompt":"我和对方从不吵架"},{"id":"err5_l6","type":"likert","prompt":"我知道对方和小孩子互动的情形"},{"id":"err5_l7","type":"likert","prompt":"我和对方都比较喜欢独处"},{"id":"err5_l8","type":"likert","prompt":"对方很会处理金钱方面的事务"},{"id":"err5_l9","type":"likert","prompt":"发生出乎意料之外的情况时，对方的反应很少令我感到惊讶"},{"id":"err5_l10","type":"likert","prompt":"我和对方有很多共同爱好的活动"}]},{"id":"err6","title":"错误六: 两人有不切实际的期待","part":"errors","items":[{"id":"err6_o1","type":"open","prompt":"你对一个美满的婚姻有哪三大期待？"},{"id":"err6_o2","type":"open","prompt":"对方对一个美满的婚姻有哪三大期待？"},{"id":"err6_o3","type":"open","prompt":"你觉得要使你的婚姻幸福难不难？"},{"id":"err6_l1","type":"likert","prompt":"我觉得真爱可以轻易化解婚姻中一切的问题"},{"id":"err6_l2","type":"likert","prompt":"对方可以使我的人生变得很有意义"},{"id":"err6_l3","type":"likert","prompt":"我可以猜测出我和对方结婚后，最可能在哪些方面出现问题"},{"id":"err6_l4","type":"likert","prompt":"我知道新婚期间不都是甜蜜蜜的"},{"id":"err6_l5","type":"likert","prompt":"婚姻应该不会增加我生活上的压力"},{"id":"err6_l6","type":"likert","prompt":"我对婚姻的期待，主要是受到我父母婚姻的影响"},{"id":"err6_l7","type":"likert","prompt":"对方清楚了解他的父母在婚姻中所经历过的挣扎"},{"id":"err6_l8","type":"likert","prompt":"我和对方都相信婚姻是一项艰巨的挑战"},{"id":"err6_l9","type":"likert","prompt":"一旦结了婚，我绝不容许自己有离婚的念头"},{"id":"err6_l10","type":"likert","prompt":"我和对方对性的看法类似"}]},{"id":"err7","title":"错误七: 有严重的个性或行为问题","part":"errors","items":[{"id":"err7_o1","type":"open","prompt":"对方有没有任何令你担心的吸毒酗酒问题？"},{"id":"err7_l1","type":"likert","prompt":"对方喝酒会节制"},{"id":"err7_l2","type":"likert","prompt":"我从来不用担心对方会到处拈花惹草"},{"id":"err7_l3","type":"likert","prompt":"如果对方告诉我某件事，我知道我可以信任他所说的"},{"id":"err7_l4","type":"likert","prompt":"我相信对方会信守他所许下的承诺"},{"id":"err7_l5","type":"likert","prompt":"我想不出对方有什么特质令我感到不安"},{"id":"err7_l6","type":"likert","prompt":"过去我有一些令自己困扰的行为特质，但现在已经克服了"},{"id":"err7_l7","type":"likert","prompt":"对方至少有一项主要的性格缺陷，是我很希望可以根除的"},{"id":"err7_l8","type":"likert","prompt":"我可以毫不犹豫的跟对方结婚"},{"id":"err7_l9","type":"likert","prompt":"我的朋友常常警告我要留意对方的某项特质"},{"id":"err7_l10","type":"likert","prompt":"我不会要求对方有什么大改变，即使我有机会可以改变对方"}]},{"id":"trait1","title":"一、个性","part":"traits","items":[{"id":"trait1_o1","type":"open","prompt":"你比较喜欢安静、害羞，还是爱说话、交际的人？"},{"id":"trait1_o2","type":"open","prompt":"你会被风趣的人，还是严肃的人吸引？"},{"id":"trait1_o3","type":"open","prompt":"你比较喜欢坚强、独立的人，还是一切都让你作决定的人？"},{"id":"trait1_o4","type":"open","prompt":"你希望你的理想对象具有委婉或直率的特质？"},{"id":"trait1_l1","type":"likert","prompt":"我真希望对方也能让我决定一些事"},{"id":"trait1_l2","type":"likert","prompt":"我们在一起时，欢笑时刻并不多"},{"id":"trait1_l3","type":"likert","prompt":"我真希望对方能多跟我说说话"},{"id":"trait1_l4","type":"likert","prompt":"我很佩服对方认真的态度"},{"id":"trait1_l5","type":"likert","prompt":"我很欣当对方跟我在一起的温柔态度"},{"id":"trait1_l6","type":"likert","prompt":"有时我真希望对方可以先让我说话"},{"id":"trait1_l7","type":"likert","prompt":"我的朋友都觉得我和对方非常合适"},{"id":"trait1_l8","type":"likert","prompt":"我真希望自己可以像对方那么严谨"}]},{"id":"trait2","title":"二、聪明","part":"traits","items":[{"id":"trait2_o1","type":"open","prompt":"你觉得你的理想对象应该要有多聪明？"},{"id":"trait2_o2","type":"open","prompt":"你觉得理想的对象应该是思考型还是感觉型的人？"},{"id":"trait2_l1","type":"likert","prompt":"我在对方面前时常觉得自己很笨"},{"id":"trait2_l2","type":"likert","prompt":"我真希望对方的数学能好一点"},{"id":"trait2_l3","type":"likert","prompt":"我真希望对方能多一点思考，少一点感觉"},{"id":"trait2_l4","type":"likert","prompt":"我不晓得对方是否觉得我够聪明"},{"id":"trait2_l5","type":"likert","prompt":"我和对方的听明才智大致相当"},{"id":"trait2_l6","type":"likert","prompt":"我很喜欢对方在看完电影后，总会对剧情加以分析一番"},{"id":"trait2_l7","type":"likert","prompt":"有时对方说错话会让我觉得尴尬"},{"id":"trait2_l8","type":"likert","prompt":"我和对方经常针对各种不同的主题热烈讨论"}]},{"id":"trait3","title":"三、外貌","part":"traits","items":[{"id":"trait3_o1","type":"open","prompt":"描述一下你心目中理想对象的外在绦件。美貌"},{"id":"trait3_o2","type":"open","prompt":"对方的体重对你来说有多重要？"},{"id":"trait3_o3","type":"open","prompt":"如果对方的外在条件不是很好，你会介意吗？请说明。"},{"id":"trait3_o4","type":"open","prompt":"对于一个可能交往的对象，你觉得什么样的外表特质最重要？请"},{"id":"trait3_l1","type":"likert","prompt":"我真希望对方的身高能够再高一点"},{"id":"trait3_l2","type":"likert","prompt":"我第一眼就喜欢上对方的长相"},{"id":"trait3_l3","type":"likert","prompt":"我不希望对方再瘦下去"},{"id":"trait3_l4","type":"likert","prompt":"我想请对方换个发色或发型"},{"id":"trait3_l5","type":"likert","prompt":"我很欣赏对方一向穿着得体"},{"id":"trait3_l6","type":"likert","prompt":"对方总是保持整洁干净"},{"id":"trait3_l7","type":"likert","prompt":"对方有一点笨手笨脚的，这一点我不喜欢"},{"id":"trait3_l8","type":"likert","prompt":"被别人看见我们在一起，我想对方会觉得很荣幸"}]},{"id":"trait4","title":"四、企图心","part":"traits","items":[{"id":"trait4_o1","type":"open","prompt":"描述一下你对事业的企图心。做事开心最重要"},{"id":"trait4_o2","type":"open","prompt":"对你来说，放轻松还是不断冲剌事业比较重要？"},{"id":"trait4_l1","type":"likert","prompt":"我觉得对方是个有企图心的人"},{"id":"trait4_l2","type":"likert","prompt":"我和对方有许多共同的目标"},{"id":"trait4_l3","type":"likert","prompt":"真希望我和对方可以偶尔放慢脚步"},{"id":"trait4_l4","type":"likert","prompt":"对方似乎太拼命"},{"id":"trait4_l5","type":"likert","prompt":"我根本不在乎能不能「登上管理阶层」"},{"id":"trait4_l6","type":"likert","prompt":"对方很看重成功"},{"id":"trait4_l7","type":"likert","prompt":"我们其中有一方特别需要休息"},{"id":"trait4_l8","type":"likert","prompt":"我们两人都希望能够飞黄腾达"}]},{"id":"trait5","title":"五、吸引力","part":"traits","items":[{"id":"trait5_o1","type":"open","prompt":"你会被什么特质的人吸引？"},{"id":"trait5_o2","type":"open","prompt":"你有多重视浪漫的感觉？"},{"id":"trait5_o3","type":"open","prompt":"在你寻找结婚对象时，外表的吸引力占多大的份量？"},{"id":"trait5_l1","type":"likert","prompt":"我和对方互相吸引"},{"id":"trait5_l2","type":"likert","prompt":"我不太了解「吸引力」是怎么一回事"},{"id":"trait5_l3","type":"likert","prompt":"外表的吸引力在我们的感情中是很重要的一部份"},{"id":"trait5_l4","type":"likert","prompt":"我真希望对方能够更浪漫一点"},{"id":"trait5_l5","type":"likert","prompt":"对我而言，理智比浪漫重要"},{"id":"trait5_l6","type":"likert","prompt":"我渴望跟对方之间有更多情感的火花"}]},{"id":"trait6","title":"六、灵性（信仰）层面","part":"traits","items":[{"id":"trait6_o1","type":"open","prompt":"你会如何形容自己的信仰？"},{"id":"trait6_o2","type":"open","prompt":"如果你认为自己是一个有信仰的人，你如何表达你的信仰？"},{"id":"trait6_l1","type":"likert","prompt":"我和对方有类似的信仰背景"},{"id":"trait6_l2","type":"likert","prompt":"信仰问题对我很重要"},{"id":"trait6_l3","type":"likert","prompt":"我不喜欢参加教会的活动"},{"id":"trait6_l4","type":"likert","prompt":"我不明白对方能从祷告中得到什么好处"},{"id":"trait6_l5","type":"likert","prompt":"信仰是我个人的事，跟别人无关"},{"id":"trait6_l6","type":"likert","prompt":"信仰为我们的感情带来压力"},{"id":"trait6_l7","type":"likert","prompt":"我期待信仰在我们的婚姻中扮演很重要的角色"},{"id":"trait6_l8","type":"likert","prompt":"对方每次需要作什么决定，都会从圣经中去找答案，这一点我不喜欢"}]},{"id":"trait7","title":"七、品性","part":"traits","items":[{"id":"trait7_o1","type":"open","prompt":"描述一下配偶的哪一种品性特质对你来说最重要？"},{"id":"trait7_o2","type":"open","prompt":"如果你发现对方一再向你说谎，你会有何反应？"},{"id":"trait7_o3","type":"open","prompt":"你会如何描述自己的品性？"},{"id":"trait7_l1","type":"likert","prompt":"我偶尔会发现对方向我说谎"},{"id":"trait7_l2","type":"likert","prompt":"对方觉得我很值得信赖"},{"id":"trait7_l3","type":"likert","prompt":"我很欣赏对方为自己的信念坚持到底的勇气"},{"id":"trait7_l4","type":"likert","prompt":"我真希望对方能够有更坚定的价值观"},{"id":"trait7_l5","type":"likert","prompt":"我不能想象对方因任何原因而对我不忠"},{"id":"trait7_l6","type":"likert","prompt":"当对方买东西付帐时，店员多找了钱，我知道他会怎么做"},{"id":"trait7_l7","type":"likert","prompt":"对方非常有责任感"},{"id":"trait7_l8","type":"likert","prompt":"我真希望对方对有权柄的人能够更尊重一点"}]},{"id":"trait8","title":"八、创意","part":"traits","items":[{"id":"trait8_o1","type":"open","prompt":"对方有没有创意，这一点对你重不重要？请说明。"},{"id":"trait8_o2","type":"open","prompt":"哪一方面的创意对你来说最重要？"},{"id":"trait8_o3","type":"open","prompt":"你最欣赏哪一方面的创意？"},{"id":"trait8_l1","type":"likert","prompt":"对方是我所认识最具创意的人"},{"id":"trait8_l2","type":"likert","prompt":"我真希望对方少一点创意，多一点责任感"},{"id":"trait8_l3","type":"likert","prompt":"创意所付出的代价太高了"},{"id":"trait8_l4","type":"likert","prompt":"对方喜欢想一些不同的方式来增添生活情趣"},{"id":"trait8_l5","type":"likert","prompt":"我很惊讶我们在一起时竟然可以创意十足"},{"id":"trait8_l6","type":"likert","prompt":"我比对方还看重创意"},{"id":"trait8_l7","type":"likert","prompt":"我们的关系缺乏创意，这一点有时令我感到困扰"},{"id":"trait8_l8","type":"likert","prompt":"我们两人都喜欢想一些新点子来庆祝我们的爱情"}]},{"id":"trait9","title":"九、为人父母的能力","part":"traits","items":[{"id":"trait9_o1","type":"open","prompt":"你的父母是什么样的父母？"},{"id":"trait9_o2","type":"open","prompt":"在你的朋友或家庭里，什么样的为人父母之道最令你佩服？"},{"id":"trait9_o3","type":"open","prompt":"你想要孩子吗？"},{"id":"trait9_o4","type":"open","prompt":"想到为人父母，你会觉得兴奋还是焦虑？请说明。"},{"id":"trait9_l1","type":"likert","prompt":"我和对方已经详细讨论过生儿育女这方面的事"},{"id":"trait9_l2","type":"likert","prompt":"我觉得对方会是个好父母"},{"id":"trait9_l3","type":"likert","prompt":"我和对方对家庭都有信守承诺的决心"},{"id":"trait9_l4","type":"likert","prompt":"我可以想象对方跟我们的孩子一起玩的情景"},{"id":"trait9_l5","type":"likert","prompt":"我见过对方和小孩子互动的情形"},{"id":"trait9_l6","type":"likert","prompt":"我担心对方管教孩子的态度可能会比我严格"},{"id":"trait9_l7","type":"likert","prompt":"对方一想到肮脏的尿布就觉得恶心"},{"id":"trait9_l8","type":"likert","prompt":"我和对方都想一起帮忙朋友或家人看小孩"}]},{"id":"trait10","title":"十、真诚","part":"traits","items":[{"id":"trait10_o1","type":"open","prompt":"你在对方面前能够多自在的表现你自己？"},{"id":"trait10_l1","type":"likert","prompt":"我们两人不介意在别人面前有不同的意见"},{"id":"trait10_l2","type":"likert","prompt":"对方在别人前常会做出讨好别人的反应"},{"id":"trait10_l3","type":"likert","prompt":"我能够很自然的向对方坦白说出自己的意见"},{"id":"trait10_l4","type":"likert","prompt":"对方有时会让别人把期得和要求加诸在他身上"},{"id":"trait10_l5","type":"likert","prompt":"对方不太担心别人对他的看法"},{"id":"trait10_l6","type":"likert","prompt":"意见不同并不会造成我们两人的不快"},{"id":"trait10_l7","type":"likert","prompt":"我的亲友都觉得对方的情绪很稳定"},{"id":"trait10_l8","type":"likert","prompt":"我们双方都能够向自己和对方坦白"}]}],"id":"assessment","title":"婚前关系评估"},"forms/intake.json":{"id":"intake","title":"交友/婚前约谈问卷","version":1,"chapters":[{"id":"base","title":"约谈问卷","part":"main","items":[{"id":"base_o1","type":"open","prompt":"出生日期（年/月/日）"},{"id":"base_o2","type":"open","prompt":"年龄"},{"id":"base_o3","type":"open","prompt":"性别"},{"id":"base_o4","type":"open","prompt":"国籍/种族"},{"id":"base_o5","type":"open","prompt":"出生地（本身）"},{"id":"base_o6","type":"open","prompt":"父亲出生地"},{"id":"base_o7","type":"open","prompt":"母亲出生地"},{"id":"base_o8","type":"open","prompt":"出生序别 / 家庭树说明"},{"id":"base_o9","type":"open","prompt":"目前婚姻状况说明"},{"id":"base_o10","type":"open","prompt":"若有儿女：男孩/女孩年龄"},{"id":"base_o11","type":"open","prompt":"宗教成长环境"},{"id":"base_o12","type":"open","prompt":"目前所在教会"},{"id":"base_o13","type":"open","prompt":"教育程度与最高学位"},{"id":"base_o14","type":"open","prompt":"职业训练（年）"},{"id":"base_o15","type":"open","prompt":"已就职年数与现职"},{"id":"base_o16","type":"open","prompt":"父亲职业与退休情况"},{"id":"base_o17","type":"open","prompt":"母亲工作情况与你的感受"},{"id":"base_o18","type":"open","prompt":"孩童时家庭生活感受"},{"id":"base_o19","type":"open","prompt":"父母目前婚姻状况"},{"id":"base_o20","type":"open","prompt":"父母婚姻幸福程度"},{"id":"base_o21","type":"open","prompt":"18–21 岁异性交往情况"},{"id":"base_o22","type":"open","prompt":"恋爱经历与旧情人联络/情感/性行为情况（可简述）"},{"id":"base_o23","type":"open","prompt":"与父母关系（孩童/青年/目前）"},{"id":"base_o24","type":"open","prompt":"认识意中人多久；正式交往多久"},{"id":"base_o25","type":"open","prompt":"目前关系阶段与预定婚期"},{"id":"base_o26","type":"open","prompt":"是否曾订婚/中断关系/因故分离"},{"id":"base_o27","type":"open","prompt":"彼此信任程度"},{"id":"base_o28","type":"open","prompt":"婚后居住安排"},{"id":"base_o29","type":"open","prompt":"双方家长态度"},{"id":"base_o30","type":"open","prompt":"与准姻亲关系"},{"id":"base_o31","type":"open","prompt":"家庭预算与收支/供养他人"},{"id":"base_o32","type":"open","prompt":"家务分工期待"},{"id":"base_o33","type":"open","prompt":"亲密表达频率与满意度"},{"id":"base_o34","type":"open","prompt":"性经历相关（按题目如实）"},{"id":"base_o35","type":"open","prompt":"期望何时生育、孩子数量、妻子是否继续工作"},{"id":"base_o36","type":"open","prompt":"性知识来源与婚后性关系期待"},{"id":"base_o37","type":"open","prompt":"冲突处理方式"},{"id":"base_o38","type":"open","prompt":"对婚姻幸福的把握"}]}]},"intake.json":{"id":"intake","title":"交友/婚前约谈问卷","version":1,"chapters":[{"id":"base","title":"约谈问卷","part":"main","items":[{"id":"base_o1","type":"open","prompt":"出生日期（年/月/日）"},{"id":"base_o2","type":"open","prompt":"年龄"},{"id":"base_o3","type":"open","prompt":"性别"},{"id":"base_o4","type":"open","prompt":"国籍/种族"},{"id":"base_o5","type":"open","prompt":"出生地（本身）"},{"id":"base_o6","type":"open","prompt":"父亲出生地"},{"id":"base_o7","type":"open","prompt":"母亲出生地"},{"id":"base_o8","type":"open","prompt":"出生序别 / 家庭树说明"},{"id":"base_o9","type":"open","prompt":"目前婚姻状况说明"},{"id":"base_o10","type":"open","prompt":"若有儿女：男孩/女孩年龄"},{"id":"base_o11","type":"open","prompt":"宗教成长环境"},{"id":"base_o12","type":"open","prompt":"目前所在教会"},{"id":"base_o13","type":"open","prompt":"教育程度与最高学位"},{"id":"base_o14","type":"open","prompt":"职业训练（年）"},{"id":"base_o15","type":"open","prompt":"已就职年数与现职"},{"id":"base_o16","type":"open","prompt":"父亲职业与退休情况"},{"id":"base_o17","type":"open","prompt":"母亲工作情况与你的感受"},{"id":"base_o18","type":"open","prompt":"孩童时家庭生活感受"},{"id":"base_o19","type":"open","prompt":"父母目前婚姻状况"},{"id":"base_o20","type":"open","prompt":"父母婚姻幸福程度"},{"id":"base_o21","type":"open","prompt":"18–21 岁异性交往情况"},{"id":"base_o22","type":"open","prompt":"恋爱经历与旧情人联络/情感/性行为情况（可简述）"},{"id":"base_o23","type":"open","prompt":"与父母关系（孩童/青年/目前）"},{"id":"base_o24","type":"open","prompt":"认识意中人多久；正式交往多久"},{"id":"base_o25","type":"open","prompt":"目前关系阶段与预定婚期"},{"id":"base_o26","type":"open","prompt":"是否曾订婚/中断关系/因故分离"},{"id":"base_o27","type":"open","prompt":"彼此信任程度"},{"id":"base_o28","type":"open","prompt":"婚后居住安排"},{"id":"base_o29","type":"open","prompt":"双方家长态度"},{"id":"base_o30","type":"open","prompt":"与准姻亲关系"},{"id":"base_o31","type":"open","prompt":"家庭预算与收支/供养他人"},{"id":"base_o32","type":"open","prompt":"家务分工期待"},{"id":"base_o33","type":"open","prompt":"亲密表达频率与满意度"},{"id":"base_o34","type":"open","prompt":"性经历相关（按题目如实）"},{"id":"base_o35","type":"open","prompt":"期望何时生育、孩子数量、妻子是否继续工作"},{"id":"base_o36","type":"open","prompt":"性知识来源与婚后性关系期待"},{"id":"base_o37","type":"open","prompt":"冲突处理方式"},{"id":"base_o38","type":"open","prompt":"对婚姻幸福的把握"}]}]},"forms/expectations.json":{"id":"expectations","title":"期待问卷 + 婚姻观提纲","version":1,"chapters":[{"id":"exp","title":"期待问卷","part":"main","items":[{"id":"exp_o1","type":"open","prompt":"对婚前辅导课程的期待"},{"id":"exp_o2","type":"open","prompt":"对二人关系的期待"},{"id":"exp_o3","type":"open","prompt":"对自己有什么期待？"},{"id":"exp_o4","type":"open","prompt":"请你为“婚姻”下一个定义"},{"id":"exp_o5","type":"open","prompt":"你对婚姻有什么期待和顾虑？"},{"id":"exp_o6","type":"open","prompt":"列出五点：现今适合结婚的理由"},{"id":"exp_o7","type":"open","prompt":"列出七点：要与对方结婚的理由"}]},{"id":"bible","title":"圣经婚姻观讨论提纲","part":"main","items":[{"id":"bible_o1","type":"open","prompt":"由创 2:24；太 19:4–6 归纳神对婚姻所立的法则"},{"id":"bible_o2","type":"open","prompt":"何谓离开？包括哪些层面？"},{"id":"bible_o3","type":"open","prompt":"哪一层面离开对你最难？为什么？"},{"id":"bible_o4","type":"open","prompt":"为什么要丈夫离开父母与妻子连合？"},{"id":"bible_o5","type":"open","prompt":"婚姻的终极目标为何？"},{"id":"bible_o6","type":"open","prompt":"夫妻在哪几方面需要合一？"},{"id":"bible_o7","type":"open","prompt":"箴 2:17；玛 2:14：夫妻关系属什么性质？"},{"id":"bible_o8","type":"open","prompt":"现代婚姻最大威胁是什么？如何避免？"}]}]},"expectations.json":{"id":"expectations","title":"期待问卷 + 婚姻观提纲","version":1,"chapters":[{"id":"exp","title":"期待问卷","part":"main","items":[{"id":"exp_o1","type":"open","prompt":"对婚前辅导课程的期待"},{"id":"exp_o2","type":"open","prompt":"对二人关系的期待"},{"id":"exp_o3","type":"open","prompt":"对自己有什么期待？"},{"id":"exp_o4","type":"open","prompt":"请你为“婚姻”下一个定义"},{"id":"exp_o5","type":"open","prompt":"你对婚姻有什么期待和顾虑？"},{"id":"exp_o6","type":"open","prompt":"列出五点：现今适合结婚的理由"},{"id":"exp_o7","type":"open","prompt":"列出七点：要与对方结婚的理由"}]},{"id":"bible","title":"圣经婚姻观讨论提纲","part":"main","items":[{"id":"bible_o1","type":"open","prompt":"由创 2:24；太 19:4–6 归纳神对婚姻所立的法则"},{"id":"bible_o2","type":"open","prompt":"何谓离开？包括哪些层面？"},{"id":"bible_o3","type":"open","prompt":"哪一层面离开对你最难？为什么？"},{"id":"bible_o4","type":"open","prompt":"为什么要丈夫离开父母与妻子连合？"},{"id":"bible_o5","type":"open","prompt":"婚姻的终极目标为何？"},{"id":"bible_o6","type":"open","prompt":"夫妻在哪几方面需要合一？"},{"id":"bible_o7","type":"open","prompt":"箴 2:17；玛 2:14：夫妻关系属什么性质？"},{"id":"bible_o8","type":"open","prompt":"现代婚姻最大威胁是什么？如何避免？"}]}]},"forms/family.json":{"id":"family","title":"原生家庭","version":1,"chapters":[{"id":"self","title":"一、了解自己","part":"main","items":[{"id":"self_o1","type":"open","prompt":"你是怎样的一个人？（具体详细）"},{"id":"self_o2","type":"open","prompt":"三个优点"},{"id":"self_o3","type":"open","prompt":"三个令人难以忍受的缺点/特质（伴侣常说的）"}]},{"id":"parents","title":"二、了解父母","part":"main","items":[{"id":"parents_o1","type":"open","prompt":"欣赏父亲的（至少三点）"},{"id":"parents_o2","type":"open","prompt":"欣赏母亲的（至少三点）"},{"id":"parents_o3","type":"open","prompt":"不欣赏父亲的（至少三点）"},{"id":"parents_o4","type":"open","prompt":"不欣赏母亲的（至少三点）"},{"id":"parents_o5","type":"open","prompt":"与父亲关系如何？有何期待？"},{"id":"parents_o6","type":"open","prompt":"与母亲关系如何？有何期待？"}]},{"id":"origin","title":"三、了解原生家庭与反省","part":"main","items":[{"id":"origin_o1","type":"open","prompt":"成长中重大事件及影响/感受"},{"id":"origin_o2","type":"open","prompt":"原生家庭对你的影响（行为模式、人际等）"},{"id":"origin_o3","type":"open","prompt":"原生家庭中多数决定谁做？你的感觉？"},{"id":"origin_o4","type":"open","prompt":"父母如何处理冲突？"},{"id":"origin_o5","type":"open","prompt":"与伴侣冲突时你的方式更像父还是母？想法？"},{"id":"origin_o6","type":"open","prompt":"将来婚姻中希望延续/调整的品质与气氛？"}]},{"id":"pray","title":"四、祷告记录（可选）","part":"main","items":[{"id":"pray_o1","type":"open","prompt":"认同性悔改/砍断相关记录（可摘要）"},{"id":"pray_o2","type":"open","prompt":"为将来家庭的祷告记录"}]}]},"family.json":{"id":"family","title":"原生家庭","version":1,"chapters":[{"id":"self","title":"一、了解自己","part":"main","items":[{"id":"self_o1","type":"open","prompt":"你是怎样的一个人？（具体详细）"},{"id":"self_o2","type":"open","prompt":"三个优点"},{"id":"self_o3","type":"open","prompt":"三个令人难以忍受的缺点/特质（伴侣常说的）"}]},{"id":"parents","title":"二、了解父母","part":"main","items":[{"id":"parents_o1","type":"open","prompt":"欣赏父亲的（至少三点）"},{"id":"parents_o2","type":"open","prompt":"欣赏母亲的（至少三点）"},{"id":"parents_o3","type":"open","prompt":"不欣赏父亲的（至少三点）"},{"id":"parents_o4","type":"open","prompt":"不欣赏母亲的（至少三点）"},{"id":"parents_o5","type":"open","prompt":"与父亲关系如何？有何期待？"},{"id":"parents_o6","type":"open","prompt":"与母亲关系如何？有何期待？"}]},{"id":"origin","title":"三、了解原生家庭与反省","part":"main","items":[{"id":"origin_o1","type":"open","prompt":"成长中重大事件及影响/感受"},{"id":"origin_o2","type":"open","prompt":"原生家庭对你的影响（行为模式、人际等）"},{"id":"origin_o3","type":"open","prompt":"原生家庭中多数决定谁做？你的感觉？"},{"id":"origin_o4","type":"open","prompt":"父母如何处理冲突？"},{"id":"origin_o5","type":"open","prompt":"与伴侣冲突时你的方式更像父还是母？想法？"},{"id":"origin_o6","type":"open","prompt":"将来婚姻中希望延续/调整的品质与气氛？"}]},{"id":"pray","title":"四、祷告记录（可选）","part":"main","items":[{"id":"pray_o1","type":"open","prompt":"认同性悔改/砍断相关记录（可摘要）"},{"id":"pray_o2","type":"open","prompt":"为将来家庭的祷告记录"}]}]},"forms/knowyou.json":{"id":"knowyou","title":"知己知彼与沟通","version":1,"chapters":[{"id":"ky","title":"知己知彼与沟通","part":"main","items":[{"id":"ky_o1","type":"open","prompt":"对方优点（至少三项）"},{"id":"ky_o2","type":"open","prompt":"对方缺点（至少三项）"},{"id":"ky_o3","type":"open","prompt":"过去一年最成功/美好的沟通事件"},{"id":"ky_o4","type":"open","prompt":"过去一年彼此伤害/不愉快事件"},{"id":"ky_o5","type":"open","prompt":"未说出口/说不清却希望对方明白的事"},{"id":"ky_o6","type":"open","prompt":"有些事为什么不说出来？"},{"id":"ky_o7","type":"open","prompt":"对方生气时你通常如何回应？"},{"id":"ky_o8","type":"open","prompt":"目前处理冲突的方式与原因"},{"id":"ky_o9","type":"open","prompt":"对沟通与相处的期待"},{"id":"ky_o10","type":"open","prompt":"读《婚姻美满的秘诀》后希望做的调整"},{"id":"ky_o11","type":"open","prompt":"其他想补充的知己知彼内容"}]}]},"knowyou.json":{"id":"knowyou","title":"知己知彼与沟通","version":1,"chapters":[{"id":"ky","title":"知己知彼与沟通","part":"main","items":[{"id":"ky_o1","type":"open","prompt":"对方优点（至少三项）"},{"id":"ky_o2","type":"open","prompt":"对方缺点（至少三项）"},{"id":"ky_o3","type":"open","prompt":"过去一年最成功/美好的沟通事件"},{"id":"ky_o4","type":"open","prompt":"过去一年彼此伤害/不愉快事件"},{"id":"ky_o5","type":"open","prompt":"未说出口/说不清却希望对方明白的事"},{"id":"ky_o6","type":"open","prompt":"有些事为什么不说出来？"},{"id":"ky_o7","type":"open","prompt":"对方生气时你通常如何回应？"},{"id":"ky_o8","type":"open","prompt":"目前处理冲突的方式与原因"},{"id":"ky_o9","type":"open","prompt":"对沟通与相处的期待"},{"id":"ky_o10","type":"open","prompt":"读《婚姻美满的秘诀》后希望做的调整"},{"id":"ky_o11","type":"open","prompt":"其他想补充的知己知彼内容"}]}]},"forms/roles.json":{"id":"roles","title":"夫妻角色概念比对","version":1,"chapters":[{"id":"roles","title":"夫妻角色概念比对表","part":"main","items":[{"id":"roles_l1","type":"likert","prompt":"丈夫乃一家之主。"},{"id":"roles_l2","type":"likert","prompt":"妻子不应出外工作。"},{"id":"roles_l3","type":"likert","prompt":"丈夫应经常帮忙做清洗碗碟的工作。"},{"id":"roles_l4","type":"likert","prompt":"妻子对孩子有更大责任。"},{"id":"roles_l5","type":"likert","prompt":"妻子赚来的钱应归她自己所有。"},{"id":"roles_l6","type":"likert","prompt":"丈夫每星期最少应有一个晚上跟自己的朋友出去消遣一下。"},{"id":"roles_l7","type":"likert","prompt":"妻子赚来的钱应归她自己所有。（重复题，按表填写）"},{"id":"roles_l8","type":"likert","prompt":"丈夫的责任在外工作，太太的责任是照顾家务和儿女。"},{"id":"roles_l9","type":"likert","prompt":"处理钱财的最佳方法是两人收入共用不分彼此。"},{"id":"roles_l10","type":"likert","prompt":"结婚双方在地位上是平等的。"},{"id":"roles_l11","type":"likert","prompt":"面临僵局的时候，应该由丈夫作出最后的决定。"},{"id":"roles_l12","type":"likert","prompt":"每星期应该有一个晚上由丈夫看孩子，让妻子可以自由地做些她爱做的事。"},{"id":"roles_l13","type":"likert","prompt":"夫妇两人应该一起做休闲的活动。"},{"id":"roles_l14","type":"likert","prompt":"由妻子主动跟丈夫作爱没有什么不妥。"},{"id":"roles_l15","type":"likert","prompt":"夫妇两人应该一起订定家庭预算和处理财物的方法。"},{"id":"roles_l16","type":"likert","prompt":"未经对方同意，不应私自买三百元以上的物品。"},{"id":"roles_l17","type":"likert","prompt":"管教孩子是父亲的责任。"},{"id":"roles_l18","type":"likert","prompt":"有特别专长的妻子也应该有自己的事业。"},{"id":"roles_l19","type":"likert","prompt":"使家里清洁整齐是妻子的责任。"},{"id":"roles_l20","type":"likert","prompt":"做丈夫的应该每月有两次带妻子出去约会休闲。"},{"id":"roles_l21","type":"likert","prompt":"有关孩子的管教，母亲所负的责任跟父亲同样重要。"},{"id":"roles_l22","type":"likert","prompt":"倒垃圾应是丈夫的工作。"},{"id":"roles_l23","type":"likert","prompt":"母亲应该负责教导孩子有关价值观的问题。"},{"id":"roles_l24","type":"likert","prompt":"女性比男性更情绪化。"},{"id":"roles_l25","type":"likert","prompt":"应该容许孩子帮忙安排家庭活动。"},{"id":"roles_l26","type":"likert","prompt":"注重纪律的父母能让孩子有更好的发展。"},{"id":"roles_l27","type":"likert","prompt":"妻子应该常常顺从丈夫的决定。"},{"id":"roles_l28","type":"likert","prompt":"夫妇二人分别交友的范围应该由丈夫来决定。"},{"id":"roles_l29","type":"likert","prompt":"夫妇双方都不应与自己的父母住在同一居所。"},{"id":"roles_l30","type":"likert","prompt":"夫妇对一些事情意见不同时，孩子可以直接和他们沟通。"}]},{"id":"disc","title":"角色讨论提纲","part":"main","items":[{"id":"disc_o1","type":"open","prompt":"丈夫是“头”指什么？"},{"id":"disc_o2","type":"open","prompt":"好丈夫（头）需要做哪些事？"},{"id":"disc_o3","type":"open","prompt":"你能扮演好“头”的角色吗？"},{"id":"disc_o4","type":"open","prompt":"你要如何爱妻子？（具体行动）"},{"id":"disc_o5","type":"open","prompt":"何谓了解妻子？你如何实行？"},{"id":"disc_o6","type":"open","prompt":"妻子角色是什么？（创 2:18）"},{"id":"disc_o7","type":"open","prompt":"何谓顺服？意义？"},{"id":"disc_o8","type":"open","prompt":"为什么要顺服？（经文）"},{"id":"disc_o9","type":"open","prompt":"妻子顺服可能面对的困难？"},{"id":"disc_o10","type":"open","prompt":"何谓尊重丈夫？你如何实行？"}]}],"scale":{"min":1,"max":5,"labels":["极为同意","颇为同意","不肯定","颇不同意","极不同意"]}},"roles.json":{"id":"roles","title":"夫妻角色概念比对","version":1,"chapters":[{"id":"roles","title":"夫妻角色概念比对表","part":"main","items":[{"id":"roles_l1","type":"likert","prompt":"丈夫乃一家之主。"},{"id":"roles_l2","type":"likert","prompt":"妻子不应出外工作。"},{"id":"roles_l3","type":"likert","prompt":"丈夫应经常帮忙做清洗碗碟的工作。"},{"id":"roles_l4","type":"likert","prompt":"妻子对孩子有更大责任。"},{"id":"roles_l5","type":"likert","prompt":"妻子赚来的钱应归她自己所有。"},{"id":"roles_l6","type":"likert","prompt":"丈夫每星期最少应有一个晚上跟自己的朋友出去消遣一下。"},{"id":"roles_l7","type":"likert","prompt":"妻子赚来的钱应归她自己所有。（重复题，按表填写）"},{"id":"roles_l8","type":"likert","prompt":"丈夫的责任在外工作，太太的责任是照顾家务和儿女。"},{"id":"roles_l9","type":"likert","prompt":"处理钱财的最佳方法是两人收入共用不分彼此。"},{"id":"roles_l10","type":"likert","prompt":"结婚双方在地位上是平等的。"},{"id":"roles_l11","type":"likert","prompt":"面临僵局的时候，应该由丈夫作出最后的决定。"},{"id":"roles_l12","type":"likert","prompt":"每星期应该有一个晚上由丈夫看孩子，让妻子可以自由地做些她爱做的事。"},{"id":"roles_l13","type":"likert","prompt":"夫妇两人应该一起做休闲的活动。"},{"id":"roles_l14","type":"likert","prompt":"由妻子主动跟丈夫作爱没有什么不妥。"},{"id":"roles_l15","type":"likert","prompt":"夫妇两人应该一起订定家庭预算和处理财物的方法。"},{"id":"roles_l16","type":"likert","prompt":"未经对方同意，不应私自买三百元以上的物品。"},{"id":"roles_l17","type":"likert","prompt":"管教孩子是父亲的责任。"},{"id":"roles_l18","type":"likert","prompt":"有特别专长的妻子也应该有自己的事业。"},{"id":"roles_l19","type":"likert","prompt":"使家里清洁整齐是妻子的责任。"},{"id":"roles_l20","type":"likert","prompt":"做丈夫的应该每月有两次带妻子出去约会休闲。"},{"id":"roles_l21","type":"likert","prompt":"有关孩子的管教，母亲所负的责任跟父亲同样重要。"},{"id":"roles_l22","type":"likert","prompt":"倒垃圾应是丈夫的工作。"},{"id":"roles_l23","type":"likert","prompt":"母亲应该负责教导孩子有关价值观的问题。"},{"id":"roles_l24","type":"likert","prompt":"女性比男性更情绪化。"},{"id":"roles_l25","type":"likert","prompt":"应该容许孩子帮忙安排家庭活动。"},{"id":"roles_l26","type":"likert","prompt":"注重纪律的父母能让孩子有更好的发展。"},{"id":"roles_l27","type":"likert","prompt":"妻子应该常常顺从丈夫的决定。"},{"id":"roles_l28","type":"likert","prompt":"夫妇二人分别交友的范围应该由丈夫来决定。"},{"id":"roles_l29","type":"likert","prompt":"夫妇双方都不应与自己的父母住在同一居所。"},{"id":"roles_l30","type":"likert","prompt":"夫妇对一些事情意见不同时，孩子可以直接和他们沟通。"}]},{"id":"disc","title":"角色讨论提纲","part":"main","items":[{"id":"disc_o1","type":"open","prompt":"丈夫是“头”指什么？"},{"id":"disc_o2","type":"open","prompt":"好丈夫（头）需要做哪些事？"},{"id":"disc_o3","type":"open","prompt":"你能扮演好“头”的角色吗？"},{"id":"disc_o4","type":"open","prompt":"你要如何爱妻子？（具体行动）"},{"id":"disc_o5","type":"open","prompt":"何谓了解妻子？你如何实行？"},{"id":"disc_o6","type":"open","prompt":"妻子角色是什么？（创 2:18）"},{"id":"disc_o7","type":"open","prompt":"何谓顺服？意义？"},{"id":"disc_o8","type":"open","prompt":"为什么要顺服？（经文）"},{"id":"disc_o9","type":"open","prompt":"妻子顺服可能面对的困难？"},{"id":"disc_o10","type":"open","prompt":"何谓尊重丈夫？你如何实行？"}]}],"scale":{"min":1,"max":5,"labels":["极为同意","颇为同意","不肯定","颇不同意","极不同意"]}},"forms/sex.json":{"id":"sex","title":"性观念与性知识","version":1,"chapters":[{"id":"sexq","title":"性观念与性知识问卷","part":"main","items":[{"id":"sexq_c1","type":"choice","prompt":"我认为性应该一直保留到结婚后才开始。","options":[{"value":1,"label":"同意"},{"value":2,"label":"不同意"},{"value":3,"label":"不确定"}]},{"id":"sexq_c2","type":"choice","prompt":"男女交往时，身体的亲密度太快，会影响恋爱发展。","options":[{"value":1,"label":"同意"},{"value":2,"label":"不同意"},{"value":3,"label":"不确定"}]},{"id":"sexq_c3","type":"choice","prompt":"基督徒弟兄和姐妹若身体亲密度太快或太高，就无法顺从圣灵的带领。","options":[{"value":1,"label":"同意"},{"value":2,"label":"不同意"},{"value":3,"label":"不确定"}]},{"id":"sexq_c4","type":"choice","prompt":"二个基督徒男女在恋爱时，也可能发生性行为。","options":[{"value":1,"label":"同意"},{"value":2,"label":"不同意"},{"value":3,"label":"不确定"}]},{"id":"sexq_c5","type":"choice","prompt":"多数女性月经来之前，情绪低落、不稳定。经期来时会发生头痛、腹痛等现象。","options":[{"value":1,"label":"同意"},{"value":2,"label":"不同意"},{"value":3,"label":"不确定"}]},{"id":"sexq_c6","type":"choice","prompt":"女性即使取掉了子宫，仍然达到性高潮。","options":[{"value":1,"label":"同意"},{"value":2,"label":"不同意"},{"value":3,"label":"不确定"}]},{"id":"sexq_c7","type":"choice","prompt":"女人如果在月经期间性交就不会怀孕。","options":[{"value":1,"label":"同意"},{"value":2,"label":"不同意"},{"value":3,"label":"不确定"}]},{"id":"sexq_c8","type":"choice","prompt":"即使因为使用被感染性病的人使用过的马桶，也可能感染到性病。","options":[{"value":1,"label":"同意"},{"value":2,"label":"不同意"},{"value":3,"label":"不确定"}]},{"id":"sexq_c9","type":"choice","prompt":"男性生殖器的大小长短，与性生活的满足和生殖能力有关系。","options":[{"value":1,"label":"同意"},{"value":2,"label":"不同意"},{"value":3,"label":"不确定"}]},{"id":"sexq_c10","type":"choice","prompt":"女性到了更年期后，月经停止，就无法享受性生活。","options":[{"value":1,"label":"同意"},{"value":2,"label":"不同意"},{"value":3,"label":"不确定"}]},{"id":"sexq_c11","type":"choice","prompt":"如果一个女人没有处女膜，正可以证明她不是处女。","options":[{"value":1,"label":"同意"},{"value":2,"label":"不同意"},{"value":3,"label":"不确定"}]},{"id":"sexq_c12","type":"choice","prompt":"吃了避孕药后百分之百保证不怀孕。","options":[{"value":1,"label":"同意"},{"value":2,"label":"不同意"},{"value":3,"label":"不确定"}]},{"id":"sexq_c13","type":"choice","prompt":"老年人不会有性的需要。","options":[{"value":1,"label":"同意"},{"value":2,"label":"不同意"},{"value":3,"label":"不确定"}]},{"id":"sexq_c14","type":"choice","prompt":"两厢情愿的成人性行为是他们之间的私事。","options":[{"value":1,"label":"同意"},{"value":2,"label":"不同意"},{"value":3,"label":"不确定"}]},{"id":"sexq_c15","type":"choice","prompt":"“性”本身是好的，是中性的。","options":[{"value":1,"label":"同意"},{"value":2,"label":"不同意"},{"value":3,"label":"不确定"}]}]},{"id":"sexd","title":"夫妻性生活问题讨论","part":"main","items":[{"id":"sexd_o1","type":"open","prompt":"关于婚姻性生活我还想进一步知道什么？"},{"id":"sexd_o2","type":"open","prompt":"有关将来婚姻性生活，我的焦虑是什么？我的期望又是什么？"}]}],"choice":{"options":[{"value":1,"label":"同意"},{"value":2,"label":"不同意"},{"value":3,"label":"不确定"}]}},"sex.json":{"id":"sex","title":"性观念与性知识","version":1,"chapters":[{"id":"sexq","title":"性观念与性知识问卷","part":"main","items":[{"id":"sexq_c1","type":"choice","prompt":"我认为性应该一直保留到结婚后才开始。","options":[{"value":1,"label":"同意"},{"value":2,"label":"不同意"},{"value":3,"label":"不确定"}]},{"id":"sexq_c2","type":"choice","prompt":"男女交往时，身体的亲密度太快，会影响恋爱发展。","options":[{"value":1,"label":"同意"},{"value":2,"label":"不同意"},{"value":3,"label":"不确定"}]},{"id":"sexq_c3","type":"choice","prompt":"基督徒弟兄和姐妹若身体亲密度太快或太高，就无法顺从圣灵的带领。","options":[{"value":1,"label":"同意"},{"value":2,"label":"不同意"},{"value":3,"label":"不确定"}]},{"id":"sexq_c4","type":"choice","prompt":"二个基督徒男女在恋爱时，也可能发生性行为。","options":[{"value":1,"label":"同意"},{"value":2,"label":"不同意"},{"value":3,"label":"不确定"}]},{"id":"sexq_c5","type":"choice","prompt":"多数女性月经来之前，情绪低落、不稳定。经期来时会发生头痛、腹痛等现象。","options":[{"value":1,"label":"同意"},{"value":2,"label":"不同意"},{"value":3,"label":"不确定"}]},{"id":"sexq_c6","type":"choice","prompt":"女性即使取掉了子宫，仍然达到性高潮。","options":[{"value":1,"label":"同意"},{"value":2,"label":"不同意"},{"value":3,"label":"不确定"}]},{"id":"sexq_c7","type":"choice","prompt":"女人如果在月经期间性交就不会怀孕。","options":[{"value":1,"label":"同意"},{"value":2,"label":"不同意"},{"value":3,"label":"不确定"}]},{"id":"sexq_c8","type":"choice","prompt":"即使因为使用被感染性病的人使用过的马桶，也可能感染到性病。","options":[{"value":1,"label":"同意"},{"value":2,"label":"不同意"},{"value":3,"label":"不确定"}]},{"id":"sexq_c9","type":"choice","prompt":"男性生殖器的大小长短，与性生活的满足和生殖能力有关系。","options":[{"value":1,"label":"同意"},{"value":2,"label":"不同意"},{"value":3,"label":"不确定"}]},{"id":"sexq_c10","type":"choice","prompt":"女性到了更年期后，月经停止，就无法享受性生活。","options":[{"value":1,"label":"同意"},{"value":2,"label":"不同意"},{"value":3,"label":"不确定"}]},{"id":"sexq_c11","type":"choice","prompt":"如果一个女人没有处女膜，正可以证明她不是处女。","options":[{"value":1,"label":"同意"},{"value":2,"label":"不同意"},{"value":3,"label":"不确定"}]},{"id":"sexq_c12","type":"choice","prompt":"吃了避孕药后百分之百保证不怀孕。","options":[{"value":1,"label":"同意"},{"value":2,"label":"不同意"},{"value":3,"label":"不确定"}]},{"id":"sexq_c13","type":"choice","prompt":"老年人不会有性的需要。","options":[{"value":1,"label":"同意"},{"value":2,"label":"不同意"},{"value":3,"label":"不确定"}]},{"id":"sexq_c14","type":"choice","prompt":"两厢情愿的成人性行为是他们之间的私事。","options":[{"value":1,"label":"同意"},{"value":2,"label":"不同意"},{"value":3,"label":"不确定"}]},{"id":"sexq_c15","type":"choice","prompt":"“性”本身是好的，是中性的。","options":[{"value":1,"label":"同意"},{"value":2,"label":"不同意"},{"value":3,"label":"不确定"}]}]},{"id":"sexd","title":"夫妻性生活问题讨论","part":"main","items":[{"id":"sexd_o1","type":"open","prompt":"关于婚姻性生活我还想进一步知道什么？"},{"id":"sexd_o2","type":"open","prompt":"有关将来婚姻性生活，我的焦虑是什么？我的期望又是什么？"}]}],"choice":{"options":[{"value":1,"label":"同意"},{"value":2,"label":"不同意"},{"value":3,"label":"不确定"}]}}}};
+  </script>
+  <script>
+// ---- js/import-export-core.js ----
+/** Pure import/export helpers (no DOM / localStorage). */
+
+function emptyPerson(name) {
+  return { displayName: name, answers: {}, updatedAt: null };
+}
+
+function emptyFormState() {
+  return {
+    version: 1,
+    people: {
+      a: emptyPerson("丈夫"),
+      b: emptyPerson("妻子"),
+    },
+  };
+}
+
+function emptyRoot() {
+  return { version: 2, forms: {} };
+}
+
+function clone(obj) {
+  return JSON.parse(JSON.stringify(obj));
+}
+
+function personHasAnswers(person) {
+  return !!(
+    person &&
+    person.answers &&
+    typeof person.answers === "object" &&
+    Object.keys(person.answers).length > 0
+  );
+}
+
+/** Serialize full multi-form root for "export all". */
+function serializeRoot(root) {
+  return JSON.stringify(root, null, 2);
+}
+
+/** Serialize one form for "export one form". */
+function serializeOneForm(formId, state) {
+  return JSON.stringify(
+    { version: 1, formId, people: state.people },
+    null,
+    2
+  );
+}
+
+function parseImport(text) {
+  let data;
+  try {
+    data = JSON.parse(text);
+  } catch {
+    throw new Error("JSON 解析失败，请检查文件内容。");
+  }
+  if (data?.version === 2 && data.forms && typeof data.forms === "object") {
+    return { kind: "root", data };
+  }
+  if (data?.version === 1 && data.people?.a && data.people?.b) {
+    return { kind: "legacy_form", data, formId: data.formId || "assessment" };
+  }
+  if (data?.people?.a && data?.people?.b && data.formId) {
+    return { kind: "form", data, formId: data.formId };
+  }
+  throw new Error("格式不正确：需要 v2 forms 或单表单 people。");
+}
+
+function mergePerson(localPerson, importedPerson, fallbackName) {
+  if (!personHasAnswers(importedPerson)) {
+    return localPerson || emptyPerson(fallbackName);
+  }
+  return {
+    displayName:
+      importedPerson.displayName ||
+      localPerson?.displayName ||
+      fallbackName,
+    answers: { ...importedPerson.answers },
+    updatedAt: importedPerson.updatedAt || new Date().toISOString(),
+  };
+}
+
+function replacePerson(importedPerson, fallbackName) {
+  return {
+    displayName: importedPerson?.displayName || fallbackName,
+    answers: { ...(importedPerson?.answers || {}) },
+    updatedAt: importedPerson?.updatedAt || null,
+  };
+}
+
+function mergeFormState(localForm, importedForm, mode) {
+  const base = localForm ? clone(localForm) : emptyFormState();
+  if (!importedForm?.people) return base;
+  const out = {
+    version: 1,
+    people: {
+      a: base.people?.a || emptyPerson("丈夫"),
+      b: base.people?.b || emptyPerson("妻子"),
+    },
+  };
+  if (mode === "replace") {
+    out.people.a = replacePerson(importedForm.people.a, "丈夫");
+    out.people.b = replacePerson(importedForm.people.b, "妻子");
+    return out;
+  }
+  // merge (default): only non-empty imported person overwrites that side
+  out.people.a = mergePerson(out.people.a, importedForm.people.a, "丈夫");
+  out.people.b = mergePerson(out.people.b, importedForm.people.b, "妻子");
+  return out;
+}
+
+/**
+ * Apply import package onto local root.
+ * @param {'merge'|'replace'} mode merge = dual-phone safe (default)
+ */
+function applyImport(root, parsed, formIdFilter = null, mode = "merge") {
+  const next = clone(root || emptyRoot());
+  if (!next.forms) next.forms = {};
+
+  if (parsed.kind === "root") {
+    const ids = Object.keys(parsed.data.forms || {});
+    const use = formIdFilter ? ids.filter((id) => id === formIdFilter) : ids;
+    if (!use.length) throw new Error("导入包中没有可覆盖的表单。");
+    for (const id of use) {
+      next.forms[id] = mergeFormState(
+        next.forms[id],
+        parsed.data.forms[id],
+        mode
+      );
+    }
+    return { root: next, forms: use };
+  }
+
+  const fid = formIdFilter || parsed.formId || "assessment";
+  next.forms[fid] = mergeFormState(
+    next.forms[fid],
+    { people: parsed.data.people },
+    mode
+  );
+  return { root: next, forms: [fid] };
+}
+
+// ---- js/compare.js ----
+/** Likert compare helpers (pure). */
+
+function diffLikert(a, b) {
+  if (a == null || b == null) return "missing";
+  const na = Number(a);
+  const nb = Number(b);
+  if (!Number.isFinite(na) || !Number.isFinite(nb)) return "missing";
+  const d = Math.abs(na - nb);
+  if (d === 0) return "match";
+  if (d === 1) return "near";
+  return "far";
+}
+
+function summarize(pairs) {
+  const s = { match: 0, near: 0, far: 0, missing: 0 };
+  for (const { a, b } of pairs) {
+    s[diffLikert(a, b)]++;
+  }
+  return s;
+}
+
+// ---- js/storage.js ----
+const applyImportCore = applyImport;
+const parseImportCore = parseImport;
+/** Per-form localStorage answers. Migrates legacy single-form key. */
+
+
+const ROOT_KEY = "premarital.forms.v2";
+const LEGACY_KEY = "premarital.assessment.v1";
+
+
+let memoryFallback = null;
+let storageWarned = false;
+
+function normalizePersonName(person, name) {
+  if (person === "a" && (!name || name === "我方")) return "丈夫";
+  if (person === "b" && (!name || name === "对方")) return "妻子";
+  return name || (person === "a" ? "丈夫" : "妻子");
+}
+
+function readRaw(key) {
+  try {
+    return localStorage.getItem(key);
+  } catch {
+    return null;
+  }
+}
+
+function writeRaw(key, value) {
+  localStorage.setItem(key, value);
+}
+
+function loadRoot() {
+  if (memoryFallback) return clone(memoryFallback);
+  try {
+    const raw = readRaw(ROOT_KEY);
+    if (raw) {
+      const data = JSON.parse(raw);
+      if (data?.version === 2 && data.forms && typeof data.forms === "object") {
+        return data;
+      }
+    }
+    const legacy = readRaw(LEGACY_KEY);
+    if (legacy) {
+      const old = JSON.parse(legacy);
+      if (old?.version === 1 && old.people?.a && old.people?.b) {
+        const root = emptyRoot();
+        root.forms.assessment = {
+          version: 1,
+          people: {
+            a: {
+              displayName: old.people.a.displayName || "丈夫",
+              answers: { ...(old.people.a.answers || {}) },
+              updatedAt: old.people.a.updatedAt || null,
+            },
+            b: {
+              displayName: old.people.b.displayName || "妻子",
+              answers: { ...(old.people.b.answers || {}) },
+              updatedAt: old.people.b.updatedAt || null,
+            },
+          },
+        };
+        saveRoot(root);
+        return root;
+      }
+    }
+    return emptyRoot();
+  } catch {
+    return emptyRoot();
+  }
+}
+
+function saveRoot(root) {
+  // ponytail: 满盘时以导出为唯一持久化
+  memoryFallback = clone(root);
+  try {
+    writeRaw(ROOT_KEY, JSON.stringify(root));
+    memoryFallback = null;
+    return { ok: true };
+  } catch (e) {
+    if (!storageWarned) {
+      storageWarned = true;
+      console.warn("localStorage unavailable", e);
+    }
+    return {
+      ok: false,
+      message: "本地存储不可用或已满，请立刻导出 JSON 备份，否则关闭页面会丢失。",
+    };
+  }
+}
+
+function loadState(formId) {
+  const root = loadRoot();
+  if (!root.forms[formId]) {
+    root.forms[formId] = emptyFormState();
+  }
+  const st = root.forms[formId];
+  for (const p of ["a", "b"]) {
+    if (!st.people[p]) st.people[p] = emptyPerson(p === "a" ? "丈夫" : "妻子");
+    if (!st.people[p].answers || typeof st.people[p].answers !== "object") {
+      st.people[p].answers = {};
+    }
+    st.people[p].displayName = normalizePersonName(p, st.people[p].displayName);
+  }
+  return clone(st);
+}
+
+function saveState(formId, state) {
+  const root = loadRoot();
+  root.forms[formId] = clone(state);
+  return saveRoot(root);
+}
+
+function setAnswer(state, person, itemId, value, type) {
+  const p = state.people[person];
+  if (!p) return state;
+  if (type === "likert" || type === "choice") {
+    const n = Number(value);
+    if (!Number.isInteger(n) || n < 1 || n > 5) {
+      if (!Number.isInteger(n) || n < 1) delete p.answers[itemId];
+      else p.answers[itemId] = n;
+    } else {
+      p.answers[itemId] = n;
+    }
+  } else {
+    const s = value == null ? "" : String(value).trim();
+    if (!s) delete p.answers[itemId];
+    else p.answers[itemId] = s;
+  }
+  p.updatedAt = new Date().toISOString();
+  return state;
+}
+
+function isDone(it, v) {
+  if (it.type === "likert" || it.type === "choice") {
+    return Number.isInteger(v) && v >= 1 && v <= 5;
+  }
+  return typeof v === "string" && v.trim().length > 0;
+}
+
+function progress(state, bank) {
+  let total = 0;
+  for (const ch of bank.chapters) total += ch.items.length;
+  const one = (person) => {
+    const ans = state.people[person].answers || {};
+    let done = 0;
+    let likertTotal = 0;
+    let likertDone = 0;
+    let openTotal = 0;
+    let openDone = 0;
+    let choiceTotal = 0;
+    let choiceDone = 0;
+    for (const ch of bank.chapters) {
+      for (const it of ch.items) {
+        const v = ans[it.id];
+        if (it.type === "likert") {
+          likertTotal++;
+          if (isDone(it, v)) {
+            likertDone++;
+            done++;
+          }
+        } else if (it.type === "choice") {
+          choiceTotal++;
+          if (isDone(it, v)) {
+            choiceDone++;
+            done++;
+          }
+        } else {
+          openTotal++;
+          if (isDone(it, v)) {
+            openDone++;
+            done++;
+          }
+        }
+      }
+    }
+    return {
+      done,
+      total,
+      likertDone,
+      likertTotal,
+      openDone,
+      openTotal,
+      choiceDone,
+      choiceTotal,
+    };
+  };
+  return { a: one("a"), b: one("b") };
+}
+
+function exportJSON(rootOrState, filename = "premarital-forms.json") {
+  const blob = new Blob([JSON.stringify(rootOrState, null, 2)], {
+    type: "application/json;charset=utf-8",
+  });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = filename;
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+
+function parseImport(text) {
+  return parseImportCore(text);
+}
+
+/** Default mode=merge：双机各自填写后合并，空身份不覆盖本地。 */
+function applyImport(root, parsed, formIdFilter = null, mode = "merge") {
+  return applyImportCore(root, parsed, formIdFilter, mode);
+}
+
+function getAnswer(state, person, itemId) {
+  return state.people[person]?.answers?.[itemId];
+}
+
+function exportOneForm(formId, state) {
+  exportJSON(
+    { version: 1, formId, people: state.people },
+    `premarital-${formId}.json`
+  );
+}
+
+// ---- js/data-loader.js ----
+/** Load form catalog / banks from embed pack or network. */
+
+function isOfflinePack() {
+  return !!(typeof window !== "undefined" && window.__EMBED__ && window.__EMBED__.catalog);
+}
+
+function offlineHref(page, params = {}) {
+  const q = new URLSearchParams(params).toString();
+  if (isOfflinePack()) {
+    if (page === "index" || page === "home") return "#/";
+    if (page === "fill") return `#/fill${q ? `?${q}` : ""}`;
+    if (page === "compare") return `#/compare${q ? `?${q}` : ""}`;
+  }
+  if (page === "index" || page === "home") return "index.html";
+  if (page === "fill") return `fill.html${q ? `?${q}` : ""}`;
+  if (page === "compare") return `compare.html${q ? `?${q}` : ""}`;
+  return page;
+}
+
+async function loadCatalog() {
+  if (isOfflinePack()) return window.__EMBED__.catalog;
+  const res = await fetch("data/forms.json");
+  if (!res.ok) throw new Error("forms.json");
+  return res.json();
+}
+
+async function loadBankByFile(file) {
+  if (isOfflinePack()) {
+    const banks = window.__EMBED__.banks || {};
+    // file like "forms/assessment.json"
+    if (banks[file]) return banks[file];
+    const base = file.split("/").pop();
+    if (banks[base]) return banks[base];
+    if (banks[`forms/${base}`]) return banks[`forms/${base}`];
+    throw new Error(file);
+  }
+  const res = await fetch(`data/${file}`);
+  if (!res.ok) throw new Error(file);
+  return res.json();
+}
+
+async function loadForm(formId) {
+  const catalog = await loadCatalog();
+  const meta = catalog.forms.find((f) => f.id === formId);
+  if (!meta) throw new Error("未知表单: " + formId);
+  const bank = await loadBankByFile(meta.file);
+  return { catalog, meta, bank };
+}
+
+function rewireHomeLinks() {
+  document.querySelectorAll('a[href="index.html"], a[href="./index.html"]').forEach((a) => {
+    a.setAttribute("href", offlineHref("home"));
+  });
+}
+
+// ---- js/home.js ----
+(function () {
+
+function pageRoot() {
+  if (typeof isOfflinePack === "function" && isOfflinePack()) {
+    if (location.hash.startsWith("#/fill")) return document.getElementById("view-fill") || document;
+    if (location.hash.startsWith("#/compare")) return document.getElementById("view-compare") || document;
+    return document.getElementById("view-home") || document;
+  }
+  return document;
+}
+const $ = (id) => {
+  const root = pageRoot();
+  return (root.querySelector && root.querySelector("#" + id)) || document.getElementById(id);
+};
+
+function showError(msg) {
+  const el = $("error");
+  if (!msg) {
+    el.hidden = true;
+    el.textContent = "";
+    return;
+  }
+  el.hidden = false;
+  el.textContent = msg;
+}
+
+function fmtProg(p) {
+  const parts = [];
+  if (p.likertTotal) parts.push(`量表 ${p.likertDone}/${p.likertTotal}`);
+  if (p.choiceTotal) parts.push(`选择 ${p.choiceDone}/${p.choiceTotal}`);
+  if (p.openTotal) parts.push(`开放 ${p.openDone}/${p.openTotal}`);
+  if (!parts.length) parts.push(`已填 ${p.done}/${p.total}`);
+  return parts.join(" · ");
+}
+
+async function loadBank(file) {
+  return loadBankByFile(file);
+}
+
+async function importInto(formId, file, title) {
+  const text = await file.text();
+  const parsed = parseImport(text);
+  const label = title || formId;
+  if (!confirm(`将覆盖「${label}」的丈夫/妻子全部答案，确认？`)) return false;
+  const { root, forms } = applyImport(loadRoot(), parsed, formId);
+  const r = saveRoot(root);
+  if (!r.ok) {
+    showError(r.message);
+    return false;
+  }
+  showError("");
+  alert(`已导入到：${forms.join(", ") || formId}`);
+  return true;
+}
+
+async function bootHome() {
+  rewireHomeLinks();
+  let catalog;
+  try {
+    catalog = await loadCatalog();
+  } catch {
+    showError("表单目录加载失败。网页版请用本地服务器打开 web/；或使用离线单文件包。");
+    return;
+  }
+
+  const list = $("form-list");
+  list.innerHTML = "";
+
+  for (const form of catalog.forms) {
+    let bank;
+    try {
+      bank = await loadBank(form.file);
+    } catch {
+      bank = { chapters: [] };
+    }
+    const state = loadState(form.id);
+    const prog = progress(state, bank);
+    const importId = `import-${form.id}`;
+
+    const card = document.createElement("div");
+    card.className = "card form-card";
+    card.innerHTML = `
+      <div class="row" style="justify-content:space-between;align-items:flex-start">
+        <div>
+          <h2 style="margin:0 0 4px">${form.title}</h2>
+          <p class="muted" style="margin:0">${form.desc || ""}</p>
+        </div>
+        <span class="pill">${form.short || form.id}</span>
+      </div>
+      <p class="progress" style="margin:12px 0 6px">丈夫：${fmtProg(prog.a)}</p>
+      <p class="progress" style="margin:0 0 12px">妻子：${fmtProg(prog.b)}</p>
+      <div class="row">
+        <a class="btn primary" href="${offlineHref("fill", { form: form.id, person: "a" })}">填 · 丈夫</a>
+        <a class="btn primary" href="${offlineHref("fill", { form: form.id, person: "b" })}">填 · 妻子</a>
+        ${
+          form.compare
+            ? `<a class="btn" href="${offlineHref("compare", { form: form.id })}">对照</a>`
+            : ""
+        }
+        <button class="btn" type="button" data-export="${form.id}">导出本表</button>
+        <label class="btn" for="${importId}">导入本表</label>
+        <input id="${importId}" type="file" accept="application/json,.json" hidden data-form="${form.id}" data-title="${form.title}" />
+      </div>
+    `;
+    list.appendChild(card);
+
+    card.querySelector(`[data-export="${form.id}"]`).addEventListener("click", () => {
+      exportOneForm(form.id, loadState(form.id));
+    });
+    card.querySelector(`#${importId}`).addEventListener("change", async (ev) => {
+      const file = ev.target.files?.[0];
+      ev.target.value = "";
+      if (!file) return;
+      try {
+        const ok = await importInto(form.id, file, form.title);
+        if (ok) location.reload();
+      } catch (e) {
+        showError(e.message || String(e));
+      }
+    });
+  }
+
+  $("btn-export").addEventListener("click", () => {
+    exportJSON(loadRoot(), "premarital-forms-all.json");
+  });
+
+  $("file-import").addEventListener("change", async (ev) => {
+    const file = ev.target.files?.[0];
+    ev.target.value = "";
+    if (!file) return;
+    try {
+      const text = await file.text();
+      const parsed = parseImport(text);
+      const label =
+        parsed.kind === "root"
+          ? "全部导入包中的表单"
+          : `表单 ${parsed.formId || "assessment"}`;
+      if (!confirm(`将覆盖本地「${label}」答案，确认？`)) return;
+      const { root, forms } = applyImport(loadRoot(), parsed);
+      const r = saveRoot(root);
+      if (!r.ok) showError(r.message);
+      else showError("");
+      alert(`导入完成：${forms.join(", ")}`);
+      location.reload();
+    } catch (e) {
+      showError(e.message || String(e));
+    }
+  });
+}
+
+
+  window.bootHome = bootHome;
+})();
+
+
+// ---- js/fill.js ----
+(function () {
+
+function pageRoot() {
+  if (typeof isOfflinePack === "function" && isOfflinePack()) {
+    if (location.hash.startsWith("#/fill")) return document.getElementById("view-fill") || document;
+    if (location.hash.startsWith("#/compare")) return document.getElementById("view-compare") || document;
+    return document.getElementById("view-home") || document;
+  }
+  return document;
+}
+const $ = (id) => {
+  const root = pageRoot();
+  return (root.querySelector && root.querySelector("#" + id)) || document.getElementById(id);
+};
+
+function qs() {
+  let search = location.search;
+  if (location.hash.includes("?")) {
+    search = "?" + location.hash.split("?")[1];
+  } else if (location.hash.startsWith("#/fill")) {
+    search = "";
+  }
+  const u = new URLSearchParams(search.startsWith("?") ? search.slice(1) : search);
+  const form = u.get("form") || "assessment";
+  const person = u.get("person") === "b" ? "b" : "a";
+  return { form, person };
+}
+
+function showError(msg) {
+  const el = $("error");
+  if (!msg) {
+    el.hidden = true;
+    el.textContent = "";
+    return;
+  }
+  el.hidden = false;
+  el.textContent = msg;
+}
+
+async function loadCatalogForm(formId) {
+  return loadForm(formId);
+}
+
+async function bootFill() {
+  rewireHomeLinks();
+  const { form: formId, person } = qs();
+  let meta, bank;
+  try {
+    ({ meta, bank } = await loadCatalogForm(formId));
+  } catch (e) {
+    showError("题库加载失败：" + (e.message || e));
+    return;
+  }
+
+  let state = loadState(formId);
+  let chapterIndex = 0;
+  const defaultLikertLabels =
+    bank.scale?.labels || ["非常同意", "同意", "中立", "不同意", "非常不同意"];
+
+  function scaleLegendHtml(kind) {
+    if (kind === "choice") {
+      // use first choice item options if any
+      for (const ch of bank.chapters) {
+        for (const it of ch.items) {
+          if (it.type === "choice" && it.options?.length) {
+            const parts = it.options.map((o) => `${o.value}=${o.label}`);
+            return `选项含义：${parts.join("　")}`;
+          }
+        }
+      }
+      return "选项含义：见各题下方说明";
+    }
+    // likert
+    const parts = defaultLikertLabels.map((lab, i) => `${i + 1}=${lab}`);
+    return `程度含义：${parts.join("　")}`;
+  }
+
+  function updateScaleLegend() {
+    const el = $("scale-legend");
+    if (!el) return;
+    const ch = bank.chapters[chapterIndex];
+    const hasLikert = ch.items.some((it) => it.type === "likert");
+    const hasChoice = ch.items.some((it) => it.type === "choice");
+    const lines = [];
+    if (hasLikert) lines.push(scaleLegendHtml("likert"));
+    if (hasChoice) lines.push(scaleLegendHtml("choice"));
+    if (!lines.length) {
+      el.hidden = true;
+      el.textContent = "";
+      return;
+    }
+    el.hidden = false;
+    el.innerHTML = lines.map((x) => `<div>${x}</div>`).join("");
+  }
+
+  $("title").textContent = `${meta.short || meta.title} · ${
+    state.people[person].displayName || (person === "a" ? "丈夫" : "妻子")
+  }`;
+  $("link-compare").href = offlineHref("compare", { form: formId });
+  $("link-compare").hidden = meta.compare === false;
+
+  $("btn-export-form").addEventListener("click", () => {
+    exportOneForm(formId, loadState(formId));
+  });
+  $("file-import-form").addEventListener("change", async (ev) => {
+    const file = ev.target.files?.[0];
+    ev.target.value = "";
+    if (!file) return;
+    try {
+      const text = await file.text();
+      const parsed = parseImport(text);
+      if (!confirm(`将覆盖「${meta.title}」丈夫/妻子全部答案，确认？`)) return;
+      const { root } = applyImport(loadRoot(), parsed, formId);
+      const r = saveRoot(root);
+      if (!r.ok) showError(r.message);
+      else {
+        showError("");
+        location.reload();
+      }
+    } catch (e) {
+      showError(e.message || String(e));
+    }
+  });
+
+  const persist = () => {
+    const r = saveState(formId, state);
+    if (!r.ok) showError(r.message);
+  };
+
+  const chapterDone = (ch) => {
+    let done = 0;
+    for (const it of ch.items) {
+      const v = getAnswer(state, person, it.id);
+      if (it.type === "likert" || it.type === "choice") {
+        if (Number.isInteger(v) && v >= 1 && v <= 5) done++;
+      } else if (typeof v === "string" && v.trim()) done++;
+    }
+    return `${done}/${ch.items.length}`;
+  };
+
+  const renderNav = () => {
+    const nav = $("chapters-nav");
+    nav.innerHTML = "";
+    bank.chapters.forEach((ch, idx) => {
+      const b = document.createElement("button");
+      b.type = "button";
+      b.textContent = `${idx + 1}`;
+      b.title = ch.title;
+      if (idx === chapterIndex) b.classList.add("active");
+      b.addEventListener("click", () => {
+        chapterIndex = idx;
+        render();
+      });
+      nav.appendChild(b);
+    });
+  };
+
+  const renderChoiceOrLikert = (it, div) => {
+    const scale = document.createElement("div");
+    scale.className = "scale";
+    const cur = getAnswer(state, person, it.id);
+    let options;
+    if (it.type === "choice" && it.options) {
+      options = it.options.map((o) => ({ value: o.value, label: String(o.value), hint: o.label }));
+      scale.style.gridTemplateColumns = `repeat(${options.length}, minmax(0,1fr))`;
+    } else {
+      options = [1, 2, 3, 4, 5].map((n, i) => ({
+        value: n,
+        label: String(n),
+        hint: defaultLikertLabels[i] || "",
+      }));
+    }
+    for (const opt of options) {
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "scale-btn";
+      const meaning = opt.hint || opt.label;
+      btn.title = `${opt.value}：${meaning}`;
+      btn.setAttribute("aria-label", `${opt.value} ${meaning}`);
+      btn.innerHTML = `<span class="scale-num">${opt.value}</span><span class="scale-mean">${meaning}</span>`;
+      if (cur === opt.value) btn.classList.add("selected");
+      btn.addEventListener("click", () => {
+        state = setAnswer(state, person, it.id, opt.value, it.type);
+        persist();
+        renderItems();
+        $("chapter-progress").textContent = `本章 ${chapterDone(bank.chapters[chapterIndex])}`;
+      });
+      scale.appendChild(btn);
+    }
+    div.appendChild(scale);
+    if (it.type === "choice" && it.options) {
+      const labs = document.createElement("div");
+      labs.className = "scale-labels";
+      labs.style.gridTemplateColumns = `repeat(${it.options.length}, 1fr)`;
+      for (const o of it.options) {
+        const s = document.createElement("span");
+        s.textContent = o.label;
+        labs.appendChild(s);
+      }
+      div.appendChild(labs);
+    } else if (it.type === "likert") {
+      const labs = document.createElement("div");
+      labs.className = "scale-labels";
+      for (const lab of defaultLikertLabels) {
+        const s = document.createElement("span");
+        s.textContent = lab;
+        labs.appendChild(s);
+      }
+      div.appendChild(labs);
+    }
+  };
+
+  const renderItems = () => {
+    const ch = bank.chapters[chapterIndex];
+    $("chapter-title").textContent = ch.title;
+    $("chapter-progress").textContent = `本章 ${chapterDone(ch)}`;
+    const box = $("items");
+    box.innerHTML = "";
+    for (const it of ch.items) {
+      const div = document.createElement("div");
+      div.className = "item";
+      const prompt = document.createElement("div");
+      prompt.className = "prompt";
+      prompt.textContent = it.prompt;
+      div.appendChild(prompt);
+      if (it.type === "likert" || it.type === "choice") {
+        renderChoiceOrLikert(it, div);
+      } else {
+        const ta = document.createElement("textarea");
+        ta.placeholder = "在此填写…";
+        ta.value = getAnswer(state, person, it.id) || "";
+        ta.addEventListener("input", () => {
+          state = setAnswer(state, person, it.id, ta.value, "open");
+          persist();
+          $("chapter-progress").textContent = `本章 ${chapterDone(ch)}`;
+        });
+        div.appendChild(ta);
+      }
+      box.appendChild(div);
+    }
+  };
+
+  const render = () => {
+    renderNav();
+    renderItems();
+    updateScaleLegend();
+    $("prev").disabled = chapterIndex <= 0;
+    $("next").textContent =
+      chapterIndex >= bank.chapters.length - 1
+        ? meta.compare === false
+          ? "回首页"
+          : "去对照页"
+        : "下一章";
+  };
+
+  $("prev").addEventListener("click", () => {
+    if (chapterIndex > 0) {
+      chapterIndex--;
+      render();
+      window.scrollTo(0, 0);
+    }
+  });
+  $("next").addEventListener("click", () => {
+    if (chapterIndex >= bank.chapters.length - 1) {
+      if (meta.compare === false) location.href = offlineHref("home");
+      else location.href = offlineHref("compare", { form: formId });
+      return;
+    }
+    chapterIndex++;
+    render();
+    window.scrollTo(0, 0);
+  });
+
+  render();
+}
+
+
+  window.bootFill = bootFill;
+})();
+
+
+// ---- js/compare-page.js ----
+(function () {
+
+function pageRoot() {
+  if (typeof isOfflinePack === "function" && isOfflinePack()) {
+    if (location.hash.startsWith("#/fill")) return document.getElementById("view-fill") || document;
+    if (location.hash.startsWith("#/compare")) return document.getElementById("view-compare") || document;
+    return document.getElementById("view-home") || document;
+  }
+  return document;
+}
+const $ = (id) => {
+  const root = pageRoot();
+  return (root.querySelector && root.querySelector("#" + id)) || document.getElementById(id);
+};
+
+function showError(msg) {
+  const el = $("error");
+  if (!msg) {
+    el.hidden = true;
+    el.textContent = "";
+    return;
+  }
+  el.hidden = false;
+  el.textContent = msg;
+}
+
+function tagLabel(kind) {
+  return { match: "一致", near: "差1", far: "差≥2", missing: "未齐" }[kind] || kind;
+}
+
+function formId() {
+  let search = location.search;
+  if (location.hash.includes("?")) search = "?" + location.hash.split("?")[1];
+  return new URLSearchParams(search.startsWith("?") ? search.slice(1) : search).get("form") || "assessment";
+}
+
+async function loadCatalogForm(id) {
+  return loadForm(id);
+}
+
+function labelValue(it, v, bank) {
+  if (v == null) return "—";
+  if (it.type === "choice" && it.options) {
+    const o = it.options.find((x) => x.value === v);
+    return o ? `${v} ${o.label}` : String(v);
+  }
+  return String(v);
+}
+
+async function bootCompare() {
+  rewireHomeLinks();
+  const fid = formId();
+  let meta, bank;
+  try {
+    ({ meta, bank } = await loadCatalogForm(fid));
+  } catch (e) {
+    showError("题库加载失败：" + (e.message || e));
+    return;
+  }
+
+  $("page-title").textContent = `对照 · ${meta.title}`;
+  $("link-fill-a").href = offlineHref("fill", { form: fid, person: "a" });
+  $("link-fill-b").href = offlineHref("fill", { form: fid, person: "b" });
+
+  $("btn-export-form").addEventListener("click", () => {
+    exportOneForm(fid, loadState(fid));
+  });
+  $("file-import-form").addEventListener("change", async (ev) => {
+    const file = ev.target.files?.[0];
+    ev.target.value = "";
+    if (!file) return;
+    try {
+      const text = await file.text();
+      const parsed = parseImport(text);
+      if (!confirm(`将覆盖「${meta.title}」丈夫/妻子全部答案，确认？`)) return;
+      const { root } = applyImport(loadRoot(), parsed, fid);
+      const r = saveRoot(root);
+      if (!r.ok) showError(r.message);
+      else {
+        showError("");
+        location.reload();
+      }
+    } catch (e) {
+      showError(e.message || String(e));
+    }
+  });
+
+  const state = loadState(fid);
+  const nameA = state.people.a.displayName || "丈夫";
+  const nameB = state.people.b.displayName || "妻子";
+
+  const scoreItems = [];
+  const openItems = [];
+  for (const ch of bank.chapters) {
+    for (const it of ch.items) {
+      if (it.type === "likert" || it.type === "choice") {
+        scoreItems.push({ ...it, chapter: ch.title });
+      } else {
+        openItems.push({ ...it, chapter: ch.title });
+      }
+    }
+  }
+
+  const pairs = scoreItems.map((it) => ({
+    a: state.people.a.answers[it.id],
+    b: state.people.b.answers[it.id],
+  }));
+  const stats = summarize(pairs);
+
+  const renderSummary = () => {
+    $("summary").innerHTML = `
+      <span class="pill match">一致 ${stats.match}</span>
+      <span class="pill near">差1 ${stats.near}</span>
+      <span class="pill far">差≥2 ${stats.far}</span>
+      <span class="pill missing">未齐 ${stats.missing}</span>
+    `;
+    if (!scoreItems.length) {
+      $("filters").hidden = true;
+      $("list").innerHTML =
+        '<p class="muted">此表单无可数值对照题，请看下方开放题并排。</p>';
+    }
+  };
+
+  const currentFilter = () =>
+    pageRoot().querySelector('input[name="filter"]:checked')?.value || "diff_only";
+
+  const renderList = () => {
+    if (!scoreItems.length) return;
+    const filter = currentFilter();
+    const list = $("list");
+    list.innerHTML = "";
+    let shown = 0;
+    for (const it of scoreItems) {
+      const a = state.people.a.answers[it.id];
+      const b = state.people.b.answers[it.id];
+      const kind = diffLikert(a, b);
+      if (kind === "missing") continue;
+      if (filter === "diff_only" && kind === "match") continue;
+      if (filter === "far_only" && kind !== "far") continue;
+      shown++;
+      const row = document.createElement("div");
+      row.className = "compare-row";
+      row.innerHTML = `
+        <div class="prompt">${it.prompt}<div class="muted">${it.chapter}</div></div>
+        <div>${nameA}：<strong>${labelValue(it, a, bank)}</strong></div>
+        <div>${nameB}：<strong>${labelValue(it, b, bank)}</strong></div>
+        <div><span class="tag ${kind}">${tagLabel(kind)}</span></div>
+      `;
+      list.appendChild(row);
+    }
+    if (!shown) {
+      const empty = document.createElement("p");
+      empty.className = "muted";
+      empty.textContent = "当前过滤下没有题目。可切换过滤或先去填写。";
+      list.appendChild(empty);
+    }
+  };
+
+  const renderOpen = () => {
+    const box = $("open-list");
+    box.innerHTML = "";
+    for (const it of openItems) {
+      const a = state.people.a.answers[it.id];
+      const b = state.people.b.answers[it.id];
+      const hasA = typeof a === "string" && a.trim();
+      const hasB = typeof b === "string" && b.trim();
+      if (!hasA && !hasB) continue;
+      const card = document.createElement("div");
+      card.className = "item";
+      card.innerHTML = `
+        <div class="prompt">${it.prompt}</div>
+        <div class="muted" style="margin-bottom:6px">${it.chapter}</div>
+        <div class="open-grid">
+          <div><div class="muted">${nameA}</div><div class="open-box">${hasA ? a : "（未填）"}</div></div>
+          <div><div class="muted">${nameB}</div><div class="open-box">${hasB ? b : "（未填）"}</div></div>
+        </div>
+      `;
+      box.appendChild(card);
+    }
+    if (!box.children.length) {
+      box.innerHTML = `<p class="muted">双方开放题都未填写。</p>`;
+    }
+  };
+
+  pageRoot().querySelectorAll('input[name="filter"]').forEach((el) => {
+    el.addEventListener("change", renderList);
+  });
+
+  const filterLabel = () => {
+    const v = currentFilter();
+    return {
+      all_answered: "全部已填",
+      diff_only: "仅差异",
+      far_only: "仅红（差≥2）",
+    }[v] || v;
+  };
+
+  const fillPrintMeta = () => {
+    const metaEl = $("print-meta");
+    const foot = $("print-footer");
+    if (!metaEl) return;
+    const when = new Date();
+    const stamp = `${when.getFullYear()}-${String(when.getMonth() + 1).padStart(2, "0")}-${String(when.getDate()).padStart(2, "0")}`;
+    metaEl.hidden = false;
+    metaEl.innerHTML = `
+      <h1 class="print-title">婚前辅导对照报告</h1>
+      <p><strong>表单：</strong>${meta.title}</p>
+      <p><strong>双方：</strong>${nameA} / ${nameB}</p>
+      <p><strong>筛选：</strong>${filterLabel()} · 一致 ${stats.match} · 差1 ${stats.near} · 差≥2 ${stats.far} · 未齐 ${stats.missing}</p>
+      <p><strong>打印日期：</strong>${stamp}</p>
+    `;
+    if (foot) foot.hidden = false;
+  };
+
+  $("btn-print-report")?.addEventListener("click", () => {
+    const includeOpen = $("print-include-open")?.checked !== false;
+    const openSec = $("open-section");
+    if (openSec) openSec.classList.toggle("print-hide", !includeOpen);
+    fillPrintMeta();
+    // ensure list matches current filter (default diff_only)
+    renderList();
+    window.print();
+  });
+
+  renderSummary();
+  renderList();
+  renderOpen();
+}
+
+
+  window.bootCompare = bootCompare;
+})();
+
+
+
+// ---- offline router ----
+const views = {
+  home: document.getElementById("view-home"),
+  fill: document.getElementById("view-fill"),
+  compare: document.getElementById("view-compare"),
+};
+const templates = {
+  home: views.home.innerHTML,
+  fill: views.fill.innerHTML,
+  compare: views.compare.innerHTML,
+};
+
+function parseRoute() {
+  const h = location.hash || "#/";
+  if (h.startsWith("#/fill")) return "fill";
+  if (h.startsWith("#/compare")) return "compare";
+  return "home";
+}
+
+async function route() {
+  const name = parseRoute();
+  for (const [k, el] of Object.entries(views)) {
+    el.hidden = k !== name;
+  }
+  // reset DOM so re-entering a page does not stack listeners
+  views[name].innerHTML = templates[name];
+  try {
+    if (name === "home") await bootHome();
+    else if (name === "fill") await bootFill();
+    else if (name === "compare") await bootCompare();
+  } catch (e) {
+    console.error(e);
+    alert("页面加载失败：" + (e && e.message ? e.message : e));
+  }
+}
+
+window.addEventListener("hashchange", () => { route(); });
+if (!location.hash) location.hash = "#/";
+else route();
+
+  </script>
+</body>
+</html>

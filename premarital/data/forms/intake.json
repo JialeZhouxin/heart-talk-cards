@@ -1,0 +1,204 @@
+{
+  "id": "intake",
+  "title": "交友/婚前约谈问卷",
+  "version": 1,
+  "chapters": [
+    {
+      "id": "base",
+      "title": "约谈问卷",
+      "part": "main",
+      "items": [
+        {
+          "id": "base_o1",
+          "type": "open",
+          "prompt": "出生日期（年/月/日）"
+        },
+        {
+          "id": "base_o2",
+          "type": "open",
+          "prompt": "年龄"
+        },
+        {
+          "id": "base_o3",
+          "type": "open",
+          "prompt": "性别"
+        },
+        {
+          "id": "base_o4",
+          "type": "open",
+          "prompt": "国籍/种族"
+        },
+        {
+          "id": "base_o5",
+          "type": "open",
+          "prompt": "出生地（本身）"
+        },
+        {
+          "id": "base_o6",
+          "type": "open",
+          "prompt": "父亲出生地"
+        },
+        {
+          "id": "base_o7",
+          "type": "open",
+          "prompt": "母亲出生地"
+        },
+        {
+          "id": "base_o8",
+          "type": "open",
+          "prompt": "出生序别 / 家庭树说明"
+        },
+        {
+          "id": "base_o9",
+          "type": "open",
+          "prompt": "目前婚姻状况说明"
+        },
+        {
+          "id": "base_o10",
+          "type": "open",
+          "prompt": "若有儿女：男孩/女孩年龄"
+        },
+        {
+          "id": "base_o11",
+          "type": "open",
+          "prompt": "宗教成长环境"
+        },
+        {
+          "id": "base_o12",
+          "type": "open",
+          "prompt": "目前所在教会"
+        },
+        {
+          "id": "base_o13",
+          "type": "open",
+          "prompt": "教育程度与最高学位"
+        },
+        {
+          "id": "base_o14",
+          "type": "open",
+          "prompt": "职业训练（年）"
+        },
+        {
+          "id": "base_o15",
+          "type": "open",
+          "prompt": "已就职年数与现职"
+        },
+        {
+          "id": "base_o16",
+          "type": "open",
+          "prompt": "父亲职业与退休情况"
+        },
+        {
+          "id": "base_o17",
+          "type": "open",
+          "prompt": "母亲工作情况与你的感受"
+        },
+        {
+          "id": "base_o18",
+          "type": "open",
+          "prompt": "孩童时家庭生活感受"
+        },
+        {
+          "id": "base_o19",
+          "type": "open",
+          "prompt": "父母目前婚姻状况"
+        },
+        {
+          "id": "base_o20",
+          "type": "open",
+          "prompt": "父母婚姻幸福程度"
+        },
+        {
+          "id": "base_o21",
+          "type": "open",
+          "prompt": "18–21 岁异性交往情况"
+        },
+        {
+          "id": "base_o22",
+          "type": "open",
+          "prompt": "恋爱经历与旧情人联络/情感/性行为情况（可简述）"
+        },
+        {
+          "id": "base_o23",
+          "type": "open",
+          "prompt": "与父母关系（孩童/青年/目前）"
+        },
+        {
+          "id": "base_o24",
+          "type": "open",
+          "prompt": "认识意中人多久；正式交往多久"
+        },
+        {
+          "id": "base_o25",
+          "type": "open",
+          "prompt": "目前关系阶段与预定婚期"
+        },
+        {
+          "id": "base_o26",
+          "type": "open",
+          "prompt": "是否曾订婚/中断关系/因故分离"
+        },
+        {
+          "id": "base_o27",
+          "type": "open",
+          "prompt": "彼此信任程度"
+        },
+        {
+          "id": "base_o28",
+          "type": "open",
+          "prompt": "婚后居住安排"
+        },
+        {
+          "id": "base_o29",
+          "type": "open",
+          "prompt": "双方家长态度"
+        },
+        {
+          "id": "base_o30",
+          "type": "open",
+          "prompt": "与准姻亲关系"
+        },
+        {
+          "id": "base_o31",
+          "type": "open",
+          "prompt": "家庭预算与收支/供养他人"
+        },
+        {
+          "id": "base_o32",
+          "type": "open",
+          "prompt": "家务分工期待"
+        },
+        {
+          "id": "base_o33",
+          "type": "open",
+          "prompt": "亲密表达频率与满意度"
+        },
+        {
+          "id": "base_o34",
+          "type": "open",
+          "prompt": "性经历相关（按题目如实）"
+        },
+        {
+          "id": "base_o35",
+          "type": "open",
+          "prompt": "期望何时生育、孩子数量、妻子是否继续工作"
+        },
+        {
+          "id": "base_o36",
+          "type": "open",
+          "prompt": "性知识来源与婚后性关系期待"
+        },
+        {
+          "id": "base_o37",
+          "type": "open",
+          "prompt": "冲突处理方式"
+        },
+        {
+          "id": "base_o38",
+          "type": "open",
+          "prompt": "对婚姻幸福的把握"
+        }
+      ]
+    }
+  ]
+}

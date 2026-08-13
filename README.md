@@ -10,6 +10,7 @@
 | 🧠 脑筋急转弯 | [`brain-teaser/`](brain-teaser/) | 随机出题考脑洞，答完自动打乱再来一轮 |
 | 🎉 破冰游戏 | [`icebreaker/`](icebreaker/) | 话题卡、默契测试、两真一假、你画我猜，聚会热场 |
 | 🔍 优点放大镜 | [`praise/`](praise/) | 引导大家发现彼此的闪光点，互相夸夸 |
+| 💍 婚前辅导 | [`premarital/`](premarital/) | 多表单填写、双方对照、JSON 导入导出 |
 
 ## 使用方式
 
@@ -43,3 +44,10 @@
 
 - 群体夸夸引导提示卡：挑一个人夸 / 轮流夸 / 猜着夸三种玩法
 - 内置夸人公式（具体事件 + 你的感受）；随机出不重复；纯前端单文件
+
+## 婚前辅导（premarital/）
+
+- 多表单（婚前关系评估、期望、原生家庭、性生活等 7 张）+ 双方对照 + 打印报告
+- 数据仅存本机浏览器（localStorage），JSON 导入导出；PWA 可离线
+- 课程材料（单元一~七）与构建脚本在 `docs/`、`scripts/`；离线包重建：`python premarital/scripts/build_offline_html.py`
+- 原独立仓库 `premarital-counseling-forms` 已归档，老网址仍可访问

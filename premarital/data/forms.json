@@ -1,0 +1,61 @@
+{
+  "version": 1,
+  "forms": [
+    {
+      "id": "assessment",
+      "title": "婚前关系评估",
+      "short": "评估",
+      "desc": "错误评估 + 理想特质量表，自动色标对照",
+      "file": "forms/assessment.json",
+      "compare": true
+    },
+    {
+      "id": "intake",
+      "title": "交友/婚前约谈问卷",
+      "short": "约谈",
+      "desc": "背景、家庭、交往史等约谈信息",
+      "file": "forms/intake.json",
+      "compare": true
+    },
+    {
+      "id": "expectations",
+      "title": "期待问卷 + 婚姻观提纲",
+      "short": "期待",
+      "desc": "对辅导、关系、婚姻的期待与讨论题",
+      "file": "forms/expectations.json",
+      "compare": true
+    },
+    {
+      "id": "family",
+      "title": "原生家庭",
+      "short": "家庭",
+      "desc": "了解自己、父母与原生家庭影响",
+      "file": "forms/family.json",
+      "compare": true
+    },
+    {
+      "id": "knowyou",
+      "title": "知己知彼与沟通",
+      "short": "沟通",
+      "desc": "优缺点、冲突与沟通期待",
+      "file": "forms/knowyou.json",
+      "compare": true
+    },
+    {
+      "id": "roles",
+      "title": "夫妻角色概念比对",
+      "short": "角色",
+      "desc": "30 题角色态度量表 + 讨论提纲",
+      "file": "forms/roles.json",
+      "compare": true
+    },
+    {
+      "id": "sex",
+      "title": "性观念与性知识",
+      "short": "性观念",
+      "desc": "同意/不同意/不确定问卷 + 讨论",
+      "file": "forms/sex.json",
+      "compare": true
+    }
+  ]
+}

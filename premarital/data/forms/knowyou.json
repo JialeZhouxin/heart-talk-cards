@@ -1,0 +1,69 @@
+{
+  "id": "knowyou",
+  "title": "知己知彼与沟通",
+  "version": 1,
+  "chapters": [
+    {
+      "id": "ky",
+      "title": "知己知彼与沟通",
+      "part": "main",
+      "items": [
+        {
+          "id": "ky_o1",
+          "type": "open",
+          "prompt": "对方优点（至少三项）"
+        },
+        {
+          "id": "ky_o2",
+          "type": "open",
+          "prompt": "对方缺点（至少三项）"
+        },
+        {
+          "id": "ky_o3",
+          "type": "open",
+          "prompt": "过去一年最成功/美好的沟通事件"
+        },
+        {
+          "id": "ky_o4",
+          "type": "open",
+          "prompt": "过去一年彼此伤害/不愉快事件"
+        },
+        {
+          "id": "ky_o5",
+          "type": "open",
+          "prompt": "未说出口/说不清却希望对方明白的事"
+        },
+        {
+          "id": "ky_o6",
+          "type": "open",
+          "prompt": "有些事为什么不说出来？"
+        },
+        {
+          "id": "ky_o7",
+          "type": "open",
+          "prompt": "对方生气时你通常如何回应？"
+        },
+        {
+          "id": "ky_o8",
+          "type": "open",
+          "prompt": "目前处理冲突的方式与原因"
+        },
+        {
+          "id": "ky_o9",
+          "type": "open",
+          "prompt": "对沟通与相处的期待"
+        },
+        {
+          "id": "ky_o10",
+          "type": "open",
+          "prompt": "读《婚姻美满的秘诀》后希望做的调整"
+        },
+        {
+          "id": "ky_o11",
+          "type": "open",
+          "prompt": "其他想补充的知己知彼内容"
+        }
+      ]
+    }
+  ]
+}

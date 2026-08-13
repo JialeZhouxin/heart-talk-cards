@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>填写 · 婚前辅导</title>
+  <link rel="stylesheet" href="css/app.css" />
+  <meta name="theme-color" content="#c27a3a" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="apple-touch-icon" href="icons/icon-192.png" />
+</head>
+<body>
+  <div class="wrap">
+    <div class="top">
+      <h1 id="title">填写</h1>
+      <nav>
+        <a href="index.html">全部表单</a>
+        <a href="compare.html" id="link-compare">对照</a>
+      </nav>
+        <button class="btn" id="themeToggleBtn" type="button" style="min-height:36px;padding:6px 12px;font-size:13px;">夜间护眼</button>
+    </div>
+    <div class="note">自动保存到本机。点选程度前请先看「1–5 含义」；开放题直接输入。</div>
+    <div id="error" class="error" hidden></div>
+    <div class="card">
+      <div class="row" style="margin-bottom:10px">
+        <button class="btn" id="btn-export-form" type="button">导出本表</button>
+        <label class="btn" for="file-import-form">导入本表</label>
+        <input id="file-import-form" type="file" accept="application/json,.json" hidden />
+      </div>
+      <div class="row" style="justify-content:space-between">
+        <div id="chapter-title" class="muted"></div>
+        <div id="chapter-progress" class="progress"></div>
+      </div>
+      <div class="chapter-nav" id="chapters-nav"></div>
+      <div class="scale-legend" id="scale-legend" hidden></div>
+      <div id="items"></div>
+      <div class="pager">
+        <button class="btn" id="prev" type="button">上一章</button>
+        <button class="btn primary" id="next" type="button">下一章</button>
+      </div>
+    </div>
+  </div>
+  <script src="js/pwa.js"></script>
+  <script type="module" src="js/fill.js"></script>
+  <script>
+    (function () {
+      const btn = document.getElementById('themeToggleBtn');
+      function apply(theme) {
+        document.documentElement.setAttribute('data-theme', theme);
+        if (btn) {
+          btn.textContent = theme === 'dark' ? '暖色模式' : '夜间护眼';
+          btn.setAttribute('aria-pressed', String(theme === 'dark'));
+        }
+        try { localStorage.setItem('premarital-theme', theme); } catch (e) {}
+      }
+      if (btn) {
+        btn.addEventListener('click', function () {
+          const cur = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
+          apply(cur === 'dark' ? 'light' : 'dark');
+        });
+      }
+      let saved = null;
+      try { saved = localStorage.getItem('premarital-theme'); } catch (e) {}
+      const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+      apply(saved || (prefersDark ? 'dark' : 'light'));
+    })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,26 @@
+{
+  "name": "婚前辅导表单",
+  "short_name": "婚前辅导",
+  "description": "婚前辅导问卷本地填写与双方对照，数据仅存本机",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#f6f4f0",
+  "theme_color": "#2f5d50",
+  "lang": "zh-CN",
+  "icons": [
+    {
+      "src": "icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

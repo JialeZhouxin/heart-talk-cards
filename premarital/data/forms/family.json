@@ -1,0 +1,120 @@
+{
+  "id": "family",
+  "title": "原生家庭",
+  "version": 1,
+  "chapters": [
+    {
+      "id": "self",
+      "title": "一、了解自己",
+      "part": "main",
+      "items": [
+        {
+          "id": "self_o1",
+          "type": "open",
+          "prompt": "你是怎样的一个人？（具体详细）"
+        },
+        {
+          "id": "self_o2",
+          "type": "open",
+          "prompt": "三个优点"
+        },
+        {
+          "id": "self_o3",
+          "type": "open",
+          "prompt": "三个令人难以忍受的缺点/特质（伴侣常说的）"
+        }
+      ]
+    },
+    {
+      "id": "parents",
+      "title": "二、了解父母",
+      "part": "main",
+      "items": [
+        {
+          "id": "parents_o1",
+          "type": "open",
+          "prompt": "欣赏父亲的（至少三点）"
+        },
+        {
+          "id": "parents_o2",
+          "type": "open",
+          "prompt": "欣赏母亲的（至少三点）"
+        },
+        {
+          "id": "parents_o3",
+          "type": "open",
+          "prompt": "不欣赏父亲的（至少三点）"
+        },
+        {
+          "id": "parents_o4",
+          "type": "open",
+          "prompt": "不欣赏母亲的（至少三点）"
+        },
+        {
+          "id": "parents_o5",
+          "type": "open",
+          "prompt": "与父亲关系如何？有何期待？"
+        },
+        {
+          "id": "parents_o6",
+          "type": "open",
+          "prompt": "与母亲关系如何？有何期待？"
+        }
+      ]
+    },
+    {
+      "id": "origin",
+      "title": "三、了解原生家庭与反省",
+      "part": "main",
+      "items": [
+        {
+          "id": "origin_o1",
+          "type": "open",
+          "prompt": "成长中重大事件及影响/感受"
+        },
+        {
+          "id": "origin_o2",
+          "type": "open",
+          "prompt": "原生家庭对你的影响（行为模式、人际等）"
+        },
+        {
+          "id": "origin_o3",
+          "type": "open",
+          "prompt": "原生家庭中多数决定谁做？你的感觉？"
+        },
+        {
+          "id": "origin_o4",
+          "type": "open",
+          "prompt": "父母如何处理冲突？"
+        },
+        {
+          "id": "origin_o5",
+          "type": "open",
+          "prompt": "与伴侣冲突时你的方式更像父还是母？想法？"
+        },
+        {
+          "id": "origin_o6",
+          "type": "open",
+          "prompt": "将来婚姻中希望延续/调整的品质与气氛？"
+        }
+      ]
+    },
+    {
+      "id": "pray",
+      "title": "四、祷告记录（可选）",
+      "part": "main",
+      "items": [
+        {
+          "id": "pray_o1",
+          "type": "open",
+          "prompt": "认同性悔改/砍断相关记录（可摘要）"
+        },
+        {
+          "id": "pray_o2",
+          "type": "open",
+          "prompt": "为将来家庭的祷告记录"
+        }
+      ]
+    }
+  ]
+}

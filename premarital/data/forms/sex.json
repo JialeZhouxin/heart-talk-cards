@@ -1,0 +1,332 @@
+{
+  "id": "sex",
+  "title": "性观念与性知识",
+  "version": 1,
+  "chapters": [
+    {
+      "id": "sexq",
+      "title": "性观念与性知识问卷",
+      "part": "main",
+      "items": [
+        {
+          "id": "sexq_c1",
+          "type": "choice",
+          "prompt": "我认为性应该一直保留到结婚后才开始。",
+          "options": [
+            {
+              "value": 1,
+              "label": "同意"
+            },
+            {
+              "value": 2,
+              "label": "不同意"
+            },
+            {
+              "value": 3,
+              "label": "不确定"
+            }
+          ]
+        },
+        {
+          "id": "sexq_c2",
+          "type": "choice",
+          "prompt": "男女交往时，身体的亲密度太快，会影响恋爱发展。",
+          "options": [
+            {
+              "value": 1,
+              "label": "同意"
+            },
+            {
+              "value": 2,
+              "label": "不同意"
+            },
+            {
+              "value": 3,
+              "label": "不确定"
+            }
+          ]
+        },
+        {
+          "id": "sexq_c3",
+          "type": "choice",
+          "prompt": "基督徒弟兄和姐妹若身体亲密度太快或太高，就无法顺从圣灵的带领。",
+          "options": [
+            {
+              "value": 1,
+              "label": "同意"
+            },
+            {
+              "value": 2,
+              "label": "不同意"
+            },
+            {
+              "value": 3,
+              "label": "不确定"
+            }
+          ]
+        },
+        {
+          "id": "sexq_c4",
+          "type": "choice",
+          "prompt": "二个基督徒男女在恋爱时，也可能发生性行为。",
+          "options": [
+            {
+              "value": 1,
+              "label": "同意"
+            },
+            {
+              "value": 2,
+              "label": "不同意"
+            },
+            {
+              "value": 3,
+              "label": "不确定"
+            }
+          ]
+        },
+        {
+          "id": "sexq_c5",
+          "type": "choice",
+          "prompt": "多数女性月经来之前，情绪低落、不稳定。经期来时会发生头痛、腹痛等现象。",
+          "options": [
+            {
+              "value": 1,
+              "label": "同意"
+            },
+            {
+              "value": 2,
+              "label": "不同意"
+            },
+            {
+              "value": 3,
+              "label": "不确定"
+            }
+          ]
+        },
+        {
+          "id": "sexq_c6",
+          "type": "choice",
+          "prompt": "女性即使取掉了子宫，仍然达到性高潮。",
+          "options": [
+            {
+              "value": 1,
+              "label": "同意"
+            },
+            {
+              "value": 2,
+              "label": "不同意"
+            },
+            {
+              "value": 3,
+              "label": "不确定"
+            }
+          ]
+        },
+        {
+          "id": "sexq_c7",
+          "type": "choice",
+          "prompt": "女人如果在月经期间性交就不会怀孕。",
+          "options": [
+            {
+              "value": 1,
+              "label": "同意"
+            },
+            {
+              "value": 2,
+              "label": "不同意"
+            },
+            {
+              "value": 3,
+              "label": "不确定"
+            }
+          ]
+        },
+        {
+          "id": "sexq_c8",
+          "type": "choice",
+          "prompt": "即使因为使用被感染性病的人使用过的马桶，也可能感染到性病。",
+          "options": [
+            {
+              "value": 1,
+              "label": "同意"
+            },
+            {
+              "value": 2,
+              "label": "不同意"
+            },
+            {
+              "value": 3,
+              "label": "不确定"
+            }
+          ]
+        },
+        {
+          "id": "sexq_c9",
+          "type": "choice",
+          "prompt": "男性生殖器的大小长短，与性生活的满足和生殖能力有关系。",
+          "options": [
+            {
+              "value": 1,
+              "label": "同意"
+            },
+            {
+              "value": 2,
+              "label": "不同意"
+            },
+            {
+              "value": 3,
+              "label": "不确定"
+            }
+          ]
+        },
+        {
+          "id": "sexq_c10",
+          "type": "choice",
+          "prompt": "女性到了更年期后，月经停止，就无法享受性生活。",
+          "options": [
+            {
+              "value": 1,
+              "label": "同意"
+            },
+            {
+              "value": 2,
+              "label": "不同意"
+            },
+            {
+              "value": 3,
+              "label": "不确定"
+            }
+          ]
+        },
+        {
+          "id": "sexq_c11",
+          "type": "choice",
+          "prompt": "如果一个女人没有处女膜，正可以证明她不是处女。",
+          "options": [
+            {
+              "value": 1,
+              "label": "同意"
+            },
+            {
+              "value": 2,
+              "label": "不同意"
+            },
+            {
+              "value": 3,
+              "label": "不确定"
+            }
+          ]
+        },
+        {
+          "id": "sexq_c12",
+          "type": "choice",
+          "prompt": "吃了避孕药后百分之百保证不怀孕。",
+          "options": [
+            {
+              "value": 1,
+              "label": "同意"
+            },
+            {
+              "value": 2,
+              "label": "不同意"
+            },
+            {
+              "value": 3,
+              "label": "不确定"
+            }
+          ]
+        },
+        {
+          "id": "sexq_c13",
+          "type": "choice",
+          "prompt": "老年人不会有性的需要。",
+          "options": [
+            {
+              "value": 1,
+              "label": "同意"
+            },
+            {
+              "value": 2,
+              "label": "不同意"
+            },
+            {
+              "value": 3,
+              "label": "不确定"
+            }
+          ]
+        },
+        {
+          "id": "sexq_c14",
+          "type": "choice",
+          "prompt": "两厢情愿的成人性行为是他们之间的私事。",
+          "options": [
+            {
+              "value": 1,
+              "label": "同意"
+            },
+            {
+              "value": 2,
+              "label": "不同意"
+            },
+            {
+              "value": 3,
+              "label": "不确定"
+            }
+          ]
+        },
+        {
+          "id": "sexq_c15",
+          "type": "choice",
+          "prompt": "“性”本身是好的，是中性的。",
+          "options": [
+            {
+              "value": 1,
+              "label": "同意"
+            },
+            {
+              "value": 2,
+              "label": "不同意"
+            },
+            {
+              "value": 3,
+              "label": "不确定"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "sexd",
+      "title": "夫妻性生活问题讨论",
+      "part": "main",
+      "items": [
+        {
+          "id": "sexd_o1",
+          "type": "open",
+          "prompt": "关于婚姻性生活我还想进一步知道什么？"
+        },
+        {
+          "id": "sexd_o2",
+          "type": "open",
+          "prompt": "有关将来婚姻性生活，我的焦虑是什么？我的期望又是什么？"
+        }
+      ]
+    }
+  ],
+  "choice": {
+    "options": [
+      {
+        "value": 1,
+        "label": "同意"
+      },
+      {
+        "value": 2,
+        "label": "不同意"
+      },
+      {
+        "value": 3,
+        "label": "不确定"
+      }
+    ]
+  }
+}

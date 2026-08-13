@@ -1,0 +1,232 @@
+{
+  "id": "roles",
+  "title": "夫妻角色概念比对",
+  "version": 1,
+  "chapters": [
+    {
+      "id": "roles",
+      "title": "夫妻角色概念比对表",
+      "part": "main",
+      "items": [
+        {
+          "id": "roles_l1",
+          "type": "likert",
+          "prompt": "丈夫乃一家之主。"
+        },
+        {
+          "id": "roles_l2",
+          "type": "likert",
+          "prompt": "妻子不应出外工作。"
+        },
+        {
+          "id": "roles_l3",
+          "type": "likert",
+          "prompt": "丈夫应经常帮忙做清洗碗碟的工作。"
+        },
+        {
+          "id": "roles_l4",
+          "type": "likert",
+          "prompt": "妻子对孩子有更大责任。"
+        },
+        {
+          "id": "roles_l5",
+          "type": "likert",
+          "prompt": "妻子赚来的钱应归她自己所有。"
+        },
+        {
+          "id": "roles_l6",
+          "type": "likert",
+          "prompt": "丈夫每星期最少应有一个晚上跟自己的朋友出去消遣一下。"
+        },
+        {
+          "id": "roles_l7",
+          "type": "likert",
+          "prompt": "妻子赚来的钱应归她自己所有。（重复题，按表填写）"
+        },
+        {
+          "id": "roles_l8",
+          "type": "likert",
+          "prompt": "丈夫的责任在外工作，太太的责任是照顾家务和儿女。"
+        },
+        {
+          "id": "roles_l9",
+          "type": "likert",
+          "prompt": "处理钱财的最佳方法是两人收入共用不分彼此。"
+        },
+        {
+          "id": "roles_l10",
+          "type": "likert",
+          "prompt": "结婚双方在地位上是平等的。"
+        },
+        {
+          "id": "roles_l11",
+          "type": "likert",
+          "prompt": "面临僵局的时候，应该由丈夫作出最后的决定。"
+        },
+        {
+          "id": "roles_l12",
+          "type": "likert",
+          "prompt": "每星期应该有一个晚上由丈夫看孩子，让妻子可以自由地做些她爱做的事。"
+        },
+        {
+          "id": "roles_l13",
+          "type": "likert",
+          "prompt": "夫妇两人应该一起做休闲的活动。"
+        },
+        {
+          "id": "roles_l14",
+          "type": "likert",
+          "prompt": "由妻子主动跟丈夫作爱没有什么不妥。"
+        },
+        {
+          "id": "roles_l15",
+          "type": "likert",
+          "prompt": "夫妇两人应该一起订定家庭预算和处理财物的方法。"
+        },
+        {
+          "id": "roles_l16",
+          "type": "likert",
+          "prompt": "未经对方同意，不应私自买三百元以上的物品。"
+        },
+        {
+          "id": "roles_l17",
+          "type": "likert",
+          "prompt": "管教孩子是父亲的责任。"
+        },
+        {
+          "id": "roles_l18",
+          "type": "likert",
+          "prompt": "有特别专长的妻子也应该有自己的事业。"
+        },
+        {
+          "id": "roles_l19",
+          "type": "likert",
+          "prompt": "使家里清洁整齐是妻子的责任。"
+        },
+        {
+          "id": "roles_l20",
+          "type": "likert",
+          "prompt": "做丈夫的应该每月有两次带妻子出去约会休闲。"
+        },
+        {
+          "id": "roles_l21",
+          "type": "likert",
+          "prompt": "有关孩子的管教，母亲所负的责任跟父亲同样重要。"
+        },
+        {
+          "id": "roles_l22",
+          "type": "likert",
+          "prompt": "倒垃圾应是丈夫的工作。"
+        },
+        {
+          "id": "roles_l23",
+          "type": "likert",
+          "prompt": "母亲应该负责教导孩子有关价值观的问题。"
+        },
+        {
+          "id": "roles_l24",
+          "type": "likert",
+          "prompt": "女性比男性更情绪化。"
+        },
+        {
+          "id": "roles_l25",
+          "type": "likert",
+          "prompt": "应该容许孩子帮忙安排家庭活动。"
+        },
+        {
+          "id": "roles_l26",
+          "type": "likert",
+          "prompt": "注重纪律的父母能让孩子有更好的发展。"
+        },
+        {
+          "id": "roles_l27",
+          "type": "likert",
+          "prompt": "妻子应该常常顺从丈夫的决定。"
+        },
+        {
+          "id": "roles_l28",
+          "type": "likert",
+          "prompt": "夫妇二人分别交友的范围应该由丈夫来决定。"
+        },
+        {
+          "id": "roles_l29",
+          "type": "likert",
+          "prompt": "夫妇双方都不应与自己的父母住在同一居所。"
+        },
+        {
+          "id": "roles_l30",
+          "type": "likert",
+          "prompt": "夫妇对一些事情意见不同时，孩子可以直接和他们沟通。"
+        }
+      ]
+    },
+    {
+      "id": "disc",
+      "title": "角色讨论提纲",
+      "part": "main",
+      "items": [
+        {
+          "id": "disc_o1",
+          "type": "open",
+          "prompt": "丈夫是“头”指什么？"
+        },
+        {
+          "id": "disc_o2",
+          "type": "open",
+          "prompt": "好丈夫（头）需要做哪些事？"
+        },
+        {
+          "id": "disc_o3",
+          "type": "open",
+          "prompt": "你能扮演好“头”的角色吗？"
+        },
+        {
+          "id": "disc_o4",
+          "type": "open",
+          "prompt": "你要如何爱妻子？（具体行动）"
+        },
+        {
+          "id": "disc_o5",
+          "type": "open",
+          "prompt": "何谓了解妻子？你如何实行？"
+        },
+        {
+          "id": "disc_o6",
+          "type": "open",
+          "prompt": "妻子角色是什么？（创 2:18）"
+        },
+        {
+          "id": "disc_o7",
+          "type": "open",
+          "prompt": "何谓顺服？意义？"
+        },
+        {
+          "id": "disc_o8",
+          "type": "open",
+          "prompt": "为什么要顺服？（经文）"
+        },
+        {
+          "id": "disc_o9",
+          "type": "open",
+          "prompt": "妻子顺服可能面对的困难？"
+        },
+        {
+          "id": "disc_o10",
+          "type": "open",
+          "prompt": "何谓尊重丈夫？你如何实行？"
+        }
+      ]
+    }
+  ],
+  "scale": {
+    "min": 1,
+    "max": 5,
+    "labels": [
+      "极为同意",
+      "颇为同意",
+      "不肯定",
+      "颇不同意",
+      "极不同意"
+    ]
+  }
+}

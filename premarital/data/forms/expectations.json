@@ -1,0 +1,96 @@
+{
+  "id": "expectations",
+  "title": "期待问卷 + 婚姻观提纲",
+  "version": 1,
+  "chapters": [
+    {
+      "id": "exp",
+      "title": "期待问卷",
+      "part": "main",
+      "items": [
+        {
+          "id": "exp_o1",
+          "type": "open",
+          "prompt": "对婚前辅导课程的期待"
+        },
+        {
+          "id": "exp_o2",
+          "type": "open",
+          "prompt": "对二人关系的期待"
+        },
+        {
+          "id": "exp_o3",
+          "type": "open",
+          "prompt": "对自己有什么期待？"
+        },
+        {
+          "id": "exp_o4",
+          "type": "open",
+          "prompt": "请你为“婚姻”下一个定义"
+        },
+        {
+          "id": "exp_o5",
+          "type": "open",
+          "prompt": "你对婚姻有什么期待和顾虑？"
+        },
+        {
+          "id": "exp_o6",
+          "type": "open",
+          "prompt": "列出五点：现今适合结婚的理由"
+        },
+        {
+          "id": "exp_o7",
+          "type": "open",
+          "prompt": "列出七点：要与对方结婚的理由"
+        }
+      ]
+    },
+    {
+      "id": "bible",
+      "title": "圣经婚姻观讨论提纲",
+      "part": "main",
+      "items": [
+        {
+          "id": "bible_o1",
+          "type": "open",
+          "prompt": "由创 2:24；太 19:4–6 归纳神对婚姻所立的法则"
+        },
+        {
+          "id": "bible_o2",
+          "type": "open",
+          "prompt": "何谓离开？包括哪些层面？"
+        },
+        {
+          "id": "bible_o3",
+          "type": "open",
+          "prompt": "哪一层面离开对你最难？为什么？"
+        },
+        {
+          "id": "bible_o4",
+          "type": "open",
+          "prompt": "为什么要丈夫离开父母与妻子连合？"
+        },
+        {
+          "id": "bible_o5",
+          "type": "open",
+          "prompt": "婚姻的终极目标为何？"
+        },
+        {
+          "id": "bible_o6",
+          "type": "open",
+          "prompt": "夫妻在哪几方面需要合一？"
+        },
+        {
+          "id": "bible_o7",
+          "type": "open",
+          "prompt": "箴 2:17；玛 2:14：夫妻关系属什么性质？"
+        },
+        {
+          "id": "bible_o8",
+          "type": "open",
+          "prompt": "现代婚姻最大威胁是什么？如何避免？"
+        }
+      ]
+    }
+  ]
+}

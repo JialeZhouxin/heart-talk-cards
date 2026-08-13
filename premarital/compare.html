@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>双方对照 · 婚前辅导</title>
+  <link rel="stylesheet" href="css/app.css" />
+  <meta name="theme-color" content="#c27a3a" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="apple-touch-icon" href="icons/icon-192.png" />
+</head>
+<body>
+  <div class="wrap">
+    <div class="top no-print">
+      <h1 id="page-title">双方对照</h1>
+      <nav>
+        <a href="index.html">全部表单</a>
+        <a href="fill.html?person=a" id="link-fill-a">填丈夫</a>
+        <a href="fill.html?person=b" id="link-fill-b">填妻子</a>
+      </nav>
+        <button class="btn" id="themeToggleBtn" type="button" style="min-height:36px;padding:6px 12px;font-size:13px;">夜间护眼</button>
+    </div>
+    <div class="note no-print">绿=一致 · 黄=差1 · 红=差≥2（量表/选择题）。开放题仅并排。</div>
+    <div id="error" class="error" hidden></div>
+
+    <div class="card">
+      <div class="row no-print" style="margin-bottom:10px">
+        <button class="btn" id="btn-export-form" type="button">导出本表</button>
+        <label class="btn" for="file-import-form">导入本表</label>
+        <input id="file-import-form" type="file" accept="application/json,.json" hidden />
+        <button class="btn primary" id="btn-print-report" type="button">打印报告</button>
+      </div>
+      <div class="print-report-meta" id="print-meta" hidden></div>
+      <div class="summary" id="summary"></div>
+      <div class="filters no-print" id="filters">
+        <label><input type="radio" name="filter" value="all_answered" /> 全部已填</label>
+        <label><input type="radio" name="filter" value="diff_only" checked /> 仅差异</label>
+        <label><input type="radio" name="filter" value="far_only" /> 仅红（差≥2）</label>
+      </div>
+      <p class="muted no-print" id="print-hint">打印默认按当前筛选（默认「仅差异」）；可勾选是否含开放题。</p>
+      <div class="row no-print" style="margin-bottom:10px">
+        <label><input type="checkbox" id="print-include-open" checked /> 打印含开放题</label>
+      </div>
+      <div id="list"></div>
+    </div>
+
+    <div class="card" id="open-section">
+      <h2>开放题并排</h2>
+      <p class="muted no-print">不做语义对比，仅并排查看。</p>
+      <div id="open-list"></div>
+    </div>
+    <div class="print-footer" id="print-footer" hidden>
+      隐私提示：本报告仅供婚前辅导使用，请勿外传；打印件请自行妥善保管或销毁。
+    </div>
+  </div>
+  <script src="js/pwa.js"></script>
+  <script type="module" src="js/selfcheck.js"></script>
+  <script type="module" src="js/compare-page.js"></script>
+  <script>
+    (function () {
+      const btn = document.getElementById('themeToggleBtn');
+      function apply(theme) {
+        document.documentElement.setAttribute('data-theme', theme);
+        if (btn) {
+          btn.textContent = theme === 'dark' ? '暖色模式' : '夜间护眼';
+          btn.setAttribute('aria-pressed', String(theme === 'dark'));
+        }
+        try { localStorage.setItem('premarital-theme', theme); } catch (e) {}
+      }
+      if (btn) {
+        btn.addEventListener('click', function () {
+          const cur = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
+          apply(cur === 'dark' ? 'light' : 'dark');
+        });
+      }
+      let saved = null;
+      try { saved = localStorage.getItem('premarital-theme'); } catch (e) {}
+      const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+      apply(saved || (prefersDark ? 'dark' : 'light'));
+    })();
+  </script>
+</body>
+</html>
