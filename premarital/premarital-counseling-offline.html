@@ -567,10 +567,117 @@ function summarize(pairs) {
   return s;
 }
 
+// ---- js/form-logic.js ----
+/** Pure form-state logic: no DOM, no localStorage. Safe to unit-test. */
+
+
+/** Is `v` a valid completed answer for item `it`? */
+function isAnswered(it, v) {
+  if (it.type === "likert" || it.type === "choice") {
+    return Number.isInteger(v) && v >= 1 && v <= 5;
+  }
+  return typeof v === "string" && v.trim().length > 0;
+}
+
+/** True when `v` is a valid likert/choice scale value (1..5). */
+function isScaleValue(v) {
+  return Number.isInteger(v) && v >= 1 && v <= 5;
+}
+
+/** Read one answer from a form state. */
+function getAnswer(state, person, itemId) {
+  return state.people[person]?.answers?.[itemId];
+}
+
+/** Mutate-and-return `state`: set / clear one answer with validation. */
+function setAnswer(state, person, itemId, value, type) {
+  const p = state.people[person];
+  if (!p) return state;
+  if (type === "likert" || type === "choice") {
+    const n = Number(value);
+    if (isScaleValue(n)) {
+      p.answers[itemId] = n;
+    } else if (!Number.isInteger(n) || n < 1) {
+      delete p.answers[itemId];
+    } else {
+      p.answers[itemId] = n;
+    }
+  } else {
+    const s = value == null ? "" : String(value).trim();
+    if (!s) delete p.answers[itemId];
+    else p.answers[itemId] = s;
+  }
+  p.updatedAt = new Date().toISOString();
+  return state;
+}
+
+/** Per-person + combined progress across a form bank. */
+function progress(state, bank) {
+  let total = 0;
+  for (const ch of bank.chapters) total += ch.items.length;
+  const one = (person) => {
+    const ans = state.people[person].answers || {};
+    let done = 0;
+    let likertTotal = 0, likertDone = 0;
+    let openTotal = 0, openDone = 0;
+    let choiceTotal = 0, choiceDone = 0;
+    for (const ch of bank.chapters) {
+      for (const it of ch.items) {
+        const v = ans[it.id];
+        if (it.type === "likert") {
+          likertTotal++;
+          if (isAnswered(it, v)) { likertDone++; done++; }
+        } else if (it.type === "choice") {
+          choiceTotal++;
+          if (isAnswered(it, v)) { choiceDone++; done++; }
+        } else {
+          openTotal++;
+          if (isAnswered(it, v)) { openDone++; done++; }
+        }
+      }
+    }
+    return {
+      done, total,
+      likertDone, likertTotal,
+      openDone, openTotal,
+      choiceDone, choiceTotal,
+    };
+  };
+  return { a: one("a"), b: one("b") };
+}
+
+/** Download a JSON blob (DOM side-effect, but pure w.r.t. app state). */
+function exportJSON(rootOrState, filename = "premarital-forms.json") {
+  const blob = new Blob([JSON.stringify(rootOrState, null, 2)], {
+    type: "application/json;charset=utf-8",
+  });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = filename;
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+
+/** Export one form as a standalone JSON file. */
+function exportOneForm(formId, state) {
+  exportJSON(
+    { version: 1, formId, people: state.people },
+    `premarital-${formId}.json`
+  );
+}
+
+// re-export for callers that used to import this from storage.js
+
 // ---- js/storage.js ----
 const applyImportCore = applyImport;
 const parseImportCore = parseImport;
-/** Per-form localStorage answers. Migrates legacy single-form key. */
+/** Per-form localStorage answers. Migrates legacy single-form key.
+ *
+ * Pure form-state logic (setAnswer / getAnswer / progress / exportJSON /
+ * exportOneForm) lives in ./form-logic.js — testable without storage.
+ * This module re-exports them for backward compatibility, but new code
+ * should import from form-logic directly.
+ */
 
 
 const ROOT_KEY = "premarital.forms.v2";
@@ -679,94 +786,6 @@ function saveState(formId, state) {
   return saveRoot(root);
 }
 
-function setAnswer(state, person, itemId, value, type) {
-  const p = state.people[person];
-  if (!p) return state;
-  if (type === "likert" || type === "choice") {
-    const n = Number(value);
-    if (!Number.isInteger(n) || n < 1 || n > 5) {
-      if (!Number.isInteger(n) || n < 1) delete p.answers[itemId];
-      else p.answers[itemId] = n;
-    } else {
-      p.answers[itemId] = n;
-    }
-  } else {
-    const s = value == null ? "" : String(value).trim();
-    if (!s) delete p.answers[itemId];
-    else p.answers[itemId] = s;
-  }
-  p.updatedAt = new Date().toISOString();
-  return state;
-}
-
-function isDone(it, v) {
-  if (it.type === "likert" || it.type === "choice") {
-    return Number.isInteger(v) && v >= 1 && v <= 5;
-  }
-  return typeof v === "string" && v.trim().length > 0;
-}
-
-function progress(state, bank) {
-  let total = 0;
-  for (const ch of bank.chapters) total += ch.items.length;
-  const one = (person) => {
-    const ans = state.people[person].answers || {};
-    let done = 0;
-    let likertTotal = 0;
-    let likertDone = 0;
-    let openTotal = 0;
-    let openDone = 0;
-    let choiceTotal = 0;
-    let choiceDone = 0;
-    for (const ch of bank.chapters) {
-      for (const it of ch.items) {
-        const v = ans[it.id];
-        if (it.type === "likert") {
-          likertTotal++;
-          if (isDone(it, v)) {
-            likertDone++;
-            done++;
-          }
-        } else if (it.type === "choice") {
-          choiceTotal++;
-          if (isDone(it, v)) {
-            choiceDone++;
-            done++;
-          }
-        } else {
-          openTotal++;
-          if (isDone(it, v)) {
-            openDone++;
-            done++;
-          }
-        }
-      }
-    }
-    return {
-      done,
-      total,
-      likertDone,
-      likertTotal,
-      openDone,
-      openTotal,
-      choiceDone,
-      choiceTotal,
-    };
-  };
-  return { a: one("a"), b: one("b") };
-}
-
-function exportJSON(rootOrState, filename = "premarital-forms.json") {
-  const blob = new Blob([JSON.stringify(rootOrState, null, 2)], {
-    type: "application/json;charset=utf-8",
-  });
-  const a = document.createElement("a");
-  a.href = URL.createObjectURL(blob);
-  a.download = filename;
-  a.click();
-  URL.revokeObjectURL(a.href);
-}
-
 function parseImport(text) {
   return parseImportCore(text);
 }
@@ -774,17 +793,6 @@ function parseImport(text) {
 /** Default mode=merge：双机各自填写后合并，空身份不覆盖本地。 */
 function applyImport(root, parsed, formIdFilter = null, mode = "merge") {
   return applyImportCore(root, parsed, formIdFilter, mode);
-}
-
-function getAnswer(state, person, itemId) {
-  return state.people[person]?.answers?.[itemId];
-}
-
-function exportOneForm(formId, state) {
-  exportJSON(
-    { version: 1, formId, people: state.people },
-    `premarital-${formId}.json`
-  );
 }
 
 // ---- js/data-loader.js ----

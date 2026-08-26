@@ -1,4 +1,10 @@
-/** Per-form localStorage answers. Migrates legacy single-form key. */
+/** Per-form localStorage answers. Migrates legacy single-form key.
+ *
+ * Pure form-state logic (setAnswer / getAnswer / progress / exportJSON /
+ * exportOneForm) lives in ./form-logic.js — testable without storage.
+ * This module re-exports them for backward compatibility, but new code
+ * should import from form-logic directly.
+ */
 
 import {
   applyImport as applyImportCore,
@@ -8,9 +14,16 @@ import {
   emptyRoot,
   parseImport as parseImportCore,
   personHasAnswers,
-  serializeOneForm,
   serializeRoot,
 } from "./import-export-core.js";
+import {
+  exportJSON,
+  exportOneForm,
+  getAnswer,
+  progress,
+  serializeOneForm,
+  setAnswer,
+} from "./form-logic.js";
 
 export const ROOT_KEY = "premarital.forms.v2";
 export const LEGACY_KEY = "premarital.assessment.v1";
@@ -19,9 +32,14 @@ export {
   emptyFormState,
   emptyPerson,
   emptyRoot,
+  exportJSON,
+  exportOneForm,
+  getAnswer,
   personHasAnswers,
+  progress,
   serializeOneForm,
   serializeRoot,
+  setAnswer,
 };
 
 let memoryFallback = null;
@@ -126,94 +144,6 @@ export function saveState(formId, state) {
   return saveRoot(root);
 }
 
-export function setAnswer(state, person, itemId, value, type) {
-  const p = state.people[person];
-  if (!p) return state;
-  if (type === "likert" || type === "choice") {
-    const n = Number(value);
-    if (!Number.isInteger(n) || n < 1 || n > 5) {
-      if (!Number.isInteger(n) || n < 1) delete p.answers[itemId];
-      else p.answers[itemId] = n;
-    } else {
-      p.answers[itemId] = n;
-    }
-  } else {
-    const s = value == null ? "" : String(value).trim();
-    if (!s) delete p.answers[itemId];
-    else p.answers[itemId] = s;
-  }
-  p.updatedAt = new Date().toISOString();
-  return state;
-}
-
-function isDone(it, v) {
-  if (it.type === "likert" || it.type === "choice") {
-    return Number.isInteger(v) && v >= 1 && v <= 5;
-  }
-  return typeof v === "string" && v.trim().length > 0;
-}
-
-export function progress(state, bank) {
-  let total = 0;
-  for (const ch of bank.chapters) total += ch.items.length;
-  const one = (person) => {
-    const ans = state.people[person].answers || {};
-    let done = 0;
-    let likertTotal = 0;
-    let likertDone = 0;
-    let openTotal = 0;
-    let openDone = 0;
-    let choiceTotal = 0;
-    let choiceDone = 0;
-    for (const ch of bank.chapters) {
-      for (const it of ch.items) {
-        const v = ans[it.id];
-        if (it.type === "likert") {
-          likertTotal++;
-          if (isDone(it, v)) {
-            likertDone++;
-            done++;
-          }
-        } else if (it.type === "choice") {
-          choiceTotal++;
-          if (isDone(it, v)) {
-            choiceDone++;
-            done++;
-          }
-        } else {
-          openTotal++;
-          if (isDone(it, v)) {
-            openDone++;
-            done++;
-          }
-        }
-      }
-    }
-    return {
-      done,
-      total,
-      likertDone,
-      likertTotal,
-      openDone,
-      openTotal,
-      choiceDone,
-      choiceTotal,
-    };
-  };
-  return { a: one("a"), b: one("b") };
-}
-
-export function exportJSON(rootOrState, filename = "premarital-forms.json") {
-  const blob = new Blob([JSON.stringify(rootOrState, null, 2)], {
-    type: "application/json;charset=utf-8",
-  });
-  const a = document.createElement("a");
-  a.href = URL.createObjectURL(blob);
-  a.download = filename;
-  a.click();
-  URL.revokeObjectURL(a.href);
-}
-
 export function parseImport(text) {
   return parseImportCore(text);
 }
@@ -221,15 +151,4 @@ export function parseImport(text) {
 /** Default mode=merge：双机各自填写后合并，空身份不覆盖本地。 */
 export function applyImport(root, parsed, formIdFilter = null, mode = "merge") {
   return applyImportCore(root, parsed, formIdFilter, mode);
-}
-
-export function getAnswer(state, person, itemId) {
-  return state.people[person]?.answers?.[itemId];
-}
-
-export function exportOneForm(formId, state) {
-  exportJSON(
-    { version: 1, formId, people: state.people },
-    `premarital-${formId}.json`
-  );
 }

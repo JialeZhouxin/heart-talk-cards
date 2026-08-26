@@ -14,6 +14,7 @@ OUT = ROOT / "premarital-counseling-offline.html"
 MODULE_ORDER = [
     "js/import-export-core.js",
     "js/compare.js",
+    "js/form-logic.js",
     "js/storage.js",
     "js/data-loader.js",
     "js/home.js",

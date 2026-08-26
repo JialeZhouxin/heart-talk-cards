@@ -1,13 +1,15 @@
 import {
   applyImport,
-  exportJSON,
-  exportOneForm,
   loadRoot,
   loadState,
   parseImport,
-  progress,
   saveRoot,
 } from "./storage.js";
+import {
+  exportJSON,
+  exportOneForm,
+  progress,
+} from "./form-logic.js";
 import { loadBankByFile, loadCatalog, offlineHref, rewireHomeLinks, isOfflinePack } from "./data-loader.js";
 
 function pageRoot() {

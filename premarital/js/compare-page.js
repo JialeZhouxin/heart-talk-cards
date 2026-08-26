@@ -1,12 +1,12 @@
 import { diffLikert, summarize } from "./compare.js";
 import {
   applyImport,
-  exportOneForm,
   loadRoot,
   loadState,
   parseImport,
   saveRoot,
 } from "./storage.js";
+import { exportOneForm } from "./form-logic.js";
 import { loadForm, offlineHref, rewireHomeLinks, isOfflinePack } from "./data-loader.js";
 
 function pageRoot() {

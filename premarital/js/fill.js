@@ -1,14 +1,16 @@
 import {
   applyImport,
-  exportOneForm,
-  getAnswer,
   loadRoot,
   loadState,
   parseImport,
   saveRoot,
   saveState,
-  setAnswer,
 } from "./storage.js";
+import {
+  exportOneForm,
+  getAnswer,
+  setAnswer,
+} from "./form-logic.js";
 import { loadForm, offlineHref, rewireHomeLinks, isOfflinePack } from "./data-loader.js";
 
 function pageRoot() {
