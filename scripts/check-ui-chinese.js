@@ -8,8 +8,7 @@ const app = path.join(root, 'heart-talk');
 const targets = {
     html: path.join(app, 'index.html'),
     main: path.join(app, 'src', 'main.js'),
-    render: path.join(app, 'src', 'ui', 'render.js'),
-    bundle: path.join(app, 'src', 'app.bundle.js')
+    render: path.join(app, 'src', 'ui', 'render.js')
 };
 
 function read(filePath) {
@@ -95,14 +94,12 @@ function main() {
     const html = read(targets.html);
     const mainJs = read(targets.main);
     const renderJs = read(targets.render);
-    const bundleJs = read(targets.bundle);
 
     const htmlErrors = validateChineseOnly(extractHtmlVisibleTexts(html), 'index.html');
     const mainErrors = validateChineseOnly(extractUiStringsFromJs(mainJs), 'src/main.js');
     const renderErrors = validateChineseOnly(extractUiStringsFromJs(renderJs), 'src/ui/render.js');
-    const bundleErrors = validateChineseOnly(extractUiStringsFromJs(bundleJs), 'src/app.bundle.js');
 
-    const errors = [...htmlErrors, ...mainErrors, ...renderErrors, ...bundleErrors];
+    const errors = [...htmlErrors, ...mainErrors, ...renderErrors];
 
     if (!errors.length) {
         console.log('PASS: 前端可见文案中文校验通过。');

@@ -1,5 +1,5 @@
 /* Offline cache for 心语卡牌 PWA */
-const CACHE = "heart-talk-cards-v1";
+const CACHE = "heart-talk-cards-v2";
 const ASSETS = [
   "./",
   "./index.html",
@@ -8,7 +8,6 @@ const ASSETS = [
   "./icons/icon-512.png",
   "./src/styles.css",
   "./src/main.js",
-  "./src/app.bundle.js",
   "./src/data/cards.js",
   "./src/core/card-service.js",
   "./src/core/history-store.js",

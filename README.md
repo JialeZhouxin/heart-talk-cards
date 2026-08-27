@@ -25,7 +25,7 @@
 
 - 随机抽取卡牌、按关系类型与难度筛选、本地保存回答历史、一键复制分享
 - 纯前端：HTML + CSS + JavaScript，`localStorage` 本地存储
-- `file://` 场景自动加载 `src/app.bundle.js`；`http(s)://` 场景加载模块入口 `src/main.js`
+- 纯前端：HTML + CSS + JavaScript，`localStorage` 本地存储；ES modules 加载，入口 `src/main.js`
 - PWA：支持安装到手机主屏、离线使用
 - 离线单文件包：`heart-talk/heart-talk-cards-offline.html`，可发给朋友直接打开；重建 `python scripts/build_offline_html.py`
 - 对话历史使用 `localStorage`，不会上传服务器

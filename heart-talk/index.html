@@ -111,17 +111,6 @@
     <div id="toastContainer" aria-live="polite" aria-atomic="true"></div>
 
     <script src="./src/pwa.js"></script>
-    <script>
-        (function loadAppScript() {
-            const script = document.createElement('script');
-            if (window.location.protocol === 'file:') {
-                script.src = './src/app.bundle.js';
-            } else {
-                script.type = 'module';
-                script.src = './src/main.js';
-            }
-            document.body.appendChild(script);
-        })();
-    </script>
+    <script type="module" src="./src/main.js"></script>
 </body>
 </html>
