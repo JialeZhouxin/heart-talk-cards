@@ -126,6 +126,11 @@ def build() -> Path:
         )
 
     OUT.write_text(html, encoding="utf-8")
+    # content-address the SW cache so a rebuild always invalidates stale caches
+    import sys
+    sys.path.insert(0, str(ROOT / "scripts"))
+    from bump_sw_cache import bump
+    bump(OUT.parent / "sw.js", OUT.parent)
     return OUT
 
 

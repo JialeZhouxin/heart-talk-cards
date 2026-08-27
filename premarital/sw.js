@@ -1,5 +1,5 @@
 /* Offline cache for premarital forms PWA */
-const CACHE = "premarital-forms-v4";
+const CACHE = "sw-62676a63";
 const ASSETS = [
   './',
   './index.html',
@@ -17,7 +17,7 @@ const ASSETS = [
   './js/compare-page.js',
   './js/storage.js',
   './js/import-export-core.js',
-  './js/selfcheck.js',
+  './js/form-logic.js',
   './data/forms.json',
   './data/assessment.json',
   './data/forms/assessment.json',

@@ -1,5 +1,5 @@
 /* Offline cache for 心语卡牌 PWA */
-const CACHE = "heart-talk-cards-v2";
+const CACHE = "sw-cdcac730";
 const ASSETS = [
   "./",
   "./index.html",
