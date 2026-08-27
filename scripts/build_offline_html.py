@@ -75,7 +75,8 @@ def demodule(src: str) -> str:
 
 def build() -> Path:
     html = (APP / "index.html").read_text(encoding="utf-8")
-    css = (APP / "src" / "styles.css").read_text(encoding="utf-8")
+    theme = (ROOT / "shared" / "theme.css").read_text(encoding="utf-8")
+    css = theme + "\n" + (APP / "src" / "styles.css").read_text(encoding="utf-8-sig")
 
     parts: list[str] = []
     for rel in MODULE_ORDER:
@@ -93,6 +94,7 @@ def build() -> Path:
     )
     # remove existing stylesheet link and boot script; inject embedded assets
     html = re.sub(r'<link rel="stylesheet" href="\./src/styles\.css">\s*', "", html)
+    html = re.sub(r'<link rel="stylesheet" href="\.\./shared/theme\.css">\s*', "", html)
     html = re.sub(r"<script>[\s\S]*?loadAppScript[\s\S]*?</script>\s*", "", html)
     html = re.sub(r'<script src="\./src/pwa\.js"></script>\s*', "", html)
 

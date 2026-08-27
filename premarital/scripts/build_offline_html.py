@@ -104,7 +104,8 @@ def page_bodies() -> dict[str, str]:
 
 
 def css() -> str:
-    return (WEB / "css" / "app.css").read_text(encoding="utf-8")
+    theme = (WEB.parent / "shared" / "theme.css").read_text(encoding="utf-8")
+    return theme + "\n" + (WEB / "css" / "app.css").read_text(encoding="utf-8")
 
 
 def build() -> Path:

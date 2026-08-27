@@ -1,37 +1,20 @@
+
+/* 工具专属变量（基础调色板与夜间模式见 ../shared/theme.css） */
 :root {
-  --bg: #f6ecdf;
-  --bg2: #efe1cd;
-  --card: #fff9f1;
-  --card2: #fff5e8;
   --input: #fffbf6;
-  --text: #3d2c1f;
-  --muted: #715740;
-  --line: #e4ccb0;
-  --accent: #c27a3a;
-  --accent-strong: #a86428;
   --match: #d9f2e3;
   --near: #fff3cd;
   --far: #f8d7da;
   --missing: #efe9e0;
 }
 :root[data-theme='dark'] {
-  --bg: #1f1b17;
-  --bg2: #2b241e;
-  --card: #2f2821;
-  --card2: #3a3027;
   --input: #2b221a;
-  --text: #f5e9d9;
-  --muted: #c1a88d;
-  --line: #5a4a3a;
-  --accent: #d69a5c;
-  --accent-strong: #ba7e40;
   --match: #23402f;
   --near: #40381f;
   --far: #452a26;
   --missing: #383028;
 }
 
-* { box-sizing: border-box; }
 body {
   margin: 0;
   font-family: "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;

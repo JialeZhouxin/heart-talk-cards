@@ -12,39 +12,9 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;600;700&family=Noto+Serif+SC:wght@500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../shared/theme.css">
     <style>
-        :root {
-            --bg-main: #f6ecdf;
-            --bg-secondary: #efe1cd;
-            --paper: #fff9f1;
-            --paper-strong: #fff5e8;
-            --text-primary: #3d2c1f;
-            --text-secondary: #715740;
-            --text-muted: #9a7f67;
-            --accent: #c27a3a;
-            --accent-strong: #a86428;
-            --accent-soft: #e7c6a2;
-            --line: #e4ccb0;
-            --shadow-soft: 0 10px 30px rgba(95, 60, 25, 0.12);
-            --radius-xl: 26px;
-            --radius-lg: 18px;
-            --radius-md: 12px;
-        }
-        :root[data-theme='dark'] {
-            --bg-main: #1f1b17;
-            --bg-secondary: #2b241e;
-            --paper: #2f2821;
-            --paper-strong: #3a3027;
-            --text-primary: #f5e9d9;
-            --text-secondary: #e3ccb2;
-            --text-muted: #c1a88d;
-            --accent: #d69a5c;
-            --accent-strong: #ba7e40;
-            --line: #5a4a3a;
-            --shadow-soft: 0 12px 30px rgba(0, 0, 0, 0.3);
-        }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
             font-family: 'Noto Sans SC', 'Microsoft YaHei', sans-serif;
@@ -268,16 +238,9 @@
             *, *::before, *::after { animation: none !important; transition: none !important; }
         }
 
-        :root[data-theme='dark'] header h1 { color: #f7e8d5; }
         :root[data-theme='dark'] .card-content { color: #f7e7d2; }
         :root[data-theme='dark'] .card-content.masked { color: #7d6853; }
         :root[data-theme='dark'] .card-category { color: #d4b493; }
-        :root[data-theme='dark'] .btn-secondary {
-            background: #3a3027;
-            color: #ecd2b5;
-            border-color: #6a523b;
-            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.25);
-        }
     </style>
 </head>
 <body>

@@ -114,7 +114,14 @@
     <script type="module" src="./src/main.js"></script>
 
 <style>
-﻿:root {
+/* ============================================================
+   共享主题：暖色调 + 夜间模式
+   所有工具页面统一引用：<link rel="stylesheet" href="../shared/theme.css">
+   （根聚合首页用 href="./shared/theme.css"）
+   ============================================================ */
+
+/* ---- 基础变量（全工具共用调色板） ---- */
+:root {
     --bg-main: #f6ecdf;
     --bg-secondary: #efe1cd;
     --paper: #fff9f1;
@@ -134,6 +141,8 @@
     --radius-lg: 18px;
     --radius-md: 12px;
 }
+
+/* ---- 夜间模式变量 ---- */
 :root[data-theme='dark'] {
     --bg-main: #1f1b17;
     --bg-secondary: #2b241e;
@@ -144,17 +153,43 @@
     --text-muted: #c1a88d;
     --accent: #d69a5c;
     --accent-strong: #ba7e40;
+    --accent-soft: #8a6a45;
     --line: #5a4a3a;
     --success: #79b489;
     --danger: #d37f63;
     --shadow-soft: 0 12px 30px rgba(0, 0, 0, 0.3);
 }
 
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
+/* ---- 别名（premarital 短变量名 → 共享名） ---- */
+:root {
+    --bg: var(--bg-main);
+    --bg2: var(--bg-secondary);
+    --card: var(--paper);
+    --card2: var(--paper-strong);
+    --text: var(--text-primary);
+    --muted: var(--text-secondary);
 }
+
+/* ---- 全局 reset ---- */
+* { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+/* ---- 基础排版 ---- */
+body {
+    font-family: 'Noto Sans SC', 'Microsoft YaHei', sans-serif;
+    color: var(--text-primary);
+    line-height: 1.55;
+    transition: background 0.26s ease, color 0.2s ease;
+}
+
+/* ---- 共享组件：夜间模式适配 ---- */
+:root[data-theme='dark'] header h1 { color: #f7e8d5; }
+:root[data-theme='dark'] .btn-secondary {
+    background: var(--paper-strong);
+    color: #ecd2b5;
+    border-color: #6a523b;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.25);
+}
+
 
 html,
 body {

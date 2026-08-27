@@ -6,40 +6,99 @@
   <meta name="theme-color" content="#2f5d50" />
   <title>婚前辅导表单（离线包）</title>
   <style>
+/* ============================================================
+   共享主题：暖色调 + 夜间模式
+   所有工具页面统一引用：<link rel="stylesheet" href="../shared/theme.css">
+   （根聚合首页用 href="./shared/theme.css"）
+   ============================================================ */
+
+/* ---- 基础变量（全工具共用调色板） ---- */
 :root {
-  --bg: #f6ecdf;
-  --bg2: #efe1cd;
-  --card: #fff9f1;
-  --card2: #fff5e8;
+    --bg-main: #f6ecdf;
+    --bg-secondary: #efe1cd;
+    --paper: #fff9f1;
+    --paper-strong: #fff5e8;
+    --text-primary: #3d2c1f;
+    --text-secondary: #715740;
+    --text-muted: #9a7f67;
+    --accent: #c27a3a;
+    --accent-strong: #a86428;
+    --accent-soft: #e7c6a2;
+    --line: #e4ccb0;
+    --success: #357a4c;
+    --danger: #a54a2a;
+    --shadow-soft: 0 10px 30px rgba(95, 60, 25, 0.12);
+    --shadow-card: 0 16px 34px rgba(95, 60, 25, 0.16);
+    --radius-xl: 26px;
+    --radius-lg: 18px;
+    --radius-md: 12px;
+}
+
+/* ---- 夜间模式变量 ---- */
+:root[data-theme='dark'] {
+    --bg-main: #1f1b17;
+    --bg-secondary: #2b241e;
+    --paper: #2f2821;
+    --paper-strong: #3a3027;
+    --text-primary: #f5e9d9;
+    --text-secondary: #e3ccb2;
+    --text-muted: #c1a88d;
+    --accent: #d69a5c;
+    --accent-strong: #ba7e40;
+    --accent-soft: #8a6a45;
+    --line: #5a4a3a;
+    --success: #79b489;
+    --danger: #d37f63;
+    --shadow-soft: 0 12px 30px rgba(0, 0, 0, 0.3);
+}
+
+/* ---- 别名（premarital 短变量名 → 共享名） ---- */
+:root {
+    --bg: var(--bg-main);
+    --bg2: var(--bg-secondary);
+    --card: var(--paper);
+    --card2: var(--paper-strong);
+    --text: var(--text-primary);
+    --muted: var(--text-secondary);
+}
+
+/* ---- 全局 reset ---- */
+* { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+/* ---- 基础排版 ---- */
+body {
+    font-family: 'Noto Sans SC', 'Microsoft YaHei', sans-serif;
+    color: var(--text-primary);
+    line-height: 1.55;
+    transition: background 0.26s ease, color 0.2s ease;
+}
+
+/* ---- 共享组件：夜间模式适配 ---- */
+:root[data-theme='dark'] header h1 { color: #f7e8d5; }
+:root[data-theme='dark'] .btn-secondary {
+    background: var(--paper-strong);
+    color: #ecd2b5;
+    border-color: #6a523b;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.25);
+}
+
+
+/* 工具专属变量（基础调色板与夜间模式见 ../shared/theme.css） */
+:root {
   --input: #fffbf6;
-  --text: #3d2c1f;
-  --muted: #715740;
-  --line: #e4ccb0;
-  --accent: #c27a3a;
-  --accent-strong: #a86428;
   --match: #d9f2e3;
   --near: #fff3cd;
   --far: #f8d7da;
   --missing: #efe9e0;
 }
 :root[data-theme='dark'] {
-  --bg: #1f1b17;
-  --bg2: #2b241e;
-  --card: #2f2821;
-  --card2: #3a3027;
   --input: #2b221a;
-  --text: #f5e9d9;
-  --muted: #c1a88d;
-  --line: #5a4a3a;
-  --accent: #d69a5c;
-  --accent-strong: #ba7e40;
   --match: #23402f;
   --near: #40381f;
   --far: #452a26;
   --missing: #383028;
 }
 
-* { box-sizing: border-box; }
 body {
   margin: 0;
   font-family: "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
