@@ -48,6 +48,7 @@
 ## 婚前辅导（premarital/）
 
 - 多表单（婚前关系评估、期望、原生家庭、性生活等 7 张）+ 双方对照 + 打印报告
+- 称呼可自定义；填写页「导出本表」只导自己那一侧（带身份标记），汇总后导出全部 JSON
 - 数据仅存本机浏览器（localStorage），JSON 导入导出；PWA 可离线
 - 课程材料（单元一~七）与构建脚本在 `docs/`、`scripts/`；离线包重建：`python premarital/scripts/build_offline_html.py`
 - 原独立仓库 `premarital-counseling-forms` 已归档，老网址仍可访问

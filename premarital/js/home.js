@@ -1,9 +1,12 @@
 import {
   applyImport,
+  describeImport,
+  importConflict,
   loadRoot,
   loadState,
   parseImport,
   saveRoot,
+  setPersonName,
 } from "./storage.js";
 import {
   exportJSON,
@@ -53,12 +56,24 @@ async function importInto(formId, file, title) {
   const text = await file.text();
   const parsed = parseImport(text);
   const label = title || formId;
-  if (!confirm(`将覆盖「${label}」的丈夫/妻子全部答案，确认？`)) return false;
+  const side = describeImport(parsed);
+  const warn = importConflict(loadRoot(), parsed, formId);
+  if (
+    !confirm(
+      `该文件包含${side}答案，将覆盖本地同一身份，确认导入到「${label}」？` +
+        (warn ? `\n\n${warn}` : "")
+    )
+  )
+    return false;
   const { root, forms } = applyImport(loadRoot(), parsed, formId);
   const r = saveRoot(root);
   if (!r.ok) {
     showError(r.message);
     return false;
+  }
+  if (parsed.person) {
+    const nm = parsed.data?.people?.[parsed.person]?.displayName;
+    if (nm) setPersonName(parsed.person, nm);
   }
   showError("");
   alert(`已导入到：${forms.join(", ") || formId}`);
@@ -78,6 +93,28 @@ async function main() {
   const list = $("form-list");
   list.innerHTML = "";
 
+  const nameBox = $("names");
+  const saved = loadState(catalog.forms[0].id).people;
+  nameBox.innerHTML = `
+    <span class="muted">称呼：</span>
+    <label class="muted"><input id="name-a" type="text" maxlength="20" style="width:9em" value="${saved.a.displayName || "丈夫"}" /> 丈夫侧</label>
+    <label class="muted"><input id="name-b" type="text" maxlength="20" style="width:9em" value="${saved.b.displayName || "妻子"}" /> 妻子侧</label>
+    <button class="btn" id="btn-save-names" type="button">保存称呼</button>
+    <span class="muted">（用于导出文件名与打印抬头，两边可各填各的）</span>
+  `;
+  $("btn-save-names").addEventListener("click", () => {
+    const a = $("name-a").value;
+    const b = $("name-b").value;
+    const ra = setPersonName("a", a);
+    const rb = setPersonName("b", b);
+    if (!ra.ok) showError(ra.message);
+    else if (!rb.ok) showError(rb.message);
+    else {
+      showError("");
+      location.reload();
+    }
+  });
+
   for (const form of catalog.forms) {
     let bank;
     try {
@@ -87,6 +124,8 @@ async function main() {
     }
     const state = loadState(form.id);
     const prog = progress(state, bank);
+    const nameA = state.people.a.displayName || "丈夫";
+    const nameB = state.people.b.displayName || "妻子";
     const importId = `import-${form.id}`;
 
     const card = document.createElement("div");
@@ -99,14 +138,14 @@ async function main() {
         </div>
         <span class="pill">${form.short || form.id}</span>
       </div>
-      <p class="progress" style="margin:12px 0 6px">丈夫：${fmtProg(prog.a)}</p>
-      <p class="progress" style="margin:0 0 12px">妻子：${fmtProg(prog.b)}</p>
+      <p class="progress" style="margin:12px 0 6px">${nameA}：${fmtProg(prog.a)}</p>
+      <p class="progress" style="margin:0 0 12px">${nameB}：${fmtProg(prog.b)}</p>
       <div class="row">
-        <a class="btn primary" href="${offlineHref("fill", { form: form.id, person: "a" })}">填 · 丈夫</a>
-        <a class="btn primary" href="${offlineHref("fill", { form: form.id, person: "b" })}">填 · 妻子</a>
+        <a class="btn primary" href="${offlineHref("fill", { form: form.id, person: "a" })}">填 · ${nameA}</a>
+        <a class="btn primary" href="${offlineHref("fill", { form: form.id, person: "b" })}">填 · ${nameB}</a>
         ${
           form.compare
-            ? `<a class="btn" href="${offlineHref("compare", { form: form.id })}">对照</a>`
+            ? `<a class="btn" href="${offlineHref("compare", { form: form.id })}>对照</a>`
             : ""
         }
         <button class="btn" type="button" data-export="${form.id}">导出本表</button>
@@ -117,7 +156,7 @@ async function main() {
     list.appendChild(card);
 
     card.querySelector(`[data-export="${form.id}"]`).addEventListener("click", () => {
-      exportOneForm(form.id, loadState(form.id));
+      exportOneForm(form.id, loadState(form.id), "both");
     });
     card.querySelector(`#${importId}`).addEventListener("change", async (ev) => {
       const file = ev.target.files?.[0];
@@ -143,11 +182,12 @@ async function main() {
     try {
       const text = await file.text();
       const parsed = parseImport(text);
+      const warn = importConflict(loadRoot(), parsed);
       const label =
         parsed.kind === "root"
           ? "全部导入包中的表单"
-          : `表单 ${parsed.formId || "assessment"}`;
-      if (!confirm(`将覆盖本地「${label}」答案，确认？`)) return;
+          : `表单 ${parsed.formId || "assessment"}（${describeImport(parsed)}）`;
+      if (!confirm(`将覆盖本地「${label}」答案，确认？` + (warn ? `\n\n${warn}` : ""))) return;
       const { root, forms } = applyImport(loadRoot(), parsed);
       const r = saveRoot(root);
       if (!r.ok) showError(r.message);

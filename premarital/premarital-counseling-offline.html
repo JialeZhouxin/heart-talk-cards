@@ -373,6 +373,13 @@ textarea {
     <div id="error" class="error" hidden></div>
 
     <div class="card">
+      <div class="row" id="names"></div>
+      <p class="muted" style="margin-top:10px">
+        填写称呼后，各表单与对照报告的抬头都会显示名字，导出文件名也会带名字与日期。
+      </p>
+    </div>
+
+    <div class="card">
       <div class="row">
         <button class="btn" id="btn-export" type="button">导出全部 JSON</button>
         <label class="btn" for="file-import">导入 JSON</label>
@@ -380,7 +387,8 @@ textarea {
         <a class="btn" href="premarital-counseling-offline.html" download>下载离线单文件</a>
       </div>
       <p class="muted" style="margin-top:10px">
-        导入会按文件覆盖对应表单答案。旧版单表导出仍可导入到「婚前关系评估」。
+        导入会按文件内标记的身份覆盖对应一侧；未标记的旧包仍按丈夫/妻子两侧合并。
+        单张表的「导出本表」导出双方，填写页的「导出本表」只导出你自己那一侧。
       </p>
     </div>
 
@@ -396,6 +404,12 @@ textarea {
         <button class="btn" id="themeToggleBtn" type="button" style="min-height:36px;padding:6px 12px;font-size:13px;">夜间护眼</button>
     </div>
     <div class="note">自动保存到本机。点选程度前请先看「1–5 含义」；开放题直接输入。</div>
+    <div class="row" style="margin-bottom:12px">
+      <label class="muted" for="person-name">我的称呼</label>
+      <input id="person-name" type="text" maxlength="20" placeholder="如：小明" autocomplete="name"
+        style="width:10em;min-height:40px;padding:8px 10px;border-radius:8px;border:1px solid var(--line);background:var(--input);color:var(--text);font:inherit" />
+      <span class="muted">填上后对照与打印都会显示你的名字</span>
+    </div>
     <div id="error" class="error" hidden></div>
     <div class="card">
       <div class="row" style="margin-bottom:10px">
@@ -426,7 +440,7 @@ textarea {
       </nav>
         <button class="btn" id="themeToggleBtn" type="button" style="min-height:36px;padding:6px 12px;font-size:13px;">夜间护眼</button>
     </div>
-    <div class="note no-print">绿=一致 · 黄=差1 · 红=差≥2（量表/选择题）。开放题仅并排。</div>
+    <div class="note no-print">绿=一致 · 黄=差1 · 红=差≥2（量表/选择题）。开放题仅并排；单侧未答标「未齐」，可用「仅未齐」筛出。</div>
     <div id="error" class="error" hidden></div>
 
     <div class="card">
@@ -439,13 +453,15 @@ textarea {
       <div class="print-report-meta" id="print-meta" hidden></div>
       <div class="summary" id="summary"></div>
       <div class="filters no-print" id="filters">
-        <label><input type="radio" name="filter" value="all_answered" /> 全部已填</label>
-        <label><input type="radio" name="filter" value="diff_only" checked /> 仅差异</label>
+        <label><input type="radio" name="filter" value="all_answered" /> 全部已填（含未答一侧）</label>
+        <label><input type="radio" name="filter" value="diff_only" checked /> 仅差异（双方已答）</label>
         <label><input type="radio" name="filter" value="far_only" /> 仅红（差≥2）</label>
+        <label><input type="radio" name="filter" value="missing_only" /> 仅未齐（单侧未答）</label>
       </div>
-      <p class="muted no-print" id="print-hint">打印默认按当前筛选（默认「仅差异」）；可勾选是否含开放题。</p>
+      <p class="muted no-print" id="print-hint">打印默认按当前筛选（默认「仅差异」）；可勾选是否含开放题与未答题清单。</p>
       <div class="row no-print" style="margin-bottom:10px">
         <label><input type="checkbox" id="print-include-open" checked /> 打印含开放题</label>
+        <label><input type="checkbox" id="print-include-gaps" checked /> 打印含未答题清单</label>
       </div>
       <div id="list"></div>
     </div>
@@ -454,6 +470,11 @@ textarea {
       <h2>开放题并排</h2>
       <p class="muted no-print">不做语义对比，仅并排查看。</p>
       <div id="open-list"></div>
+    </div>
+    <div class="card" id="gap-section">
+      <h2>未答题清单 <span class="muted" id="gap-count"></span></h2>
+      <p class="muted no-print">双方都没回答的开放题，方便补充后再交报告。</p>
+      <div id="gap-list"></div>
     </div>
     <div class="print-footer" id="print-footer" hidden>
       隐私提示：本报告仅供婚前辅导使用，请勿外传；打印件请自行妥善保管或销毁。
@@ -465,6 +486,8 @@ textarea {
   <script>
 // ---- js/import-export-core.js ----
 /** Pure import/export helpers (no DOM / localStorage). */
+
+const SLOT_NAMES = { a: "丈夫", b: "妻子" };
 
 function emptyPerson(name) {
   return { displayName: name, answers: {}, updatedAt: null };
@@ -481,7 +504,23 @@ function emptyFormState() {
 }
 
 function emptyRoot() {
-  return { version: 2, forms: {} };
+  return { version: 2, forms: {}, names: { a: "丈夫", b: "妻子" } };
+}
+
+/** Root-level display names, so a rename applies to every form at once. */
+function rootNames(root) {
+  const n = root?.names;
+  if (n?.a || n?.b) return { a: n.a || SLOT_NAMES.a, b: n.b || SLOT_NAMES.b };
+  // legacy roots kept the name per form only — infer from whatever is custom
+  const out = { a: SLOT_NAMES.a, b: SLOT_NAMES.b };
+  for (const st of Object.values(root?.forms || {})) {
+    for (const p of ["a", "b"]) {
+      const nm = st?.people?.[p]?.displayName;
+      const legacy = p === "a" ? "我方" : "对方";
+      if (nm && nm !== SLOT_NAMES[p] && nm !== legacy) out[p] = nm;
+    }
+  }
+  return out;
 }
 
 function clone(obj) {
@@ -502,13 +541,53 @@ function serializeRoot(root) {
   return JSON.stringify(root, null, 2);
 }
 
+/**
+ * One-form payload. person = "a"|"b" → 只带该身份一侧，并打上 person 标记；
+ * 不带 person（null）→ 双方都带，兼容旧包。
+ */
+function oneFormPayload(formId, state, person = null) {
+  if (person) {
+    return {
+      version: 1,
+      formId,
+      person,
+      people: { [person]: state.people[person] },
+    };
+  }
+  return { version: 1, formId, people: state.people };
+}
+
 /** Serialize one form for "export one form". */
-function serializeOneForm(formId, state) {
-  return JSON.stringify(
-    { version: 1, formId, people: state.people },
-    null,
-    2
-  );
+function serializeOneForm(formId, state, person = null) {
+  return JSON.stringify(oneFormPayload(formId, state, person), null, 2);
+}
+
+/** Human label for an import package: which side(s) it covers. */
+function describeImport(parsed) {
+  if (parsed?.person) {
+    const nm =
+      parsed.data?.people?.[parsed.person]?.displayName ||
+      SLOT_NAMES[parsed.person];
+    return `「${nm}」一侧`;
+  }
+  return "丈夫 / 妻子两侧";
+}
+
+/**
+ * Guard against landing someone else's answers on a slot that already has data
+ * (e.g. both partners filled the same side). Returns a warning line or null.
+ */
+function importConflict(root, parsed, formId = null) {
+  if (!parsed?.person) return null;
+  const p = parsed.person;
+  const incoming = parsed.data?.people?.[p]?.displayName;
+  const local = rootNames(root)[p];
+  const id = formId || parsed.formId;
+  const st = root?.forms?.[id];
+  if (!personHasAnswers(st?.people?.[p]) || !incoming || incoming === local) {
+    return null;
+  }
+  return `注意：本机「${local}」侧已有答案，导入包署名是「${incoming}」，很可能是选错了身份，导入后本机这一侧会被整侧覆盖。`;
 }
 
 function parseImport(text) {
@@ -520,6 +599,9 @@ function parseImport(text) {
   }
   if (data?.version === 2 && data.forms && typeof data.forms === "object") {
     return { kind: "root", data };
+  }
+  if (data?.formId && data?.person && data.people?.[data.person]) {
+    return { kind: "form", data, formId: data.formId, person: data.person };
   }
   if (data?.version === 1 && data.people?.a && data.people?.b) {
     return { kind: "legacy_form", data, formId: data.formId || "assessment" };
@@ -592,10 +674,35 @@ function applyImport(root, parsed, formIdFilter = null, mode = "merge") {
         mode
       );
     }
+    // 称呼随包带走，否则对方机器上仍显示「丈夫/妻子」
+    const incoming = parsed.data.names;
+    if (incoming?.a || incoming?.b) {
+      next.names = { ...rootNames(next), ...incoming };
+      for (const id of use) {
+        for (const p of ["a", "b"]) {
+          if (incoming[p]) next.forms[id].people[p].displayName = incoming[p];
+        }
+      }
+    }
     return { root: next, forms: use };
   }
 
   const fid = formIdFilter || parsed.formId || "assessment";
+
+  // 单人包：只写标记的那一侧，另一侧原样保留（replace 模式也不动）
+  if (parsed.person) {
+    const p = parsed.person;
+    const base = next.forms[fid] ? clone(next.forms[fid]) : emptyFormState();
+    base.people[p] =
+      mode === "replace"
+        ? replacePerson(parsed.data.people[p], SLOT_NAMES[p])
+        : mergePerson(base.people?.[p], parsed.data.people[p], SLOT_NAMES[p]);
+    next.forms[fid] = base;
+    const nm = base.people[p].displayName;
+    if (nm) next.names = { ...rootNames(next), [p]: nm };
+    return { root: next, forms: [fid] };
+  }
+
   next.forms[fid] = mergeFormState(
     next.forms[fid],
     { people: parsed.data.people },
@@ -717,11 +824,27 @@ function exportJSON(rootOrState, filename = "premarital-forms.json") {
   URL.revokeObjectURL(a.href);
 }
 
-/** Export one form as a standalone JSON file. */
-function exportOneForm(formId, state) {
+/** Filesystem-safe filename fragment. */
+function safeName(s) {
+  return String(s || "")
+    .replace(/[\\/:*?"<>|\r\n\t]+/g, "")
+    .trim()
+    .slice(0, 20);
+}
+
+function today() {
+  const d = new Date();
+  const p = (n) => String(n).padStart(2, "0");
+  return `${d.getFullYear()}${p(d.getMonth() + 1)}${p(d.getDate())}`;
+}
+
+/** Export one form as a standalone JSON file. person = "a"|"b"|"both". */
+function exportOneForm(formId, state, person = "both") {
+  const who = person === "a" || person === "b" ? person : null;
+  const name = who ? state.people[who].displayName || SLOT_NAMES[who] : "双方";
   exportJSON(
-    { version: 1, formId, people: state.people },
-    `premarital-${formId}.json`
+    oneFormPayload(formId, state, who),
+    `premarital-${formId}-${safeName(name)}-${today()}.json`
   );
 }
 
@@ -747,9 +870,9 @@ let memoryFallback = null;
 let storageWarned = false;
 
 function normalizePersonName(person, name) {
-  if (person === "a" && (!name || name === "我方")) return "丈夫";
-  if (person === "b" && (!name || name === "对方")) return "妻子";
-  return name || (person === "a" ? "丈夫" : "妻子");
+  if (person === "a" && !name) return "丈夫";
+  if (person === "b" && !name) return "妻子";
+  return name;
 }
 
 function readRaw(key) {
@@ -771,6 +894,7 @@ function loadRoot() {
     if (raw) {
       const data = JSON.parse(raw);
       if (data?.version === 2 && data.forms && typeof data.forms === "object") {
+        data.names = rootNames(data);
         return data;
       }
     }
@@ -828,13 +952,15 @@ function loadState(formId) {
   if (!root.forms[formId]) {
     root.forms[formId] = emptyFormState();
   }
+  const names = rootNames(root);
   const st = root.forms[formId];
   for (const p of ["a", "b"]) {
-    if (!st.people[p]) st.people[p] = emptyPerson(p === "a" ? "丈夫" : "妻子");
+    if (!st.people[p]) st.people[p] = emptyPerson(names[p]);
     if (!st.people[p].answers || typeof st.people[p].answers !== "object") {
       st.people[p].answers = {};
     }
-    st.people[p].displayName = normalizePersonName(p, st.people[p].displayName);
+    // root.names is authoritative; per-form names are only a legacy mirror
+    st.people[p].displayName = normalizePersonName(p, names[p]);
   }
   return clone(st);
 }
@@ -843,6 +969,20 @@ function saveState(formId, state) {
   const root = loadRoot();
   root.forms[formId] = clone(state);
   return saveRoot(root);
+}
+
+/** Set a person's display name for the whole app (stored on the root, mirrored per form). */
+function setPersonName(person, name) {
+  const root = loadRoot();
+  const clean = String(name || "").trim().slice(0, 20) || SLOT_NAMES[person];
+  root.names = { ...rootNames(root), [person]: clean };
+  for (const st of Object.values(root.forms)) {
+    if (!st.people) st.people = {};
+    if (!st.people[person]) st.people[person] = emptyPerson(clean);
+    st.people[person].displayName = clean;
+  }
+  const r = saveRoot(root);
+  return r.ok ? { ok: true, name: clean } : r;
 }
 
 function parseImport(text) {
@@ -954,12 +1094,24 @@ async function importInto(formId, file, title) {
   const text = await file.text();
   const parsed = parseImport(text);
   const label = title || formId;
-  if (!confirm(`将覆盖「${label}」的丈夫/妻子全部答案，确认？`)) return false;
+  const side = describeImport(parsed);
+  const warn = importConflict(loadRoot(), parsed, formId);
+  if (
+    !confirm(
+      `该文件包含${side}答案，将覆盖本地同一身份，确认导入到「${label}」？` +
+        (warn ? `\n\n${warn}` : "")
+    )
+  )
+    return false;
   const { root, forms } = applyImport(loadRoot(), parsed, formId);
   const r = saveRoot(root);
   if (!r.ok) {
     showError(r.message);
     return false;
+  }
+  if (parsed.person) {
+    const nm = parsed.data?.people?.[parsed.person]?.displayName;
+    if (nm) setPersonName(parsed.person, nm);
   }
   showError("");
   alert(`已导入到：${forms.join(", ") || formId}`);
@@ -979,6 +1131,28 @@ async function bootHome() {
   const list = $("form-list");
   list.innerHTML = "";
 
+  const nameBox = $("names");
+  const saved = loadState(catalog.forms[0].id).people;
+  nameBox.innerHTML = `
+    <span class="muted">称呼：</span>
+    <label class="muted"><input id="name-a" type="text" maxlength="20" style="width:9em" value="${saved.a.displayName || "丈夫"}" /> 丈夫侧</label>
+    <label class="muted"><input id="name-b" type="text" maxlength="20" style="width:9em" value="${saved.b.displayName || "妻子"}" /> 妻子侧</label>
+    <button class="btn" id="btn-save-names" type="button">保存称呼</button>
+    <span class="muted">（用于导出文件名与打印抬头，两边可各填各的）</span>
+  `;
+  $("btn-save-names").addEventListener("click", () => {
+    const a = $("name-a").value;
+    const b = $("name-b").value;
+    const ra = setPersonName("a", a);
+    const rb = setPersonName("b", b);
+    if (!ra.ok) showError(ra.message);
+    else if (!rb.ok) showError(rb.message);
+    else {
+      showError("");
+      location.reload();
+    }
+  });
+
   for (const form of catalog.forms) {
     let bank;
     try {
@@ -988,6 +1162,8 @@ async function bootHome() {
     }
     const state = loadState(form.id);
     const prog = progress(state, bank);
+    const nameA = state.people.a.displayName || "丈夫";
+    const nameB = state.people.b.displayName || "妻子";
     const importId = `import-${form.id}`;
 
     const card = document.createElement("div");
@@ -1000,14 +1176,14 @@ async function bootHome() {
         </div>
         <span class="pill">${form.short || form.id}</span>
       </div>
-      <p class="progress" style="margin:12px 0 6px">丈夫：${fmtProg(prog.a)}</p>
-      <p class="progress" style="margin:0 0 12px">妻子：${fmtProg(prog.b)}</p>
+      <p class="progress" style="margin:12px 0 6px">${nameA}：${fmtProg(prog.a)}</p>
+      <p class="progress" style="margin:0 0 12px">${nameB}：${fmtProg(prog.b)}</p>
       <div class="row">
-        <a class="btn primary" href="${offlineHref("fill", { form: form.id, person: "a" })}">填 · 丈夫</a>
-        <a class="btn primary" href="${offlineHref("fill", { form: form.id, person: "b" })}">填 · 妻子</a>
+        <a class="btn primary" href="${offlineHref("fill", { form: form.id, person: "a" })}">填 · ${nameA}</a>
+        <a class="btn primary" href="${offlineHref("fill", { form: form.id, person: "b" })}">填 · ${nameB}</a>
         ${
           form.compare
-            ? `<a class="btn" href="${offlineHref("compare", { form: form.id })}">对照</a>`
+            ? `<a class="btn" href="${offlineHref("compare", { form: form.id })}>对照</a>`
             : ""
         }
         <button class="btn" type="button" data-export="${form.id}">导出本表</button>
@@ -1018,7 +1194,7 @@ async function bootHome() {
     list.appendChild(card);
 
     card.querySelector(`[data-export="${form.id}"]`).addEventListener("click", () => {
-      exportOneForm(form.id, loadState(form.id));
+      exportOneForm(form.id, loadState(form.id), "both");
     });
     card.querySelector(`#${importId}`).addEventListener("change", async (ev) => {
       const file = ev.target.files?.[0];
@@ -1044,11 +1220,12 @@ async function bootHome() {
     try {
       const text = await file.text();
       const parsed = parseImport(text);
+      const warn = importConflict(loadRoot(), parsed);
       const label =
         parsed.kind === "root"
           ? "全部导入包中的表单"
-          : `表单 ${parsed.formId || "assessment"}`;
-      if (!confirm(`将覆盖本地「${label}」答案，确认？`)) return;
+          : `表单 ${parsed.formId || "assessment"}（${describeImport(parsed)}）`;
+      if (!confirm(`将覆盖本地「${label}」答案，确认？` + (warn ? `\n\n${warn}` : ""))) return;
       const { root, forms } = applyImport(loadRoot(), parsed);
       const r = saveRoot(root);
       if (!r.ok) showError(r.message);
@@ -1168,8 +1345,26 @@ async function bootFill() {
   $("link-compare").href = offlineHref("compare", { form: formId });
   $("link-compare").hidden = meta.compare === false;
 
+  const nameInput = $("person-name");
+  const whoLabel = () =>
+    loadState(formId).people[person].displayName ||
+    (person === "a" ? "丈夫" : "妻子");
+  nameInput.value = state.people[person].displayName || "";
+  nameInput.addEventListener("change", () => {
+    const r = setPersonName(person, nameInput.value);
+    if (!r.ok) {
+      showError(r.message);
+      return;
+    }
+    nameInput.value = r.name;
+    state.people[person].displayName = r.name;
+    $("title").textContent = `${meta.short || meta.title} · ${r.name}`;
+    $("btn-export-form").textContent = `导出本表（${r.name}）`;
+  });
+  $("btn-export-form").textContent = `导出本表（${whoLabel()}）`;
+
   $("btn-export-form").addEventListener("click", () => {
-    exportOneForm(formId, loadState(formId));
+    exportOneForm(formId, loadState(formId), person);
   });
   $("file-import-form").addEventListener("change", async (ev) => {
     const file = ev.target.files?.[0];
@@ -1178,11 +1373,24 @@ async function bootFill() {
     try {
       const text = await file.text();
       const parsed = parseImport(text);
-      if (!confirm(`将覆盖「${meta.title}」丈夫/妻子全部答案，确认？`)) return;
+      const side = describeImport(parsed);
+      const warn = importConflict(loadRoot(), parsed, formId);
+      if (
+        !confirm(
+          `该文件包含${side}答案，将覆盖本地同一身份，确认导入到「${meta.title}」？` +
+            (warn ? `\n\n${warn}` : "")
+        )
+      )
+        return;
       const { root } = applyImport(loadRoot(), parsed, formId);
       const r = saveRoot(root);
       if (!r.ok) showError(r.message);
       else {
+        // 单人包带来的称呼同步到所有表单，避免每张表重填
+        if (parsed.person) {
+          const nm = parsed.data?.people?.[parsed.person]?.displayName;
+          if (nm) setPersonName(parsed.person, nm);
+        }
         showError("");
         location.reload();
       }
@@ -1410,11 +1618,16 @@ async function bootCompare() {
   }
 
   $("page-title").textContent = `对照 · ${meta.title}`;
+  {
+    const nm = loadState(fid).people;
+    $("link-fill-a").textContent = `填 ${nm.a.displayName || "丈夫"}`;
+    $("link-fill-b").textContent = `填 ${nm.b.displayName || "妻子"}`;
+  }
   $("link-fill-a").href = offlineHref("fill", { form: fid, person: "a" });
   $("link-fill-b").href = offlineHref("fill", { form: fid, person: "b" });
 
   $("btn-export-form").addEventListener("click", () => {
-    exportOneForm(fid, loadState(fid));
+    exportOneForm(fid, loadState(fid), "both");
   });
   $("file-import-form").addEventListener("change", async (ev) => {
     const file = ev.target.files?.[0];
@@ -1423,11 +1636,22 @@ async function bootCompare() {
     try {
       const text = await file.text();
       const parsed = parseImport(text);
-      if (!confirm(`将覆盖「${meta.title}」丈夫/妻子全部答案，确认？`)) return;
+      const warn = importConflict(loadRoot(), parsed, fid);
+      if (
+        !confirm(
+          `该文件包含${describeImport(parsed)}答案，将覆盖本地同一身份，确认导入到「${meta.title}」？` +
+            (warn ? `\n\n${warn}` : "")
+        )
+      )
+        return;
       const { root } = applyImport(loadRoot(), parsed, fid);
       const r = saveRoot(root);
       if (!r.ok) showError(r.message);
       else {
+        if (parsed.person) {
+          const nm2 = parsed.data?.people?.[parsed.person]?.displayName;
+          if (nm2) setPersonName(parsed.person, nm2);
+        }
         showError("");
         location.reload();
       }
@@ -1452,10 +1676,23 @@ async function bootCompare() {
     }
   }
 
-  const pairs = scoreItems.map((it) => ({
-    a: state.people.a.answers[it.id],
-    b: state.people.b.answers[it.id],
-  }));
+  // 未答题只算双人都没答；单侧未答仍进列表（标未齐），牧师才看得到缺口
+  const isMissing = (it) => {
+    const a = state.people.a.answers[it.id];
+    const b = state.people.b.answers[it.id];
+    const sideMissing =
+      (it.type === "likert" || it.type === "choice")
+        ? (v) => v == null
+        : (v) => !(typeof v === "string" && v.trim());
+    return sideMissing(a) && sideMissing(b);
+  };
+
+  const pairs = scoreItems
+    .filter((it) => !isMissing(it))
+    .map((it) => ({
+      a: state.people.a.answers[it.id],
+      b: state.people.b.answers[it.id],
+    }));
   const stats = summarize(pairs);
 
   const renderSummary = () => {
@@ -1463,9 +1700,9 @@ async function bootCompare() {
       <span class="pill match">一致 ${stats.match}</span>
       <span class="pill near">差1 ${stats.near}</span>
       <span class="pill far">差≥2 ${stats.far}</span>
-      <span class="pill missing">未齐 ${stats.missing}</span>
+      <span class="pill missing">未答 ${stats.missing}</span>
     `;
-    if (!scoreItems.length) {
+    if (!scoreItems.some((it) => !isMissing(it))) {
       $("filters").hidden = true;
       $("list").innerHTML =
         '<p class="muted">此表单无可数值对照题，请看下方开放题并排。</p>';
@@ -1482,12 +1719,13 @@ async function bootCompare() {
     list.innerHTML = "";
     let shown = 0;
     for (const it of scoreItems) {
+      if (isMissing(it)) continue;
       const a = state.people.a.answers[it.id];
       const b = state.people.b.answers[it.id];
       const kind = diffLikert(a, b);
-      if (kind === "missing") continue;
-      if (filter === "diff_only" && kind === "match") continue;
+      if (filter === "diff_only" && (kind === "match" || kind === "missing")) continue;
       if (filter === "far_only" && kind !== "far") continue;
+      if (filter === "missing_only" && kind !== "missing") continue;
       shown++;
       const row = document.createElement("div");
       row.className = "compare-row";
@@ -1510,12 +1748,14 @@ async function bootCompare() {
   const renderOpen = () => {
     const box = $("open-list");
     box.innerHTML = "";
+    let shown = 0;
     for (const it of openItems) {
       const a = state.people.a.answers[it.id];
       const b = state.people.b.answers[it.id];
       const hasA = typeof a === "string" && a.trim();
       const hasB = typeof b === "string" && b.trim();
       if (!hasA && !hasB) continue;
+      shown++;
       const card = document.createElement("div");
       card.className = "item";
       card.innerHTML = `
@@ -1528,9 +1768,24 @@ async function bootCompare() {
       `;
       box.appendChild(card);
     }
-    if (!box.children.length) {
+    if (!shown) {
       box.innerHTML = `<p class="muted">双方开放题都未填写。</p>`;
     }
+  };
+
+  const missingCount = () => openItems.filter((it) => isMissing(it)).length;
+  const renderGaps = () => {
+    const box = $("gap-list");
+    const gaps = openItems.filter((it) => isMissing(it));
+    $("gap-count").textContent = gaps.length
+      ? `${gaps.length} 题双方都没答`
+      : "开放题都有人答了";
+    box.innerHTML = gaps
+      .map(
+        (it) =>
+          `<div class="item"><div class="prompt">${it.prompt}</div><div class="muted">${it.chapter} · 双方未答</div></div>`
+      )
+      .join("");
   };
 
   pageRoot().querySelectorAll('input[name="filter"]').forEach((el) => {
@@ -1540,9 +1795,10 @@ async function bootCompare() {
   const filterLabel = () => {
     const v = currentFilter();
     return {
-      all_answered: "全部已填",
-      diff_only: "仅差异",
+      all_answered: "全部已填（含未答一侧）",
+      diff_only: "仅差异（双方已答）",
       far_only: "仅红（差≥2）",
+      missing_only: "仅未齐（单侧未答）",
     }[v] || v;
   };
 
@@ -1558,6 +1814,7 @@ async function bootCompare() {
       <p><strong>表单：</strong>${meta.title}</p>
       <p><strong>双方：</strong>${nameA} / ${nameB}</p>
       <p><strong>筛选：</strong>${filterLabel()} · 一致 ${stats.match} · 差1 ${stats.near} · 差≥2 ${stats.far} · 未齐 ${stats.missing}</p>
+      <p><strong>开放题：</strong>${openItems.length - missingCount()} 题已答 · ${missingCount()} 题双方未答</p>
       <p><strong>打印日期：</strong>${stamp}</p>
     `;
     if (foot) foot.hidden = false;
@@ -1565,8 +1822,9 @@ async function bootCompare() {
 
   $("btn-print-report")?.addEventListener("click", () => {
     const includeOpen = $("print-include-open")?.checked !== false;
-    const openSec = $("open-section");
-    if (openSec) openSec.classList.toggle("print-hide", !includeOpen);
+    const includeGaps = $("print-include-gaps")?.checked !== false;
+    $("open-section")?.classList.toggle("print-hide", !includeOpen);
+    $("gap-section")?.classList.toggle("print-hide", !includeGaps);
     fillPrintMeta();
     // ensure list matches current filter (default diff_only)
     renderList();
@@ -1576,6 +1834,7 @@ async function bootCompare() {
   renderSummary();
   renderList();
   renderOpen();
+  renderGaps();
 }
 
 

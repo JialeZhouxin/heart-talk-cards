@@ -1,10 +1,13 @@
 import { diffLikert, summarize } from "./compare.js";
 import {
   applyImport,
+  describeImport,
+  importConflict,
   loadRoot,
   loadState,
   parseImport,
   saveRoot,
+  setPersonName,
 } from "./storage.js";
 import { exportOneForm } from "./form-logic.js";
 import { loadForm, offlineHref, rewireHomeLinks, isOfflinePack } from "./data-loader.js";
@@ -68,11 +71,16 @@ async function main() {
   }
 
   $("page-title").textContent = `对照 · ${meta.title}`;
+  {
+    const nm = loadState(fid).people;
+    $("link-fill-a").textContent = `填 ${nm.a.displayName || "丈夫"}`;
+    $("link-fill-b").textContent = `填 ${nm.b.displayName || "妻子"}`;
+  }
   $("link-fill-a").href = offlineHref("fill", { form: fid, person: "a" });
   $("link-fill-b").href = offlineHref("fill", { form: fid, person: "b" });
 
   $("btn-export-form").addEventListener("click", () => {
-    exportOneForm(fid, loadState(fid));
+    exportOneForm(fid, loadState(fid), "both");
   });
   $("file-import-form").addEventListener("change", async (ev) => {
     const file = ev.target.files?.[0];
@@ -81,11 +89,22 @@ async function main() {
     try {
       const text = await file.text();
       const parsed = parseImport(text);
-      if (!confirm(`将覆盖「${meta.title}」丈夫/妻子全部答案，确认？`)) return;
+      const warn = importConflict(loadRoot(), parsed, fid);
+      if (
+        !confirm(
+          `该文件包含${describeImport(parsed)}答案，将覆盖本地同一身份，确认导入到「${meta.title}」？` +
+            (warn ? `\n\n${warn}` : "")
+        )
+      )
+        return;
       const { root } = applyImport(loadRoot(), parsed, fid);
       const r = saveRoot(root);
       if (!r.ok) showError(r.message);
       else {
+        if (parsed.person) {
+          const nm2 = parsed.data?.people?.[parsed.person]?.displayName;
+          if (nm2) setPersonName(parsed.person, nm2);
+        }
         showError("");
         location.reload();
       }
@@ -110,10 +129,23 @@ async function main() {
     }
   }
 
-  const pairs = scoreItems.map((it) => ({
-    a: state.people.a.answers[it.id],
-    b: state.people.b.answers[it.id],
-  }));
+  // 未答题只算双人都没答；单侧未答仍进列表（标未齐），牧师才看得到缺口
+  const isMissing = (it) => {
+    const a = state.people.a.answers[it.id];
+    const b = state.people.b.answers[it.id];
+    const sideMissing =
+      (it.type === "likert" || it.type === "choice")
+        ? (v) => v == null
+        : (v) => !(typeof v === "string" && v.trim());
+    return sideMissing(a) && sideMissing(b);
+  };
+
+  const pairs = scoreItems
+    .filter((it) => !isMissing(it))
+    .map((it) => ({
+      a: state.people.a.answers[it.id],
+      b: state.people.b.answers[it.id],
+    }));
   const stats = summarize(pairs);
 
   const renderSummary = () => {
@@ -121,9 +153,9 @@ async function main() {
       <span class="pill match">一致 ${stats.match}</span>
       <span class="pill near">差1 ${stats.near}</span>
       <span class="pill far">差≥2 ${stats.far}</span>
-      <span class="pill missing">未齐 ${stats.missing}</span>
+      <span class="pill missing">未答 ${stats.missing}</span>
     `;
-    if (!scoreItems.length) {
+    if (!scoreItems.some((it) => !isMissing(it))) {
       $("filters").hidden = true;
       $("list").innerHTML =
         '<p class="muted">此表单无可数值对照题，请看下方开放题并排。</p>';
@@ -140,12 +172,13 @@ async function main() {
     list.innerHTML = "";
     let shown = 0;
     for (const it of scoreItems) {
+      if (isMissing(it)) continue;
       const a = state.people.a.answers[it.id];
       const b = state.people.b.answers[it.id];
       const kind = diffLikert(a, b);
-      if (kind === "missing") continue;
-      if (filter === "diff_only" && kind === "match") continue;
+      if (filter === "diff_only" && (kind === "match" || kind === "missing")) continue;
       if (filter === "far_only" && kind !== "far") continue;
+      if (filter === "missing_only" && kind !== "missing") continue;
       shown++;
       const row = document.createElement("div");
       row.className = "compare-row";
@@ -168,12 +201,14 @@ async function main() {
   const renderOpen = () => {
     const box = $("open-list");
     box.innerHTML = "";
+    let shown = 0;
     for (const it of openItems) {
       const a = state.people.a.answers[it.id];
       const b = state.people.b.answers[it.id];
       const hasA = typeof a === "string" && a.trim();
       const hasB = typeof b === "string" && b.trim();
       if (!hasA && !hasB) continue;
+      shown++;
       const card = document.createElement("div");
       card.className = "item";
       card.innerHTML = `
@@ -186,9 +221,24 @@ async function main() {
       `;
       box.appendChild(card);
     }
-    if (!box.children.length) {
+    if (!shown) {
       box.innerHTML = `<p class="muted">双方开放题都未填写。</p>`;
     }
+  };
+
+  const missingCount = () => openItems.filter((it) => isMissing(it)).length;
+  const renderGaps = () => {
+    const box = $("gap-list");
+    const gaps = openItems.filter((it) => isMissing(it));
+    $("gap-count").textContent = gaps.length
+      ? `${gaps.length} 题双方都没答`
+      : "开放题都有人答了";
+    box.innerHTML = gaps
+      .map(
+        (it) =>
+          `<div class="item"><div class="prompt">${it.prompt}</div><div class="muted">${it.chapter} · 双方未答</div></div>`
+      )
+      .join("");
   };
 
   pageRoot().querySelectorAll('input[name="filter"]').forEach((el) => {
@@ -198,9 +248,10 @@ async function main() {
   const filterLabel = () => {
     const v = currentFilter();
     return {
-      all_answered: "全部已填",
-      diff_only: "仅差异",
+      all_answered: "全部已填（含未答一侧）",
+      diff_only: "仅差异（双方已答）",
       far_only: "仅红（差≥2）",
+      missing_only: "仅未齐（单侧未答）",
     }[v] || v;
   };
 
@@ -216,6 +267,7 @@ async function main() {
       <p><strong>表单：</strong>${meta.title}</p>
       <p><strong>双方：</strong>${nameA} / ${nameB}</p>
       <p><strong>筛选：</strong>${filterLabel()} · 一致 ${stats.match} · 差1 ${stats.near} · 差≥2 ${stats.far} · 未齐 ${stats.missing}</p>
+      <p><strong>开放题：</strong>${openItems.length - missingCount()} 题已答 · ${missingCount()} 题双方未答</p>
       <p><strong>打印日期：</strong>${stamp}</p>
     `;
     if (foot) foot.hidden = false;
@@ -223,8 +275,9 @@ async function main() {
 
   $("btn-print-report")?.addEventListener("click", () => {
     const includeOpen = $("print-include-open")?.checked !== false;
-    const openSec = $("open-section");
-    if (openSec) openSec.classList.toggle("print-hide", !includeOpen);
+    const includeGaps = $("print-include-gaps")?.checked !== false;
+    $("open-section")?.classList.toggle("print-hide", !includeOpen);
+    $("gap-section")?.classList.toggle("print-hide", !includeGaps);
     fillPrintMeta();
     // ensure list matches current filter (default diff_only)
     renderList();
@@ -234,6 +287,7 @@ async function main() {
   renderSummary();
   renderList();
   renderOpen();
+  renderGaps();
 }
 
 main();

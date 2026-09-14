@@ -9,12 +9,16 @@
 import {
   applyImport as applyImportCore,
   clone,
+  describeImport,
   emptyFormState,
   emptyPerson,
   emptyRoot,
+  importConflict,
   parseImport as parseImportCore,
   personHasAnswers,
+  rootNames,
   serializeRoot,
+  SLOT_NAMES,
 } from "./import-export-core.js";
 import {
   exportJSON,
@@ -29,26 +33,30 @@ export const ROOT_KEY = "premarital.forms.v2";
 export const LEGACY_KEY = "premarital.assessment.v1";
 
 export {
+  describeImport,
   emptyFormState,
   emptyPerson,
   emptyRoot,
   exportJSON,
   exportOneForm,
   getAnswer,
+  importConflict,
   personHasAnswers,
   progress,
+  rootNames,
   serializeOneForm,
   serializeRoot,
   setAnswer,
+  SLOT_NAMES,
 };
 
 let memoryFallback = null;
 let storageWarned = false;
 
 function normalizePersonName(person, name) {
-  if (person === "a" && (!name || name === "我方")) return "丈夫";
-  if (person === "b" && (!name || name === "对方")) return "妻子";
-  return name || (person === "a" ? "丈夫" : "妻子");
+  if (person === "a" && !name) return "丈夫";
+  if (person === "b" && !name) return "妻子";
+  return name;
 }
 
 function readRaw(key) {
@@ -70,6 +78,7 @@ export function loadRoot() {
     if (raw) {
       const data = JSON.parse(raw);
       if (data?.version === 2 && data.forms && typeof data.forms === "object") {
+        data.names = rootNames(data);
         return data;
       }
     }
@@ -127,13 +136,15 @@ export function loadState(formId) {
   if (!root.forms[formId]) {
     root.forms[formId] = emptyFormState();
   }
+  const names = rootNames(root);
   const st = root.forms[formId];
   for (const p of ["a", "b"]) {
-    if (!st.people[p]) st.people[p] = emptyPerson(p === "a" ? "丈夫" : "妻子");
+    if (!st.people[p]) st.people[p] = emptyPerson(names[p]);
     if (!st.people[p].answers || typeof st.people[p].answers !== "object") {
       st.people[p].answers = {};
     }
-    st.people[p].displayName = normalizePersonName(p, st.people[p].displayName);
+    // root.names is authoritative; per-form names are only a legacy mirror
+    st.people[p].displayName = normalizePersonName(p, names[p]);
   }
   return clone(st);
 }
@@ -142,6 +153,20 @@ export function saveState(formId, state) {
   const root = loadRoot();
   root.forms[formId] = clone(state);
   return saveRoot(root);
+}
+
+/** Set a person's display name for the whole app (stored on the root, mirrored per form). */
+export function setPersonName(person, name) {
+  const root = loadRoot();
+  const clean = String(name || "").trim().slice(0, 20) || SLOT_NAMES[person];
+  root.names = { ...rootNames(root), [person]: clean };
+  for (const st of Object.values(root.forms)) {
+    if (!st.people) st.people = {};
+    if (!st.people[person]) st.people[person] = emptyPerson(clean);
+    st.people[person].displayName = clean;
+  }
+  const r = saveRoot(root);
+  return r.ok ? { ok: true, name: clean } : r;
 }
 
 export function parseImport(text) {

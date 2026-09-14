@@ -4,13 +4,18 @@
  */
 import {
   applyImport,
+  describeImport,
   emptyFormState,
   emptyRoot,
+  importConflict,
+  oneFormPayload,
   parseImport,
   personHasAnswers,
+  rootNames,
   serializeOneForm,
   serializeRoot,
 } from "../js/import-export-core.js";
+import { safeName } from "../js/form-logic.js";
 
 let passed = 0;
 let failed = 0;
@@ -24,6 +29,8 @@ function assert(cond, msg) {
   passed++;
   console.log("OK:", msg);
 }
+
+assert.deepEqual = (a, b, msg) => assert(JSON.stringify(a) === JSON.stringify(b), msg);
 
 function makePerson(name, answers) {
   return {
@@ -173,6 +180,105 @@ function makeForm(aAnswers, bAnswers) {
   assert(merged.forms.assessment.people.b.answers.a1 === 3, "multi form wife merge assessment");
   assert(merged.forms.sex.people.a.answers.s1 === 2, "multi form husband keep sex");
   assert(merged.forms.sex.people.b.answers.s1 === 1, "multi form wife merge sex");
+}
+
+// --- 8. one-side package: wrong-slot-safe ---
+{
+  // husband already filled slot a on his phone
+  const husbandPhone = emptyRoot();
+  husbandPhone.forms.assessment = makeForm({ q1: 1, q2: 2 }, {});
+
+  // wife exports HER side only (person b)
+  const wifeSide = { ...makeForm({}, { q1: 5, q2: 4 }), people: makeForm({}, { q1: 5, q2: 4 }).people };
+  const oneSide = serializeOneForm("assessment", wifeSide, "b");
+  const parsedSide = parseImport(oneSide);
+  assert(parsedSide.person === "b", "one-side package carries person tag");
+  assert(
+    !personHasAnswers(parsedSide.data.people.a),
+    "one-side package omits the other person"
+  );
+  assert(describeImport(parsedSide).includes("妻子"), "describeImport names the side");
+
+  const { root: merged } = applyImport(husbandPhone, parsedSide, "assessment");
+  assert(merged.forms.assessment.people.a.answers.q1 === 1, "husband q1 survived wife-side import");
+  assert(merged.forms.assessment.people.a.answers.q2 === 2, "husband q2 survived wife-side import");
+  assert(merged.forms.assessment.people.b.answers.q1 === 5, "wife side landed in slot b");
+}
+
+// --- 9. one-side package ignores formIdFilter=null on other forms ---
+{
+  const local = emptyRoot();
+  local.forms.assessment = makeForm({ q1: 1 }, {});
+  local.forms.roles = makeForm({ r1: 1 }, {});
+  const pack = serializeOneForm("roles", makeForm({}, { r1: 9 }), "b");
+  const { root, forms } = applyImport(local, parseImport(pack));
+  assert(forms[0] === "roles", "one-side import targets its own form");
+  assert(root.forms.roles.people.b.answers.r1 === 9, "one-side import writes slot b");
+  assert(root.forms.assessment.people.a.answers.q1 === 1, "other form untouched");
+  assert(root.forms.roles.people.a.answers.r1 === 1, "other side of same form untouched");
+}
+
+// --- 10. legacy package without person tag still merges both sides ---
+{
+  const local = emptyRoot();
+  local.forms.assessment = makeForm({ q1: 1 }, {});
+  const legacy = JSON.stringify({
+    version: 1,
+    formId: "assessment",
+    people: makeForm({}, { q1: 5 }).people,
+  });
+  const parsed = parseImport(legacy);
+  assert(!parsed.person, "legacy package has no person tag");
+  const { root } = applyImport(local, parsed, "assessment");
+  assert(root.forms.assessment.people.a.answers.q1 === 1, "legacy merge keeps husband");
+  assert(root.forms.assessment.people.b.answers.q1 === 5, "legacy merge takes wife");
+}
+
+// --- 11. safeName strips path-hostile chars ---
+{
+  assert(safeName('a/b\\c:d*e?f"g<h>i|j') === "abcdefghij", "safeName strips path chars");
+  assert(safeName("  ") === "", "safeName handles blank");
+  assert(safeName("x".repeat(50)).length === 20, "safeName caps length");
+}
+
+// --- 12. wrong-slot guard warns when both sides claim the same slot ---
+{
+  const local = emptyRoot();
+  local.forms.assessment = makeForm({ q1: 1, q2: 2 }, {});
+  local.names = { a: "阿明", b: "小芳" };
+
+  const sameSide = parseImport(serializeOneForm("assessment", makeForm({ q1: 5 }, {}), "a"));
+  const warn = importConflict(local, sameSide, "assessment");
+  assert(/选错|已有答案/.test(warn || ""), "conflict warns when other person claims slot a");
+  assert(warn.includes("阿明") && warn.includes("丈夫"), "conflict names local side");
+
+  const otherSide = parseImport(serializeOneForm("assessment", makeForm({}, { q1: 5 }), "b"));
+  assert(importConflict(local, otherSide, "assessment") === null, "no warning for the empty side");
+
+  const emptyLocal = emptyRoot();
+  assert(
+    importConflict(emptyLocal, sameSide, "assessment") === null,
+    "no warning when local slot is empty"
+  );
+  assert(importConflict(local, parseImport(serializeRoot(local))) === null, "no warning for two-sided packs");
+}
+
+// --- 13. rootNames: root wins, legacy per-form names are inferred ---
+{
+  const fresh = emptyRoot();
+  assert.deepEqual(rootNames(fresh), { a: "丈夫", b: "妻子" }, "fresh root default names");
+
+  const legacy = emptyRoot();
+  delete legacy.names;
+  legacy.forms.assessment = makeForm({}, {});
+  legacy.forms.assessment.people.a.displayName = "阿明";
+  legacy.forms.roles = makeForm({}, {});
+  legacy.forms.roles.people.b.displayName = "小芳";
+  assert.deepEqual(rootNames(legacy), { a: "阿明", b: "小芳" }, "legacy names inferred across forms");
+
+  const old = emptyRoot();
+  old.names = { a: "我方", b: "对方" };
+  assert.deepEqual(rootNames(old), { a: "我方", b: "对方" }, "explicit root names win");
 }
 
 console.log(`\n${passed} passed, ${failed} failed`);

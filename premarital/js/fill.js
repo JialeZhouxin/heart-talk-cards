@@ -1,10 +1,13 @@
 import {
   applyImport,
+  describeImport,
+  importConflict,
   loadRoot,
   loadState,
   parseImport,
   saveRoot,
   saveState,
+  setPersonName,
 } from "./storage.js";
 import {
   exportOneForm,
@@ -112,8 +115,26 @@ async function main() {
   $("link-compare").href = offlineHref("compare", { form: formId });
   $("link-compare").hidden = meta.compare === false;
 
+  const nameInput = $("person-name");
+  const whoLabel = () =>
+    loadState(formId).people[person].displayName ||
+    (person === "a" ? "丈夫" : "妻子");
+  nameInput.value = state.people[person].displayName || "";
+  nameInput.addEventListener("change", () => {
+    const r = setPersonName(person, nameInput.value);
+    if (!r.ok) {
+      showError(r.message);
+      return;
+    }
+    nameInput.value = r.name;
+    state.people[person].displayName = r.name;
+    $("title").textContent = `${meta.short || meta.title} · ${r.name}`;
+    $("btn-export-form").textContent = `导出本表（${r.name}）`;
+  });
+  $("btn-export-form").textContent = `导出本表（${whoLabel()}）`;
+
   $("btn-export-form").addEventListener("click", () => {
-    exportOneForm(formId, loadState(formId));
+    exportOneForm(formId, loadState(formId), person);
   });
   $("file-import-form").addEventListener("change", async (ev) => {
     const file = ev.target.files?.[0];
@@ -122,11 +143,24 @@ async function main() {
     try {
       const text = await file.text();
       const parsed = parseImport(text);
-      if (!confirm(`将覆盖「${meta.title}」丈夫/妻子全部答案，确认？`)) return;
+      const side = describeImport(parsed);
+      const warn = importConflict(loadRoot(), parsed, formId);
+      if (
+        !confirm(
+          `该文件包含${side}答案，将覆盖本地同一身份，确认导入到「${meta.title}」？` +
+            (warn ? `\n\n${warn}` : "")
+        )
+      )
+        return;
       const { root } = applyImport(loadRoot(), parsed, formId);
       const r = saveRoot(root);
       if (!r.ok) showError(r.message);
       else {
+        // 单人包带来的称呼同步到所有表单，避免每张表重填
+        if (parsed.person) {
+          const nm = parsed.data?.people?.[parsed.person]?.displayName;
+          if (nm) setPersonName(parsed.person, nm);
+        }
         showError("");
         location.reload();
       }

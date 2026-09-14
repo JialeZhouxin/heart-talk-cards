@@ -27,6 +27,13 @@
     <div id="error" class="error" hidden></div>
 
     <div class="card">
+      <div class="row" id="names"></div>
+      <p class="muted" style="margin-top:10px">
+        填写称呼后，各表单与对照报告的抬头都会显示名字，导出文件名也会带名字与日期。
+      </p>
+    </div>
+
+    <div class="card">
       <div class="row">
         <button class="btn" id="btn-export" type="button">导出全部 JSON</button>
         <label class="btn" for="file-import">导入 JSON</label>
@@ -34,7 +41,8 @@
         <a class="btn" href="premarital-counseling-offline.html" download>下载离线单文件</a>
       </div>
       <p class="muted" style="margin-top:10px">
-        导入会按文件覆盖对应表单答案。旧版单表导出仍可导入到「婚前关系评估」。
+        导入会按文件内标记的身份覆盖对应一侧；未标记的旧包仍按丈夫/妻子两侧合并。
+        单张表的「导出本表」导出双方，填写页的「导出本表」只导出你自己那一侧。
       </p>
     </div>
 

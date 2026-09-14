@@ -1,6 +1,7 @@
 /** Pure form-state logic: no DOM, no localStorage. Safe to unit-test. */
 
 import {
+  oneFormPayload,
   serializeOneForm,
 } from "./import-export-core.js";
 
@@ -91,11 +92,27 @@ export function exportJSON(rootOrState, filename = "premarital-forms.json") {
   URL.revokeObjectURL(a.href);
 }
 
-/** Export one form as a standalone JSON file. */
-export function exportOneForm(formId, state) {
+/** Filesystem-safe filename fragment. */
+export function safeName(s) {
+  return String(s || "")
+    .replace(/[\\/:*?"<>|\r\n\t]+/g, "")
+    .trim()
+    .slice(0, 20);
+}
+
+function today() {
+  const d = new Date();
+  const p = (n) => String(n).padStart(2, "0");
+  return `${d.getFullYear()}${p(d.getMonth() + 1)}${p(d.getDate())}`;
+}
+
+/** Export one form as a standalone JSON file. person = "a"|"b"|"both". */
+export function exportOneForm(formId, state, person = "both") {
+  const who = person === "a" || person === "b" ? person : null;
+  const name = who ? state.people[who].displayName || SLOT_NAMES[who] : "双方";
   exportJSON(
-    { version: 1, formId, people: state.people },
-    `premarital-${formId}.json`
+    oneFormPayload(formId, state, who),
+    `premarital-${formId}-${safeName(name)}-${today()}.json`
   );
 }
 
