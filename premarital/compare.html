@@ -11,17 +11,36 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="default" />
   <link rel="manifest" href="manifest.webmanifest" />
   <link rel="apple-touch-icon" href="icons/icon-192.png" />
+
+  <script>
+    /* 首屏防闪（置于 head，早于样式计算） */
+    (function () {
+      try {
+        var t = localStorage.getItem('premarital-theme');
+        if (!t) {
+          t = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        }
+        document.documentElement.setAttribute('data-theme', t);
+      } catch (e) {}
+    })();
+  </script>
+
 </head>
 <body>
   <div class="wrap">
     <div class="top no-print">
-      <h1 id="page-title">双方对照</h1>
+      <div class="top-head">
+        <h1 id="page-title">双方对照</h1>
+        <button class="btn theme-btn" type="button" aria-pressed="false" aria-label="切换夜间/暖色模式" title="切换夜间/暖色模式">
+          <span class="theme-icon" aria-hidden="true"></span>
+          <span class="theme-text"></span>
+        </button>
+      </div>
       <nav>
         <a href="index.html">全部表单</a>
         <a href="fill.html?person=a" id="link-fill-a">填丈夫</a>
         <a href="fill.html?person=b" id="link-fill-b">填妻子</a>
       </nav>
-        <button class="btn" id="themeToggleBtn" type="button" style="min-height:36px;padding:6px 12px;font-size:13px;">夜间护眼</button>
     </div>
     <div class="note no-print">绿=一致 · 黄=差1 · 红=差≥2（量表/选择题）。开放题仅并排；单侧未答标「未齐」，可用「仅未齐」筛出。</div>
     <div id="error" class="error" hidden></div>
@@ -43,8 +62,8 @@
       </div>
       <p class="muted no-print" id="print-hint">打印默认按当前筛选（默认「仅差异」）；可勾选是否含开放题与未答题清单。</p>
       <div class="row no-print" style="margin-bottom:10px">
-        <label><input type="checkbox" id="print-include-open" checked /> 打印含开放题</label>
-        <label><input type="checkbox" id="print-include-gaps" checked /> 打印含未答题清单</label>
+        <label class="check"><input type="checkbox" id="print-include-open" checked /> 打印含开放题</label>
+        <label class="check"><input type="checkbox" id="print-include-gaps" checked /> 打印含未答题清单</label>
       </div>
       <div id="list"></div>
     </div>
@@ -66,28 +85,6 @@
   <script src="js/pwa.js"></script>
 
   <script type="module" src="js/compare-page.js"></script>
-  <script>
-    (function () {
-      const btn = document.getElementById('themeToggleBtn');
-      function apply(theme) {
-        document.documentElement.setAttribute('data-theme', theme);
-        if (btn) {
-          btn.textContent = theme === 'dark' ? '暖色模式' : '夜间护眼';
-          btn.setAttribute('aria-pressed', String(theme === 'dark'));
-        }
-        try { localStorage.setItem('premarital-theme', theme); } catch (e) {}
-      }
-      if (btn) {
-        btn.addEventListener('click', function () {
-          const cur = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
-          apply(cur === 'dark' ? 'light' : 'dark');
-        });
-      }
-      let saved = null;
-      try { saved = localStorage.getItem('premarital-theme'); } catch (e) {}
-      const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-      apply(saved || (prefersDark ? 'dark' : 'light'));
-    })();
-  </script>
+  <script type="module" src="js/theme.js"></script>
 </body>
 </html>

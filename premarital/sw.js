@@ -1,5 +1,5 @@
 /* Offline cache for premarital forms PWA */
-const CACHE = "sw-560dc1bb";
+const CACHE = "sw-15a43dd1";
 const ASSETS = [
   '../shared/theme.css',
   './',
@@ -12,6 +12,7 @@ const ASSETS = [
   './icons/icon-512.png',
   './js/pwa.js',
   './js/data-loader.js',
+  './js/theme.js',
   './js/home.js',
   './js/fill.js',
   './js/compare.js',

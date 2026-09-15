@@ -140,17 +140,21 @@ async function main() {
       </div>
       <p class="progress" style="margin:12px 0 6px">${nameA}：${fmtProg(prog.a)}</p>
       <p class="progress" style="margin:0 0 12px">${nameB}：${fmtProg(prog.b)}</p>
-      <div class="row">
-        <a class="btn primary" href="${offlineHref("fill", { form: form.id, person: "a" })}">填 · ${nameA}</a>
-        <a class="btn primary" href="${offlineHref("fill", { form: form.id, person: "b" })}">填 · ${nameB}</a>
-        ${
-          form.compare
-            ? `<a class="btn" href="${offlineHref("compare", { form: form.id })}>对照</a>`
-            : ""
-        }
-        <button class="btn" type="button" data-export="${form.id}">导出本表</button>
-        <label class="btn" for="${importId}">导入本表</label>
-        <input id="${importId}" type="file" accept="application/json,.json" hidden data-form="${form.id}" data-title="${form.title}" />
+      <div class="actions">
+        <div class="actions-main">
+          <a class="btn primary" href="${offlineHref("fill", { form: form.id, person: "a" })}">填 · ${nameA}</a>
+          <a class="btn primary" href="${offlineHref("fill", { form: form.id, person: "b" })}">填 · ${nameB}</a>
+          ${
+            form.compare
+              ? `<a class="btn" href="${offlineHref("compare", { form: form.id })}">对照</a>`
+              : ""
+          }
+        </div>
+        <div class="actions-tools">
+          <button class="btn ghost" type="button" data-export="${form.id}">导出本表</button>
+          <label class="btn ghost" for="${importId}">导入本表</label>
+          <input id="${importId}" type="file" accept="application/json,.json" hidden data-form="${form.id}" data-title="${form.title}" />
+        </div>
       </div>
     `;
     list.appendChild(card);

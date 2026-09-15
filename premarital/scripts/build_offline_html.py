@@ -17,6 +17,7 @@ MODULE_ORDER = [
     "js/form-logic.js",
     "js/storage.js",
     "js/data-loader.js",
+    "js/theme.js",
     "js/home.js",
     "js/fill.js",
     "js/compare-page.js",

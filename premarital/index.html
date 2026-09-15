@@ -11,15 +11,34 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="default" />
   <link rel="manifest" href="manifest.webmanifest" />
   <link rel="apple-touch-icon" href="icons/icon-192.png" />
+
+  <script>
+    /* 首屏防闪（置于 head，早于样式计算） */
+    (function () {
+      try {
+        var t = localStorage.getItem('premarital-theme');
+        if (!t) {
+          t = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        }
+        document.documentElement.setAttribute('data-theme', t);
+      } catch (e) {}
+    })();
+  </script>
+
 </head>
 <body>
   <div class="wrap">
     <div class="top">
-      <h1>婚前辅导 · 多表单</h1>
+      <div class="top-head">
+        <h1>婚前辅导 · 多表单</h1>
+        <button class="btn theme-btn" type="button" aria-pressed="false" aria-label="切换夜间/暖色模式" title="切换夜间/暖色模式">
+          <span class="theme-icon" aria-hidden="true"></span>
+          <span class="theme-text"></span>
+        </button>
+      </div>
       <nav>
         <a href="index.html">全部表单</a>
       </nav>
-        <button class="btn" id="themeToggleBtn" type="button" style="min-height:36px;padding:6px 12px;font-size:13px;">夜间护眼</button>
     </div>
     <div class="note">
       数据仅保存在本机浏览器，可离线使用。手机浏览器可「添加到主屏幕」当 App 用；点选表单填写与对照，支持导入导出。
@@ -34,11 +53,15 @@
     </div>
 
     <div class="card">
-      <div class="row">
-        <button class="btn" id="btn-export" type="button">导出全部 JSON</button>
-        <label class="btn" for="file-import">导入 JSON</label>
-        <input id="file-import" type="file" accept="application/json,.json" hidden />
-        <a class="btn" href="premarital-counseling-offline.html" download>下载离线单文件</a>
+      <div class="actions">
+        <div class="actions-main">
+          <button class="btn primary" id="btn-export" type="button">导出全部 JSON</button>
+          <a class="btn" href="premarital-counseling-offline.html" download>下载离线单文件</a>
+        </div>
+        <div class="actions-tools">
+          <label class="btn ghost" for="file-import">导入 JSON</label>
+          <input id="file-import" type="file" accept="application/json,.json" hidden />
+        </div>
       </div>
       <p class="muted" style="margin-top:10px">
         导入会按文件内标记的身份覆盖对应一侧；未标记的旧包仍按丈夫/妻子两侧合并。
@@ -50,28 +73,6 @@
   </div>
   <script src="js/pwa.js"></script>
   <script type="module" src="js/home.js"></script>
-  <script>
-    (function () {
-      const btn = document.getElementById('themeToggleBtn');
-      function apply(theme) {
-        document.documentElement.setAttribute('data-theme', theme);
-        if (btn) {
-          btn.textContent = theme === 'dark' ? '暖色模式' : '夜间护眼';
-          btn.setAttribute('aria-pressed', String(theme === 'dark'));
-        }
-        try { localStorage.setItem('premarital-theme', theme); } catch (e) {}
-      }
-      if (btn) {
-        btn.addEventListener('click', function () {
-          const cur = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
-          apply(cur === 'dark' ? 'light' : 'dark');
-        });
-      }
-      let saved = null;
-      try { saved = localStorage.getItem('premarital-theme'); } catch (e) {}
-      const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-      apply(saved || (prefersDark ? 'dark' : 'light'));
-    })();
-  </script>
+  <script type="module" src="js/theme.js"></script>
 </body>
 </html>

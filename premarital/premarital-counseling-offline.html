@@ -112,12 +112,41 @@ body {
 }
 a { color: var(--accent); }
 .wrap { max-width: 920px; margin: 0 auto; padding: 16px; }
+
+/* ---- 顶栏：品牌+主题一行，导航一行（任何宽度都不塔） ---- */
 .top {
-  display: flex; flex-wrap: wrap; gap: 8px 16px;
-  align-items: center; justify-content: space-between;
+  display: flex; flex-direction: column; gap: 8px;
   margin-bottom: 12px;
 }
+.top-head {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+}
+.top h1 { margin: 0; min-width: 0; }
 .top nav { display: flex; gap: 12px; flex-wrap: wrap; }
+
+/* 主题按钮：宽屏显文字，窄屏只显图标；图标/文案由 data-theme 决定 */
+.theme-btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  min-height: 44px; padding: 10px 14px; font-size: 14px; flex: none;
+}
+.theme-icon { font-size: 18px; line-height: 1; }
+/* 当前是暖色 → 按钮提示「切到夜间」显 🌙；当前夜间 → 显 ☀️ */
+.theme-icon::before { content: "🌙"; }
+:root[data-theme='dark'] .theme-icon::before { content: "☀️"; }
+.theme-text::after { content: "夜间护眼"; }
+:root[data-theme='dark'] .theme-text::after { content: "暖色模式"; }
+@media (max-width: 700px) {
+  .theme-btn { padding: 10px; min-width: 44px; }
+  .theme-text { display: none; }
+}
+
+/* ---- 操作区分层：主操作行 + 工具行（幽灵按钮） ---- */
+.actions { display: flex; flex-direction: column; gap: 6px; }
+.actions-main { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.actions-tools {
+  display: flex; flex-wrap: wrap; gap: 4px; align-items: center;
+}
+
 .note {
   background: #fff3e0; border: 1px solid #e8cfa8;
   padding: 10px 12px; border-radius: 8px; color: #7a5a2e;
@@ -132,6 +161,10 @@ h1, h2 {
   letter-spacing: 0.03em;
 }
 h1 { font-size: 1.4rem; margin: 0 0 8px; }
+@media (max-width: 360px) {
+  /* 320px 时「双方对照」+ 主题钮会差几像素折行，缩一点字号保一行 */
+  h1 { font-size: 1.24rem; }
+}
 h2 { font-size: 1.1rem; margin: 0 0 10px; }
 .muted { color: var(--muted); font-size: 14px; }
 .row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
@@ -139,11 +172,20 @@ h2 { font-size: 1.1rem; margin: 0 0 10px; }
   appearance: none; border: 1px solid var(--line); background: var(--card);
   color: var(--text); border-radius: 999px; padding: 10px 14px;
   min-height: 44px; cursor: pointer; font-size: 15px;
+  display: inline-flex; align-items: center; justify-content: center;
+  line-height: 1.2; text-align: center;
 }
 .btn.primary {
   background: linear-gradient(160deg, var(--accent) 0%, var(--accent-strong) 100%);
   color: #fff; border-color: var(--accent-strong);
 }
+/* 幽灵按钮：导出/导入这类低频工具操作，视觉退到背景但触控区仍达 44px */
+.btn.ghost {
+  background: transparent; border-color: transparent; color: var(--muted);
+  font-size: 13px; padding: 0 10px; min-height: 44px; position: relative;
+}
+.btn.ghost:hover { color: var(--accent); background: rgba(194, 122, 58, 0.08); }
+.btn.ghost:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
 .btn:disabled { opacity: .5; cursor: not-allowed; }
 .progress { font-size: 14px; }
 .progress strong { color: var(--accent); }
@@ -183,7 +225,30 @@ textarea {
 }
 .pager { display: flex; justify-content: space-between; gap: 8px; margin-top: 12px; }
 
+/* 卡片内留白：给主操作行上下留呼吸，降低 7 连排的「一堵墙」感 */
+.form-card .actions-main { margin-top: 4px; margin-bottom: 10px; }
+.form-card .actions-tools { padding-top: 2px; }
+.form-card .progress { margin: 8px 0 0; }
+
 .filters { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 12px; }
+/* 筛选/勾选项：窄屏 2×2 网格 + 44px 触控区；宽屏保持紧凑一行 */
+.filters label,
+.row label.check {
+  display: inline-flex; align-items: center; gap: 8px; cursor: pointer;
+}
+.filters input[type="radio"],
+.row label.check input[type="checkbox"] {
+  width: 18px; height: 18px; flex: none;
+}
+@media (max-width: 700px) {
+  .filters {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 0;
+  }
+  .filters label {
+    min-height: 44px; padding: 4px 2px;
+  }
+  .row label.check { min-height: 44px; }
+}
 .summary { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
 .pill {
   border-radius: 999px; padding: 4px 10px; font-size: 13px; border: 1px solid var(--line);
@@ -361,11 +426,16 @@ textarea {
   </div>
   <div id="view-home"><div class="wrap">
     <div class="top">
-      <h1>婚前辅导 · 多表单</h1>
+      <div class="top-head">
+        <h1>婚前辅导 · 多表单</h1>
+        <button class="btn theme-btn" type="button" aria-pressed="false" aria-label="切换夜间/暖色模式" title="切换夜间/暖色模式">
+          <span class="theme-icon" aria-hidden="true"></span>
+          <span class="theme-text"></span>
+        </button>
+      </div>
       <nav>
         <a href="index.html">全部表单</a>
       </nav>
-        <button class="btn" id="themeToggleBtn" type="button" style="min-height:36px;padding:6px 12px;font-size:13px;">夜间护眼</button>
     </div>
     <div class="note">
       数据仅保存在本机浏览器，可离线使用。手机浏览器可「添加到主屏幕」当 App 用；点选表单填写与对照，支持导入导出。
@@ -380,11 +450,15 @@ textarea {
     </div>
 
     <div class="card">
-      <div class="row">
-        <button class="btn" id="btn-export" type="button">导出全部 JSON</button>
-        <label class="btn" for="file-import">导入 JSON</label>
-        <input id="file-import" type="file" accept="application/json,.json" hidden />
-        <a class="btn" href="premarital-counseling-offline.html" download>下载离线单文件</a>
+      <div class="actions">
+        <div class="actions-main">
+          <button class="btn primary" id="btn-export" type="button">导出全部 JSON</button>
+          <a class="btn" href="premarital-counseling-offline.html" download>下载离线单文件</a>
+        </div>
+        <div class="actions-tools">
+          <label class="btn ghost" for="file-import">导入 JSON</label>
+          <input id="file-import" type="file" accept="application/json,.json" hidden />
+        </div>
       </div>
       <p class="muted" style="margin-top:10px">
         导入会按文件内标记的身份覆盖对应一侧；未标记的旧包仍按丈夫/妻子两侧合并。
@@ -396,12 +470,17 @@ textarea {
   </div></div>
   <div id="view-fill" hidden><div class="wrap">
     <div class="top">
-      <h1 id="title">填写</h1>
+      <div class="top-head">
+        <h1 id="title">填写</h1>
+        <button class="btn theme-btn" type="button" aria-pressed="false" aria-label="切换夜间/暖色模式" title="切换夜间/暖色模式">
+          <span class="theme-icon" aria-hidden="true"></span>
+          <span class="theme-text"></span>
+        </button>
+      </div>
       <nav>
         <a href="index.html">全部表单</a>
         <a href="compare.html" id="link-compare">对照</a>
       </nav>
-        <button class="btn" id="themeToggleBtn" type="button" style="min-height:36px;padding:6px 12px;font-size:13px;">夜间护眼</button>
     </div>
     <div class="note">自动保存到本机。点选程度前请先看「1–5 含义」；开放题直接输入。</div>
     <div class="row" style="margin-bottom:12px">
@@ -432,13 +511,18 @@ textarea {
   </div></div>
   <div id="view-compare" hidden><div class="wrap">
     <div class="top no-print">
-      <h1 id="page-title">双方对照</h1>
+      <div class="top-head">
+        <h1 id="page-title">双方对照</h1>
+        <button class="btn theme-btn" type="button" aria-pressed="false" aria-label="切换夜间/暖色模式" title="切换夜间/暖色模式">
+          <span class="theme-icon" aria-hidden="true"></span>
+          <span class="theme-text"></span>
+        </button>
+      </div>
       <nav>
         <a href="index.html">全部表单</a>
         <a href="fill.html?person=a" id="link-fill-a">填丈夫</a>
         <a href="fill.html?person=b" id="link-fill-b">填妻子</a>
       </nav>
-        <button class="btn" id="themeToggleBtn" type="button" style="min-height:36px;padding:6px 12px;font-size:13px;">夜间护眼</button>
     </div>
     <div class="note no-print">绿=一致 · 黄=差1 · 红=差≥2（量表/选择题）。开放题仅并排；单侧未答标「未齐」，可用「仅未齐」筛出。</div>
     <div id="error" class="error" hidden></div>
@@ -460,8 +544,8 @@ textarea {
       </div>
       <p class="muted no-print" id="print-hint">打印默认按当前筛选（默认「仅差异」）；可勾选是否含开放题与未答题清单。</p>
       <div class="row no-print" style="margin-bottom:10px">
-        <label><input type="checkbox" id="print-include-open" checked /> 打印含开放题</label>
-        <label><input type="checkbox" id="print-include-gaps" checked /> 打印含未答题清单</label>
+        <label class="check"><input type="checkbox" id="print-include-open" checked /> 打印含开放题</label>
+        <label class="check"><input type="checkbox" id="print-include-gaps" checked /> 打印含未答题清单</label>
       </div>
       <div id="list"></div>
     </div>
@@ -1050,6 +1134,72 @@ function rewireHomeLinks() {
   });
 }
 
+// ---- js/theme.js ----
+/** 主题切换。
+ *
+ * 设计约束：离线单文件包把首页/填写/对照三个视图塞在同一个 document 里，
+ * 每次路由都会重建 DOM。所以这里：
+ *   1) 不按 id 绑按钮，改用 document 上的事件委托（绑定一次就够）；
+ *   2) 不做 textContent 切换，图标/文案两套形态全部由 CSS 按
+ *      :root[data-theme] 决定，DOM 重建后样式自然跟上；
+ *   3) initTheme() 只负责「应用当前主题」+「接一次委托」。
+ *
+ * 首屏防闪由各页 <head> 里的内联 prepaint 片段负责（只设 data-theme）。
+ */
+
+const KEY = "premarital-theme";
+
+function currentTheme() {
+  return document.documentElement.getAttribute("data-theme") === "dark"
+    ? "dark"
+    : "light";
+}
+
+/** 应用主题到根节点，并同步所有主题按钮的无障碍属性。 */
+function applyTheme(theme) {
+  document.documentElement.setAttribute("data-theme", theme);
+  const dark = theme === "dark";
+  for (const btn of document.querySelectorAll(".theme-btn")) {
+    btn.setAttribute("aria-pressed", String(dark));
+  }
+  try {
+    localStorage.setItem(KEY, theme);
+  } catch {}
+}
+
+/** 切换主题。 */
+function toggleTheme() {
+  applyTheme(currentTheme() === "dark" ? "light" : "dark");
+}
+
+let wired = false;
+
+/** 接线（幂等）+ 应用已保存/系统偏好的主题。 */
+function initTheme() {
+  if (!wired) {
+    wired = true;
+    document.addEventListener("click", (ev) => {
+      if (ev.target.closest(".theme-btn")) toggleTheme();
+    });
+  }
+
+  const stored = document.documentElement.getAttribute("data-theme");
+  if (stored === "dark" || stored === "light") {
+    // prepaint 已经决定了首屏主题，这里只同步按钮属性
+    applyTheme(stored);
+    return;
+  }
+  let saved = null;
+  try {
+    saved = localStorage.getItem(KEY);
+  } catch {}
+  const prefersDark =
+    window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
+  applyTheme(saved || (prefersDark ? "dark" : "light"));
+}
+
+initTheme();
+
 // ---- js/home.js ----
 (function () {
 
@@ -1178,17 +1328,21 @@ async function bootHome() {
       </div>
       <p class="progress" style="margin:12px 0 6px">${nameA}：${fmtProg(prog.a)}</p>
       <p class="progress" style="margin:0 0 12px">${nameB}：${fmtProg(prog.b)}</p>
-      <div class="row">
-        <a class="btn primary" href="${offlineHref("fill", { form: form.id, person: "a" })}">填 · ${nameA}</a>
-        <a class="btn primary" href="${offlineHref("fill", { form: form.id, person: "b" })}">填 · ${nameB}</a>
-        ${
-          form.compare
-            ? `<a class="btn" href="${offlineHref("compare", { form: form.id })}>对照</a>`
-            : ""
-        }
-        <button class="btn" type="button" data-export="${form.id}">导出本表</button>
-        <label class="btn" for="${importId}">导入本表</label>
-        <input id="${importId}" type="file" accept="application/json,.json" hidden data-form="${form.id}" data-title="${form.title}" />
+      <div class="actions">
+        <div class="actions-main">
+          <a class="btn primary" href="${offlineHref("fill", { form: form.id, person: "a" })}">填 · ${nameA}</a>
+          <a class="btn primary" href="${offlineHref("fill", { form: form.id, person: "b" })}">填 · ${nameB}</a>
+          ${
+            form.compare
+              ? `<a class="btn" href="${offlineHref("compare", { form: form.id })}">对照</a>`
+              : ""
+          }
+        </div>
+        <div class="actions-tools">
+          <button class="btn ghost" type="button" data-export="${form.id}">导出本表</button>
+          <label class="btn ghost" for="${importId}">导入本表</label>
+          <input id="${importId}" type="file" accept="application/json,.json" hidden data-form="${form.id}" data-title="${form.title}" />
+        </div>
       </div>
     `;
     list.appendChild(card);
