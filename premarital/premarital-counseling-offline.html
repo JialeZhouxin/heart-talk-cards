@@ -122,7 +122,15 @@ a { color: var(--accent); }
   display: flex; align-items: center; justify-content: space-between; gap: 12px;
 }
 .top h1 { margin: 0; min-width: 0; }
-.top nav { display: flex; gap: 12px; flex-wrap: wrap; }
+.top nav { display: flex; gap: 4px; flex-wrap: wrap; align-items: center; }
+.top nav a {
+  display: inline-flex; align-items: center; min-height: 44px; padding: 0 10px;
+  border-radius: 999px; font-size: 14px; text-decoration: none;
+}
+.top nav a:hover { background: rgba(194, 122, 58, 0.1); }
+/* 回工具箱：比工具内导航弱一档 */
+.top nav a.back-link { color: var(--muted); padding-left: 0; }
+.top nav a.back-link:hover { color: var(--accent-strong); background: none; }
 
 /* 主题按钮：宽屏显文字，窄屏只显图标；图标/文案由 data-theme 决定 */
 .theme-btn {
@@ -433,9 +441,6 @@ textarea {
           <span class="theme-text"></span>
         </button>
       </div>
-      <nav>
-        <a href="index.html">全部表单</a>
-      </nav>
     </div>
     <div class="note">
       数据仅保存在本机浏览器，可离线使用。手机浏览器可「添加到主屏幕」当 App 用；点选表单填写与对照，支持导入导出。

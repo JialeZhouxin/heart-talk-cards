@@ -11,7 +11,6 @@
     <link rel="stylesheet" href="./shared/theme.css">
     <style>
 
-
         body {
             font-family: 'Noto Sans SC', 'Microsoft YaHei', sans-serif;
             color: var(--text-primary);
@@ -27,7 +26,7 @@
             transition: background 0.26s ease, color 0.2s ease;
         }
 
-        .container { width: 100%; max-width: 760px; }
+        .container { width: 100%; max-width: 900px; }
 
         header { text-align: center; margin-bottom: 32px; animation: rise-in 0.5s ease-out both; }
 
@@ -41,21 +40,53 @@
 
         header p { color: var(--text-secondary); font-size: 1.02rem; }
 
-        .tool-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+        /* ---- Bento 网格：混合尺寸格子，主工具占大格 ---- */
+        .tool-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+        }
 
         .tool-card {
-            display: block;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            overflow: hidden;
             background: var(--paper);
             border: 1px solid rgba(228, 204, 176, 0.78);
             box-shadow: var(--shadow-soft);
             border-radius: var(--radius-xl);
-            padding: 28px 24px;
+            padding: 24px 22px;
+            min-height: 168px;
             text-decoration: none;
             color: inherit;
             transition: transform 0.2s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.2s ease, border-color 0.2s ease;
             animation: rise-in 0.6s ease-out both;
         }
-        .tool-card:nth-child(2) { animation-delay: 0.1s; }
+
+        /* 主格：桌面横跨两列；窄屏整行铺满（用 1/-1 而非 span 2，
+           否则单列网格会被逼出第二根隐式列） */
+        .tool-card.span-2 {
+            grid-column: span 2;
+            min-height: 200px;
+            background: linear-gradient(150deg, var(--paper) 0%, var(--paper-strong) 100%);
+            border-color: var(--accent-soft, #e7c6a2);
+        }
+        /* 顶部一道细色条，给主格一点存在感 */
+        .tool-card.span-2::before {
+            content: '';
+            position: absolute;
+            inset: 0 0 auto 0;
+            height: 4px;
+            background: linear-gradient(90deg, #a86428 0%, #c27a3a 45%, #d69a5c 100%);
+        }
+
+        .tool-card:nth-child(1) { animation-delay: 0s; }
+        .tool-card:nth-child(2) { animation-delay: 0.08s; }
+        .tool-card:nth-child(3) { animation-delay: 0.16s; }
+        .tool-card:nth-child(4) { animation-delay: 0.24s; }
+        .tool-card:nth-child(5) { animation-delay: 0.32s; }
+
         .tool-card:hover {
             transform: translateY(-3px);
             box-shadow: 0 16px 34px rgba(95, 60, 25, 0.16);
@@ -63,14 +94,69 @@
         }
         .tool-card:focus-visible { outline: 2px solid #b96a2b; outline-offset: 2px; }
 
-        .tool-card .icon { font-size: 2.2rem; margin-bottom: 14px; }
+        /* 图标放在小块彩色底板里，每个工具一个色相 */
+        .tool-card .icon {
+            flex: none;
+            width: 52px;
+            height: 52px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.7rem;
+            line-height: 1;
+            border-radius: 16px;
+            background: var(--tile-bg, rgba(194, 122, 58, 0.13));
+            margin-bottom: 14px;
+        }
+        .tool-card.span-2 .icon {
+            width: 64px;
+            height: 64px;
+            font-size: 2.1rem;
+            border-radius: 20px;
+        }
+
         .tool-card h2 {
             font-family: 'Noto Serif SC', 'Songti SC', serif;
             color: #69462c;
             font-size: 1.25rem;
             margin-bottom: 8px;
         }
+        .tool-card.span-2 h2 { font-size: 1.45rem; }
+
         .tool-card p { font-size: 0.92rem; color: var(--text-secondary); line-height: 1.6; }
+
+        /* 主格底部的功能小标签 */
+        .tool-card .chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: auto;
+            padding-top: 16px;
+        }
+        .tool-card .chips span {
+            font-size: 0.78rem;
+            color: var(--text-secondary);
+            background: rgba(194, 122, 58, 0.11);
+            border: 1px solid rgba(194, 122, 58, 0.18);
+            padding: 4px 10px;
+            border-radius: 999px;
+        }
+        /* 主格的「点这里」提示，靠右下 */
+        .tool-card .enter {
+            position: absolute;
+            right: 24px;
+            bottom: 22px;
+            font-size: 1.1rem;
+            color: var(--accent);
+            opacity: 0;
+            transform: translateX(-6px);
+            transition: opacity 0.2s ease, transform 0.2s ease;
+        }
+        .tool-card:hover .enter,
+        .tool-card:focus-visible .enter {
+            opacity: 1;
+            transform: translateX(0);
+        }
 
         .footer-note {
             text-align: center;
@@ -85,11 +171,23 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
+        /* 平板：主格占满一行，其余两两并排 */
+        @media (max-width: 860px) {
+            .tool-grid { grid-template-columns: repeat(2, 1fr); }
+            .tool-card.span-2 { grid-column: 1 / -1; }
+        }
+
+        /* 手机：单列，全部等宽 */
         @media (max-width: 600px) {
             body { padding: 16px 12px calc(26px + env(safe-area-inset-bottom)); }
             header { margin-bottom: 24px; }
             .tool-grid { grid-template-columns: 1fr; }
-            .tool-card { padding: 24px 20px; }
+            .tool-card.span-2 { grid-column: 1 / -1; }
+            .tool-card { padding: 22px 20px; min-height: 0; }
+            .tool-card.span-2 { min-height: 0; }
+            .tool-card.span-2 .icon { width: 52px; height: 52px; font-size: 1.7rem; border-radius: 16px; }
+            .tool-card.span-2 h2 { font-size: 1.25rem; }
+            .tool-card .enter { display: none; }
         }
 
         @media (prefers-reduced-motion: reduce) {
@@ -97,6 +195,10 @@
         }
 
         :root[data-theme='dark'] .tool-card h2 { color: #ecd2b5; }
+        :root[data-theme='dark'] .tool-card .chips span {
+            background: rgba(214, 154, 92, 0.14);
+            border-color: rgba(214, 154, 92, 0.24);
+        }
     </style>
 </head>
 <body>
@@ -106,30 +208,37 @@
             <p>想用哪个，点哪个</p>
         </header>
         <div class="tool-grid">
-            <a class="tool-card" href="./heart-talk/">
+            <a class="tool-card span-2" href="./premarital/" style="--tile-bg: rgba(168, 100, 40, 0.15)">
+                <div class="icon">💍</div>
+                <h2>婚前辅导</h2>
+                <p>多表单填写、双方对照、JSON 导入导出，本地保存不外传。适合婚前陪谈、婚姻预备课程。</p>
+                <div class="chips">
+                    <span>7 张表单</span>
+                    <span>双方对照</span>
+                    <span>单人填写</span>
+                    <span>离线可用</span>
+                </div>
+                <span class="enter" aria-hidden="true">→</span>
+            </a>
+            <a class="tool-card" href="./heart-talk/" style="--tile-bg: rgba(194, 85, 122, 0.14)">
                 <div class="icon">💌</div>
                 <h2>心语卡牌</h2>
                 <p>情侣、朋友、家庭深度对话卡牌，抽一张，聊一聊</p>
             </a>
-            <a class="tool-card" href="./brain-teaser/">
+            <a class="tool-card" href="./brain-teaser/" style="--tile-bg: rgba(194, 122, 58, 0.14)">
                 <div class="icon">🧠</div>
                 <h2>脑筋急转弯</h2>
                 <p>随机出题考脑洞，看看你的脑筋转不转得过来</p>
             </a>
-            <a class="tool-card" href="./icebreaker/">
+            <a class="tool-card" href="./icebreaker/" style="--tile-bg: rgba(58, 143, 138, 0.14)">
                 <div class="icon">🎉</div>
                 <h2>破冰游戏</h2>
                 <p>话题卡、默契测试、两真一假、你画我猜，人还不熟？来一局就熟了</p>
             </a>
-            <a class="tool-card" href="./praise/">
+            <a class="tool-card" href="./praise/" style="--tile-bg: rgba(122, 106, 194, 0.14)">
                 <div class="icon">🔍</div>
                 <h2>优点放大镜</h2>
                 <p>引导大家发现彼此的闪光点：挑一个人夸、轮流夸、猜着夸</p>
-            </a>
-            <a class="tool-card" href="./premarital/">
-                <div class="icon">💍</div>
-                <h2>婚前辅导</h2>
-                <p>多表单填写、双方对照、JSON 导入导出，本地保存不外传</p>
             </a>
         </div>
         <div class="footer-note">一个仓库 · 多个小工具</div>

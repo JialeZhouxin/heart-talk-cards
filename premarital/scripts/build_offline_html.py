@@ -95,6 +95,12 @@ def page_bodies() -> dict[str, str]:
             raise SystemExit(f"no body in {name}")
         inner = m.group(1)
         inner = re.sub(r"<script[\s\S]*?</script>", "", inner)
+        # 离线包是单文件，没有工具箱可回，去掉外链
+        inner = re.sub(
+            r'\s*<a class="back-link"[^>]*>[\s\S]*?</a>', "", inner
+        )
+        # 首页的 nav 只剩空壳（“全部表单”本身是自链，已删），一并去掉
+        inner = re.sub(r"\s*<nav>\s*</nav>", "", inner)
         return inner.strip()
 
     return {
