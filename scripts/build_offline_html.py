@@ -108,7 +108,13 @@ def build() -> Path:
     html = re.sub(r"<body>\s*", "<body>\n" + banner, html, count=1)
 
     # remove back-to-toolbox link (pointless in a standalone file)
-    html = re.sub(r'<a href="\.\./"[\s\S]*?</a>\s*', "", html, count=1, flags=re.S)
+    # 注意：链接上现在带 class="back-link"，属性顺序不再固定，所以要容忍任意属性
+    html = re.sub(
+        r'<a\b[^>]*href="\.\./"[^>]*>[\s\S]*?</a>\s*',
+        "",
+        html,
+        count=1,
+    )
 
     inject = f"""
 <style>

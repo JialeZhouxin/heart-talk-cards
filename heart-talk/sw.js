@@ -1,5 +1,5 @@
 /* Offline cache for 心语卡牌 PWA */
-const CACHE = "sw-61b258f2";
+const CACHE = "sw-5c6fa3fc";
 const ASSETS = [
   "../shared/theme.css",
   "./",

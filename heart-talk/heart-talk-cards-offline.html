@@ -222,6 +222,20 @@ header {
     animation: rise-in 0.5s ease-out both;
 }
 
+/* 返回工具箱：与其它工具页保持一致，触控目标不小于 44px */
+.back-link {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    padding: 6px 10px;
+    color: var(--text-muted);
+    text-decoration: none;
+    font-size: 0.9rem;
+    border-radius: 999px;
+    transition: color 0.2s ease;
+}
+.back-link:hover { color: var(--accent-strong); }
+
 .theme-switch-wrap {
     display: flex;
     justify-content: flex-end;
