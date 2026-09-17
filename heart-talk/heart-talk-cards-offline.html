@@ -191,11 +191,6 @@ body {
 }
 
 
-html,
-body {
-    min-height: 100%;
-}
-
 body {
     font-family: 'Noto Sans SC', 'Microsoft YaHei', sans-serif;
     color: var(--text-primary);
@@ -203,6 +198,10 @@ body {
         radial-gradient(circle at 12% 14%, rgba(255, 240, 220, 0.9) 0%, rgba(255, 240, 220, 0) 36%),
         radial-gradient(circle at 86% 18%, rgba(244, 216, 183, 0.75) 0%, rgba(244, 216, 183, 0) 34%),
         linear-gradient(160deg, var(--bg-main) 0%, var(--bg-secondary) 100%);
+    /* 背景画在 body 上，min-height:100% 在 html 高度为 auto 时解析成 auto，
+       内容比视口矮时下方会露白出现横向接缝，改用视口单位撑满 */
+    min-height: 100vh;
+    min-height: 100dvh;
     display: flex;
     justify-content: center;
     padding: 28px 18px calc(40px + env(safe-area-inset-bottom));

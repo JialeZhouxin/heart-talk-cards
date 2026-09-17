@@ -106,6 +106,9 @@ body {
     radial-gradient(circle at 12% 14%, rgba(255, 240, 220, 0.9) 0%, rgba(255, 240, 220, 0) 36%),
     radial-gradient(circle at 86% 18%, rgba(244, 216, 183, 0.75) 0%, rgba(244, 216, 183, 0) 34%),
     linear-gradient(160deg, var(--bg) 0%, var(--bg2) 100%);
+  /* 背景画在 body 上，内容比视口矮时下方会露白出现接缝，撑满视口 */
+  min-height: 100vh;
+  min-height: 100dvh;
   color: var(--text);
   line-height: 1.5;
   transition: background 0.26s ease, color 0.2s ease;
