@@ -18,6 +18,10 @@
                 radial-gradient(circle at 12% 14%, rgba(255, 240, 220, 0.9) 0%, rgba(255, 240, 220, 0) 36%),
                 radial-gradient(circle at 86% 18%, rgba(244, 216, 183, 0.75) 0%, rgba(244, 216, 183, 0) 34%),
                 linear-gradient(160deg, var(--bg-main) 0%, var(--bg-secondary) 100%);
+            /* 背景画在 body 上，内容比视口矮时下方会露白出现接缝，
+               撑满视口高度让渐变覆盖整屏 */
+            min-height: 100vh;
+            min-height: 100dvh;
             display: flex;
             justify-content: center;
             padding: 28px 18px calc(40px + env(safe-area-inset-bottom));
@@ -27,7 +31,6 @@
         }
 
         .container { width: 100%; max-width: 900px; }
-
         header { text-align: center; margin-bottom: 32px; animation: rise-in 0.5s ease-out both; }
 
         header h1 {
