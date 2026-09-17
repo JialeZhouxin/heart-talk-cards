@@ -1,0 +1,233 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN" data-theme="forest">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>圣经金句</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;600;700&family=Noto+Serif+SC:wght@500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../shared/theme.css">
+    <link rel="stylesheet" href="./src/styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <link rel="manifest" href="./manifest.webmanifest">
+    <link rel="icon" href="./icons/icon-192.png">
+    <link rel="apple-touch-icon" href="./icons/icon-192.png">
+    <meta name="theme-color" content="#c27a3a">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="圣经金句">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <a class="back-link" href="../">← 返回工具箱</a>
+            <div class="theme-switch-wrap">
+                <span class="theme-switch-label">主题风格</span>
+                <div class="theme-selector" id="themeSelector" role="group" aria-label="主题风格切换">
+                    <button class="filter-btn theme-option-btn active" id="themeToggleBtn" type="button" data-theme-choice="forest" aria-pressed="true">浅绿森林</button>
+                    <button class="filter-btn theme-option-btn" type="button" data-theme-choice="warm" aria-pressed="false">暖纸治愈</button>
+                    <button class="filter-btn theme-option-btn" type="button" data-theme-choice="dark" aria-pressed="false">夜间护眼</button>
+                </div>
+            </div>
+            <h1>圣经金句</h1>
+            <p>每日一句神的话语，滋养心灵得平安</p>
+        </header>
+
+        <!-- 今日经文 -->
+        <div class="daily-card-section" id="dailyCardSection">
+            <div id="dailyCardContainer"></div>
+        </div>
+
+        <div class="filter-section">
+            <h3>选择经文主题</h3>
+            <div class="filter-buttons" id="categoryFilters">
+                <button class="filter-btn active" data-category="all">全部</button>
+                <button class="filter-btn" data-category="comfort">安慰</button>
+                <button class="filter-btn" data-category="love">爱心</button>
+                <button class="filter-btn" data-category="faith">信心</button>
+                <button class="filter-btn" data-category="strength">力量</button>
+                <button class="filter-btn" data-category="wisdom">智慧</button>
+                <button class="filter-btn" data-category="forgiveness">宽恕</button>
+                <button class="filter-btn" data-category="hope">盼望</button>
+            </div>
+        </div>
+
+        <div class="card-container" id="cardContainer">
+            <div class="empty-state" id="emptyState">
+                <p>点击“抽取金句”随机领受一节经文</p>
+                <p>从神的话语中得着安慰、力量与智慧</p>
+            </div>
+            <div id="cardContent" style="display: none;">
+                <div class="card-category" id="cardCategory"></div>
+                <div class="card-level" id="cardLevel"></div>
+                <div class="card-question" id="cardQuestion"></div>
+                <div class="card-voice-controls" id="cardVoiceControls"></div>
+            </div>
+        </div>
+
+        <!-- 控制按钮 -->
+        <div class="controls">
+            <button class="btn" id="drawBtn">抽取金句</button>
+            <button class="btn btn-secondary" id="saveBtn" style="display: none;">写下感受</button>
+            <button class="btn btn-secondary" id="shareBtn" style="display: none;">分享</button>
+            <button class="btn btn-secondary" id="statsBtn">📊 数据统计</button>
+        </div>
+
+        <!-- 记一节经文 -->
+        <div class="verse-note-section" id="verseNoteSection">
+            <h3>记一节经文</h3>
+            <p class="verse-note-hint">读到有触动的经文？记下来，写下你的感受。</p>
+            <button class="btn" id="verseNoteBtn">📖 记一节经文</button>
+        </div>
+
+        <div class="history-section">
+            <h3>
+                我的灵修记录
+                <div class="history-header-actions">
+                    <div id="historyExportContainer"></div>
+                    <button class="filter-btn" id="clearHistoryBtn" style="font-size: 0.8rem; padding: 5px 12px;">清空</button>
+                </div>
+            </h3>
+            <div id="historyFiltersContainer"></div>
+            <div class="history-list" id="historyList">
+                <div class="empty-state">
+                    <p>暂无灵修记录</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="saveModal">
+        <div class="modal-content">
+            <h3>写下你的感受</h3>
+            <p id="saveModalQuestion" style="margin-bottom: 15px; color: #6b7280;"></p>
+            <div class="textarea-with-voice">
+                <textarea id="answerInput" placeholder="写下你的思考和感受..."></textarea>
+                <div class="voice-input-wrapper" id="saveVoiceWrapper"></div>
+            </div>
+            <button class="btn" id="confirmSaveBtn">保存</button>
+            <button class="btn btn-secondary" id="cancelSaveBtn">取消</button>
+        </div>
+    </div>
+
+    <div class="modal" id="shareModal">
+        <div class="modal-content">
+            <h3>分享这节经文</h3>
+            <div class="share-preview" id="sharePreview">
+                <div class="question" id="shareQuestion"></div>
+                <div class="answer" id="shareAnswer"></div>
+            </div>
+            <div class="share-actions">
+                <div class="share-actions-row">
+                    <button class="btn" id="copyShareBtn">复制文本</button>
+                    <button class="btn btn-secondary" id="generateImageBtn">生成分享图片</button>
+                </div>
+                <div class="share-actions-row">
+                    <button class="btn btn-secondary" id="copyLinkBtn">复制分享链接</button>
+                    <button class="btn btn-secondary" id="closeShareBtn">关闭</button>
+                </div>
+            </div>
+            <div id="imagePreviewContainer" style="display: none; margin-top: 15px; text-align: center;">
+                <img id="generatedImagePreview" class="share-image-preview" alt="分享卡片预览">
+                <button class="btn" id="downloadImageBtn" style="margin-top: 10px;">下载图片</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="editModal">
+        <div class="modal-content">
+            <h3>编辑感受</h3>
+            <p id="editModalQuestion" style="margin-bottom: 15px; color: #6b7280; font-weight: 500;"></p>
+            <div class="textarea-with-voice">
+                <textarea id="editAnswerInput" placeholder="编辑你的感受..."></textarea>
+                <div class="voice-input-wrapper" id="editVoiceWrapper"></div>
+            </div>
+            <button class="btn" id="confirmEditBtn">保存修改</button>
+            <button class="btn btn-secondary" id="cancelEditBtn">取消</button>
+        </div>
+    </div>
+
+    <div class="modal" id="confirmModal">
+        <div class="modal-content">
+            <h3>请确认操作</h3>
+            <p id="confirmMessage" style="margin-bottom: 16px; color: #6b7280;"></p>
+            <div class="modal-actions">
+                <button class="btn btn-secondary" id="confirmCancelBtn">取消</button>
+                <button class="btn" id="confirmOkBtn">确认</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="statsModal">
+        <div class="modal-content stats-modal-content">
+            <h3>📊 数据统计</h3>
+            <div id="statsContainer"></div>
+            <button class="btn btn-secondary" id="closeStatsBtn" style="margin-top: 16px; width: 100%;">关闭</button>
+        </div>
+    </div>
+
+    <!-- 记一节经文模态框 -->
+    <div class="modal" id="verseNoteModal">
+        <div class="modal-content verse-note-modal">
+            <h3>📖 记一节经文</h3>
+            <div id="verseNoteContainer"></div>
+            <button class="btn btn-secondary" id="closeVerseNoteBtn" style="margin-top: 16px; width: 100%;">关闭</button>
+        </div>
+    </div>
+
+    <div id="toastContainer" aria-live="polite" aria-atomic="true"></div>
+
+
+    <!-- 隐藏的图片分享卡片模板 -->
+    <div id="shareCardTemplate" style="position: fixed; left: -9999px; top: 0; width: 600px; height: 800px; overflow: hidden;">
+        <div class="share-card-visual">
+            <div class="share-card-leaf share-card-leaf-1">🌿</div>
+            <div class="share-card-leaf share-card-leaf-2">🍃</div>
+            <div class="share-card-leaf share-card-leaf-3">🌱</div>
+            <div class="share-card-header">
+                <span class="share-card-logo">✝️</span>
+                <span class="share-card-title">圣经金句</span>
+            </div>
+            <div class="share-card-content">
+                <div class="share-card-category" id="shareCardCategory"></div>
+                <div class="share-card-question" id="shareCardQuestion"></div>
+                <div class="share-card-ref" id="shareCardRef"></div>
+                <div class="share-card-answer-section" id="shareCardAnswerSection">
+                    <div class="share-card-answer-label">我的感受</div>
+                    <div class="share-card-answer" id="shareCardAnswer"></div>
+                </div>
+            </div>
+            <div class="share-card-footer">
+                <div class="share-card-slogan">每日一句神的话语，滋养心灵得平安</div>
+                <div class="share-card-qrcode-text">扫码获取今日灵粮</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        (function loadAppScript() {
+            const script = document.createElement('script');
+            if (window.location.protocol === 'file:') {
+                script.src = './src/app.bundle.js';
+            } else {
+                script.type = 'module';
+                script.src = './src/main.js';
+            }
+            document.body.appendChild(script);
+        })();
+
+        // 注册 Service Worker（file:// 下不可用，跳过）
+        if ('serviceWorker' in navigator && window.location.protocol !== 'file:') {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js').catch((error) => {
+                    console.warn('Service Worker 注册失败:', error);
+                });
+            });
+        }
+    </script>
+</body>
+</html>
+
+

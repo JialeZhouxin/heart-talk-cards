@@ -43,10 +43,10 @@
 
         header p { color: var(--text-secondary); font-size: 1.02rem; }
 
-        /* ---- Bento 网格：混合尺寸格子，主工具占大格 ---- */
+        /* ---- 工具网格：6 个工具，桌面 2 列 × 3 行 ---- */
         .tool-grid {
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
+            grid-template-columns: repeat(2, 1fr);
             gap: 16px;
         }
 
@@ -67,28 +67,12 @@
             animation: rise-in 0.6s ease-out both;
         }
 
-        /* 主格：桌面横跨两列；窄屏整行铺满（用 1/-1 而非 span 2，
-           否则单列网格会被逼出第二根隐式列） */
-        .tool-card.span-2 {
-            grid-column: span 2;
-            min-height: 200px;
-            background: linear-gradient(150deg, var(--paper) 0%, var(--paper-strong) 100%);
-            border-color: var(--accent-soft, #e7c6a2);
-        }
-        /* 顶部一道细色条，给主格一点存在感 */
-        .tool-card.span-2::before {
-            content: '';
-            position: absolute;
-            inset: 0 0 auto 0;
-            height: 4px;
-            background: linear-gradient(90deg, #a86428 0%, #c27a3a 45%, #d69a5c 100%);
-        }
-
         .tool-card:nth-child(1) { animation-delay: 0s; }
         .tool-card:nth-child(2) { animation-delay: 0.08s; }
         .tool-card:nth-child(3) { animation-delay: 0.16s; }
         .tool-card:nth-child(4) { animation-delay: 0.24s; }
         .tool-card:nth-child(5) { animation-delay: 0.32s; }
+        .tool-card:nth-child(6) { animation-delay: 0.4s; }
 
         .tool-card:hover {
             transform: translateY(-3px);
@@ -111,12 +95,6 @@
             background: var(--tile-bg, rgba(194, 122, 58, 0.13));
             margin-bottom: 14px;
         }
-        .tool-card.span-2 .icon {
-            width: 64px;
-            height: 64px;
-            font-size: 2.1rem;
-            border-radius: 20px;
-        }
 
         .tool-card h2 {
             font-family: 'Noto Serif SC', 'Songti SC', serif;
@@ -124,7 +102,6 @@
             font-size: 1.25rem;
             margin-bottom: 8px;
         }
-        .tool-card.span-2 h2 { font-size: 1.45rem; }
 
         .tool-card p { font-size: 0.92rem; color: var(--text-secondary); line-height: 1.6; }
 
@@ -174,10 +151,10 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
-        /* 平板：主格占满一行，其余两两并排 */
+        /* 平板：保持两列，格子更紧凑 */
         @media (max-width: 860px) {
-            .tool-grid { grid-template-columns: repeat(2, 1fr); }
-            .tool-card.span-2 { grid-column: 1 / -1; }
+            .tool-grid { gap: 14px; }
+            .tool-card { padding: 22px 20px; }
         }
 
         /* 手机：单列，全部等宽 */
@@ -185,11 +162,7 @@
             body { padding: 16px 12px calc(26px + env(safe-area-inset-bottom)); }
             header { margin-bottom: 24px; }
             .tool-grid { grid-template-columns: 1fr; }
-            .tool-card.span-2 { grid-column: 1 / -1; }
             .tool-card { padding: 22px 20px; min-height: 0; }
-            .tool-card.span-2 { min-height: 0; }
-            .tool-card.span-2 .icon { width: 52px; height: 52px; font-size: 1.7rem; border-radius: 16px; }
-            .tool-card.span-2 h2 { font-size: 1.25rem; }
             .tool-card .enter { display: none; }
         }
 
@@ -211,7 +184,7 @@
             <p>想用哪个，点哪个</p>
         </header>
         <div class="tool-grid">
-            <a class="tool-card span-2" href="./premarital/" style="--tile-bg: rgba(168, 100, 40, 0.15)">
+            <a class="tool-card" href="./premarital/" style="--tile-bg: rgba(168, 100, 40, 0.15)">
                 <div class="icon">💍</div>
                 <h2>婚前辅导</h2>
                 <p>多表单填写、双方对照、JSON 导入导出，本地保存不外传。适合婚前陪谈、婚姻预备课程。</p>
@@ -242,6 +215,11 @@
                 <div class="icon">🔍</div>
                 <h2>优点放大镜</h2>
                 <p>引导大家发现彼此的闪光点：挑一个人夸、轮流夸、猜着夸</p>
+            </a>
+            <a class="tool-card" href="./bible/" style="--tile-bg: rgba(176, 132, 62, 0.15)">
+                <div class="icon">📖</div>
+                <h2>圣经金句</h2>
+                <p>抽一节经文，写下触动你的话；也能按卷查找或搜索全本，记录每日灵修</p>
             </a>
         </div>
         <div class="footer-note">一个仓库 · 多个小工具</div>

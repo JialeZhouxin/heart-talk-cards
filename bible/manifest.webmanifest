@@ -1,0 +1,26 @@
+{
+  "name": "圣经金句 · 灵修记录",
+  "short_name": "圣经金句",
+  "description": "抽取经文金句、记录触动你的经文与感受，写下来，分享出去",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#fdf6ec",
+  "theme_color": "#c27a3a",
+  "lang": "zh-CN",
+  "icons": [
+    {
+      "src": "icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
