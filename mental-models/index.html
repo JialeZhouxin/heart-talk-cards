@@ -241,6 +241,99 @@
 
         :root[data-theme='dark'] .card-content { color: #f7e7d2; }
         :root[data-theme='dark'] .card-category { color: #d4b493; }
+        /* ---- 详细解释面板 ---- */
+        .sheet-backdrop {
+            position: fixed;
+            inset: 0;
+            background: rgba(61, 44, 31, 0.42);
+            backdrop-filter: blur(2px);
+            z-index: 40;
+            animation: fade-in 0.2s ease-out both;
+        }
+        .sheet {
+            position: fixed;
+            z-index: 41;
+            left: 50%;
+            bottom: 0;
+            transform: translateX(-50%);
+            width: min(760px, 100%);
+            max-height: min(86vh, 86dvh);
+            overflow-y: auto;
+            overscroll-behavior: contain;
+            background: var(--paper);
+            border: 1px solid rgba(228, 204, 176, 0.85);
+            border-top-left-radius: var(--radius-xl);
+            border-top-right-radius: var(--radius-xl);
+            box-shadow: 0 -14px 40px rgba(95, 60, 25, 0.26);
+            padding: 22px 24px calc(28px + env(safe-area-inset-bottom));
+            animation: sheet-up 0.26s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+        }
+        .sheet-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 12px;
+            margin-bottom: 6px;
+        }
+        .sheet h2 {
+            font-family: 'Noto Serif SC', 'Songti SC', serif;
+            font-size: 1.42rem;
+            color: #5c3d24;
+            margin: 0 0 4px;
+        }
+        .sheet-meta { color: var(--text-muted); font-size: 0.88rem; }
+        .sheet-close {
+            border: 1px solid #e0bf9b;
+            background: #fff3e5;
+            color: #875734;
+            border-radius: 999px;
+            min-height: 40px;
+            padding: 8px 16px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            flex: 0 0 auto;
+        }
+        .sheet-close:hover { background: #f8e6d0; }
+        .sheet-close:focus-visible { outline: 2px solid #b96a2b; outline-offset: 2px; }
+        .sheet-section { margin-top: 18px; }
+        .sheet-label {
+            font-size: 0.82rem;
+            font-weight: 600;
+            letter-spacing: 0.08em;
+            color: #a17a52;
+            margin-bottom: 6px;
+        }
+        .sheet p { color: var(--text-secondary); font-size: 0.97rem; line-height: 1.78; margin: 0; }
+        .sheet ol { margin: 0; padding-left: 1.3em; color: var(--text-secondary); font-size: 0.95rem; line-height: 1.78; }
+        .sheet ol li { margin-bottom: 5px; }
+        .sheet-example {
+            background: var(--paper-strong);
+            border: 1px solid rgba(228, 204, 176, 0.7);
+            border-radius: var(--radius-md);
+            padding: 12px 14px;
+        }
+
+        @keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes sheet-up {
+            from { opacity: 0; transform: translateX(-50%) translateY(24px); }
+            to { opacity: 1; transform: translateX(-50%) translateY(0); }
+        }
+
+        :root[data-theme='dark'] .sheet { background: var(--paper); border-color: rgba(140, 110, 80, 0.6); }
+        :root[data-theme='dark'] .sheet h2 { color: #f7e7d2; }
+        :root[data-theme='dark'] .sheet-close { background: #3a3027; border-color: #6b563f; color: #e3ccb2; }
+        :root[data-theme='dark'] .sheet-close:hover { background: #463a2e; }
+        :root[data-theme='dark'] .sheet-example { background: #352c24; border-color: rgba(140, 110, 80, 0.5); }
+
+        @media (max-width: 600px) {
+            .sheet { max-height: 90dvh; padding: 18px 16px calc(24px + env(safe-area-inset-bottom)); }
+            .sheet h2 { font-size: 1.26rem; }
+            .sheet-close { min-height: 44px; }
+        }
+        @media (max-width: 600px) {
+            .controls .btn-secondary { width: 100%; }
+        }
+
     </style>
 </head>
 <body>
@@ -270,111 +363,259 @@
         </div>
         <div class="controls">
             <button class="btn" id="nextBtn">换一张卡</button>
+            <button class="btn-secondary btn" id="explainBtn" type="button" aria-haspopup="dialog">看详细解释</button>
         </div>
-        <div class="footer-note">用法：先有一件真的事 → 再挑一个模型 → 问它逼你看见什么。25 个模型，来自 16 本书</div>
+        <div class="footer-note">用法：先有一件真的事 → 再挑一个模型 → 点「看详细解释」补原理。25 个模型，来自 16 本书</div>
+    </div>
+    <div class="sheet-backdrop" id="sheetBackdrop" hidden></div>
+    <div class="sheet" id="detailSheet" role="dialog" aria-modal="true" aria-labelledby="sheetTitle" hidden>
+        <div class="sheet-head">
+            <div>
+                <h2 id="sheetTitle"></h2>
+                <div class="sheet-meta" id="sheetMeta"></div>
+            </div>
+            <button class="sheet-close" id="sheetClose" type="button" aria-label="关闭详细解释">关闭</button>
+        </div>
+        <div class="sheet-section">
+            <div class="sheet-label">原理</div>
+            <p id="sheetPrinciple"></p>
+        </div>
+        <div class="sheet-section">
+            <div class="sheet-label">怎么用</div>
+            <ol id="sheetHow"></ol>
+        </div>
+        <div class="sheet-section">
+            <div class="sheet-label">例子</div>
+            <p class="sheet-example" id="sheetExample"></p>
+        </div>
     </div>
     <script>
         const MODELS = [
             { name: "系统 1 / 系统 2", book: "思考，快与慢", author: "卡尼曼",
               use: "这个判断是脱口而出的，还是想过的？先分清楚再往下走。",
               talk: "讲一次「第一反应」后来被证明是错的经历。",
-              guess: "我把一个决定拆成「脱口而出的判断」和「想了半天的判断」两半。" },
+              guess: "我把一个决定拆成「脱口而出的判断」和「想了半天的判断」两半。",
+              principle: "大脑有两套处理系统。系统 1 快、自动、靠直觉和联想，几乎不耗力；系统 2 慢、费力、靠推理和计算。问题是系统 2 很懒，多数时候直接采纳系统 1 给出的结论，还替它编理由。",
+              how: ["先判断：这个答案是不是「一眼就有」的？是，就标记为系统 1 的产物。",
+                    "强制写一条相反的可能，或者写下「我凭什么这么确定」。",
+                    "把直觉的结论当成假设去验证，而不是当成事实去执行。"],
+              example: "面试前 5 秒的印象几乎全来自系统 1。把它写下来：「我看到了什么、我推断是什么、这条推断可能错在哪」，才可能修正。" },
             { name: "损失厌恶", book: "思考，快与慢", author: "卡尼曼",
               use: "找出这件事里「怕失去什么」，这个恐惧可能被放大过。",
               talk: "讲一次「亏了比赚了更难受」的经历。",
-              guess: "同等的得和失摆在面前，我更怕失去那一个。" },
+              guess: "同等的得和失摆在面前，我更怕失去那一个。",
+              principle: "同等数量的收益和损失，损失带来的心理痛苦大约是收益带来快乐的 2 倍。人对「失去已有的」的敏感度远高于「获得没有的」，于是为了躲损失会做出明显不理性的选择。",
+              how: ["先找出你在躲的那个损失，具体写出来。",
+                    "把它换成等量的「获得」，再问一次：我还会这么选吗？",
+                    "如果答案变了，说明决策被损失厌恶推着走，不是被收益算出来的。"],
+              example: "股票亏了死扛不肯卖，赚一点点立刻跑——拿住亏损、卖掉盈利，正好和理性的做法相反。" },
             { name: "锚定效应", book: "思考，快与慢", author: "卡尼曼",
               use: "找出这件事里第一个出现的数字，问：如果没有它，我会估多少？",
               talk: "讲一次被一个报价、一句话带偏的经历。",
-              guess: "第一个出现的数字，定住了后面所有判断。" },
+              guess: "第一个出现的数字，定住了后面所有判断。",
+              principle: "先出现的数字会成为参照点，之后的估计不自觉地朝它靠拢，哪怕这个数字完全无关、甚至明知是随机的。判断被「起点」牵住，调整总是不充分。",
+              how: ["找出场景里第一个出现的数字（报价、原价、别人说的数）。",
+                    "把它遮住，独立重新估一次。",
+                    "两次结果差多少，那个差额就是锚的拉力。"],
+              example: "先看标价 1999、再看促销价 999，会觉得便宜；如果先给的是 599，同一件 999 就变贵了。" },
             { name: "多元思维模型", book: "穷查理宝典", author: "芒格",
               use: "换三个学科的角度各看一次：心理、经济、生物，随便挑三个。",
               talk: "讲一次「手里只有锤子，看什么都是钉子」的经历。",
-              guess: "我要求自己用心理学、经济学、物理学的常识一起验证一个判断。" },
+              guess: "我要求自己用心理学、经济学、物理学的常识一起验证一个判断。",
+              principle: "每个学科只提供有限的几个基础原理。只用一种视角看世界，就像手里只有锤子——什么问题都当成钉子。把多个学科最基础、最有用的原理凑成一张「格栅」，交叉验证同一个判断，单点偏差会在交叉处暴露出来。",
+              how: ["挑 3 个学科（心理、经济、生物、物理、数学……）。",
+                    "每个学科各问一句：用这一门的基本原理看，这件事在发生什么？",
+                    "看三个结论是否互相印证；分歧最大的地方，就是风险最大的地方。"],
+              example: "判断一门生意：心理学看需求从哪来，经济学看竞争格局和利润去了哪，生物学看它在生态里占什么位。" },
             { name: "反过来想", book: "穷查理宝典", author: "芒格",
               use: "不问怎么成功，先问怎么会彻底搞砸，然后避开那条路。",
               talk: "讲一次用「先想失败」避掉的坑。",
-              guess: "我只想知道将来会死在哪里，这样我就永远不去那个地方。" },
+              guess: "我只想知道将来会死在哪里，这样我就永远不去那个地方。",
+              principle: "通向成功的路径几乎无穷，但通向失败的路径有限且明确。反向思考把问题从「找到最优解」变成「排除确定的坏解」，答案空间小得多，也更容易验证。",
+              how: ["写下这个问题：这件事怎样一定会搞砸？至少列 5 条。",
+                    "逐条对照现在的做法，勾出已经踩上的。",
+                    "先消除踩上的几条，再谈怎么做得更好。"],
+              example: "想健康，与其研究长寿秘诀，不如先列出「怎样必然早死」：熬夜、久坐、暴食、不体检，然后避开。" },
             { name: "能力圈", book: "穷查理宝典", author: "芒格",
               use: "先划出「我真的懂」和「我真的不懂」的边界，别跨过去。",
               talk: "讲一次承认「这个我不懂」的经历。",
-              guess: "只在懂的范围内下重注，不懂就不碰。" },
+              guess: "只在懂的范围内下重注，不懂就不碰。",
+              principle: "每个人的真实认知边界都比自我感觉窄，但边界本身是可以被识别的。长期胜率来自待在圈内、放弃圈外，而不是把圈画得更大。圈的大小不重要，边界清楚才重要。",
+              how: ["给「我真懂」定标准：能讲清原理、能预测结果、见过它怎么失败。",
+                    "不满足三条的，一律归到「不懂」，不投入时间也不下注。",
+                    "每隔一段时间重查一次边界有没有移动。"],
+              example: "不懂药企的审批逻辑和临床数据，就不投药企；错过机会可以接受，亏掉本金不行。" },
             { name: "互惠与承诺一致", book: "影响力", author: "西奥迪尼",
               use: "找出自己「因为先答应过小要求，所以停不下来」的地方。",
               talk: "讲一次被「先小后大」套路过的经历。",
-              guess: "答应过的小事，会绑住后面的大事。" },
+              guess: "答应过的小事，会绑住后面的大事。",
+              principle: "两条根深蒂固的社会规则在起作用：一是受人好处要回报（互惠），二是要和自己已经做出的承诺保持一致（承诺一致）。顺序被设计好时，人会一步步走进本来不会同意的请求。",
+              how: ["回看时间线：对方先给了什么、我先答应了什么。",
+                    "在答应任何小要求之前，先问：如果跳过前面那一步、从零开始，我还会答应吗？",
+                    "答案是否，就是被设计了。"],
+              example: "免费试用 → 小额付费 → 自动续费；答应过一次「帮个小忙」，后面的大忙就不太好意思拒绝。" },
             { name: "社会认同", book: "影响力", author: "西奥迪尼",
               use: "找出这件事里「因为别人都这么做」才这么做的部分。",
               talk: "讲一次跟着人群走、后来后悔的事。",
-              guess: "人越多的地方，越容易不带判断地跟随。" },
+              guess: "人越多的地方，越容易不带判断地跟随。",
+              principle: "在不确定的情况下，人会把别人的行为当作「正确做法」的证据。不确定性越高、相似的人越多，这个效应越强。它常常有效，但在关键决策上会让你把「流行」当成「正确」。",
+              how: ["找出决策里依据「大家都这样」的部分。",
+                    "把两个问题拆开问：别人怎么做？这件事该不该做？",
+                    "第二个问题需要独立证据，不能靠人数回答。"],
+              example: "排队很长的店、销量很高的商品、朋友圈都在买的基金——队伍长度不等于质量。" },
             { name: "论题与结论", book: "学会提问", author: "尼尔·布朗",
               use: "先问清对方到底主张什么，再问他的理由撑不撑得住。",
               talk: "讲一次吵了半天、其实根本没对上焦的争论。",
-              guess: "先找结论，再找理由，再找理由的漏洞。" },
+              guess: "先找结论，再找理由，再找理由的漏洞。",
+              principle: "任何论证都由三部分构成：论题（在讨论什么）、结论（主张什么）、理由（凭什么）。分歧往往不是发生在结论上，而是发生在理由和隐含假设上。先对齐前两样，争论才有意义。",
+              how: ["用一句话复述对方的结论，确认没歪。",
+                    "列出他给的理由，区分「事实」和「看法」。",
+                    "找理由到结论之间缺的那一环——通常就是真正的战场。"],
+              example: "「这个方案不行」——不行是指成本、风险还是时机？先问清楚，再谈要不要改。" },
             { name: "灰度思维", book: "学会提问", author: "尼尔·布朗",
               use: "把「对/错」改成「什么条件下对、什么条件下错」。",
               talk: "讲一件曾经觉得非黑即白、现在能看出中间地带的事。",
-              guess: "大多数问题不是对错题，是条件题。" },
+              guess: "大多数问题不是对错题，是条件题。",
+              principle: "现实问题大多不是二元对立，而是有条件的、有程度的。把问题强行压成「对或错」，会丢掉条件信息，导致结论一旦换场景就崩。灰度思维保留条件和程度，让结论可迁移、可修正。",
+              how: ["把「对不对」改写成「在什么条件下成立、什么条件下不成立」。",
+                    "列出影响结论的关键变量（规模、阶段、对象、资源）。",
+                    "在每种取值下重新判断一次。"],
+              example: "「加班好不好」——取决于阶段（冲刺还是常态）、有没有替代方案、是不是在补别人的坑。" },
             { name: "思维格栅", book: "模型思维", author: "斯科特·佩奇",
               use: "挑三个模型分别解释这件事，看哪个更能预测下一步。",
               talk: "讲一个模型解释不了、被另一个模型解释通的现象。",
-              guess: "一个模型不够，就上三个互相检验。" },
+              guess: "一个模型不够，就上三个互相检验。",
+              principle: "单一模型都有自己的适用边界和失灵区，用它解释一切就会系统性偏。多个模型并行解释同一现象，能互相校正；模型越多，集体预测的误差越小（多样性优于个体精度）。",
+              how: ["选 3 个不同来源的模型，各解释一遍同一件事。",
+                    "比较它们的预测：一致的部分当高置信，分歧的部分标为待验证。",
+                    "用下一步发生的事回头检验，留下能预测的那个模型。"],
+              example: "解释销量下滑：锚定效应（价格感知变了）、社会认同（口碑断了）、反馈回路（复购下降）。三个指向不同动作。" },
             { name: "非线性与凸性", book: "模型思维", author: "斯科特·佩奇",
               use: "找出这件事里「投入翻倍、结果不翻倍」或者相反的地方。",
               talk: "讲一次小事引发大变化的经历。",
-              guess: "输入和输出不成比例，中间还有拐点。" },
+              guess: "输入和输出不成比例，中间还有拐点。",
+              principle: "现实系统的投入产出常不成比例：有阈值（过了才起效）、有拐点（越过了会失控）、有凸性（损失有限而收益不封顶）。线性直觉会让人在阈值前放弃、在拐点后加码。",
+              how: ["先判断这条曲线是什么形状：线性、有阈值、指数、还是有上限。",
+                    "找出现在的位置：在阈值之前、附近，还是已经过拐点。",
+                    "凸性机会（下行有限、上行很大）值得小注多下；凹性（下行无限）要避开。"],
+              example: "疫苗、口碑传播、复利都有阈值或指数段；在阈值前投入看不到效果，不代表没用。" },
             { name: "逆向求解", book: "怎样解题", author: "波利亚",
               use: "从要的结果往回推，看需要什么前提才能到。",
               talk: "讲一次从目标倒着推、反而推通了的事。",
-              guess: "从答案往回走，找通向它的路。" },
+              guess: "从答案往回走，找通向它的路。",
+              principle: "从现状正向试探，可选分支太多，容易乱走；从目标状态反推，前置条件更明确，约束更紧，路径快速收敛。这是「手段—目的分析」的核心动作。",
+              how: ["写下目标状态，要具体到可判断。",
+                    "问：要到达它，上一步必须是什么？",
+                    "连续回溯直到回到当前状态，那条链就是要做的事。"],
+              example: "要去某个城市，先查有哪些航班、从哪起飞，再倒推怎么到那个机场，比从家门口瞎走快。" },
             { name: "特例与类比", book: "怎样解题", author: "波利亚",
               use: "先把它缩小成一个最简单的小例子，或找一个像它的旧问题。",
               talk: "讲一次用「以前那件类似的事」解决新问题。",
-              guess: "先试最简单的小例子，再找像它的旧问题。" },
+              guess: "先试最简单的小例子，再找像它的旧问题。",
+              principle: "复杂问题的难点常在变量太多、看不清关系。先把变量降到最少（n=1、二维、单步），看清机制；再找一个结构相似的已知问题，把它的解法迁移过来，最后逐步放大到原问题。",
+              how: ["把变量缩到只剩一个，解一遍。",
+                    "问：这个结构和以前哪件事是同一个形状？",
+                    "把旧解法套上新外壳，逐条检查哪一步不成立，修那一步。"],
+              example: "设计多方规则，先用两个人的情形想清楚怎么分、怎么反悔，再扩展到五个人。" },
             { name: "六顶思考帽", book: "六顶思考帽", author: "德·波诺",
               use: "轮流只戴一顶：事实、感受、风险、好处、创意、总结，不许混着说。",
               talk: "讲一次因为「事实和情绪混着说」而谈崩的讨论。",
-              guess: "一次谈话分成六轮，每轮只许用一种角度。" },
+              guess: "一次谈话分成六轮，每轮只许用一种角度。",
+              principle: "讨论效率低，多半不是因为观点不同，而是因为每个人同时用不同的角度说话：有人讲事实、有人讲情绪、有人讲风险，彼此打断。把角度分离成轮次，让所有人同一时间只用一个角度，冲突立刻下降。",
+              how: ["白帽：只有事实和数据；红帽：只说感受和直觉，不许解释。",
+                    "黑帽：只讲风险和问题；黄帽：只讲好处和价值；绿帽：只出创意。",
+                    "蓝帽：主持流程并总结。按顺序走，一轮一种。"],
+              example: "评审方案：先摆事实，再让每人说一句直觉，然后集中列风险，最后才谈创意——不会互相打架。" },
             { name: "水平思考", book: "水平思考法", author: "德·波诺",
               use: "故意换一个荒谬的切入角度，先不管对不对。",
               talk: "讲一个当时莫名其妙、后来真管用的想法。",
-              guess: "不在同一条路上挖深，而是横着跳到另一条路。" },
+              guess: "不在同一条路上挖深，而是横着跳到另一条路。",
+              principle: "纵向思考在同一条逻辑链上越挖越深，效率高但跳不出已有框架。水平思考主动横向跳到另一条链，用随机输入、荒谬限制打破固定路径，用来产生新方案而不是优化旧方案。",
+              how: ["引入一个与问题无关的词或荒谬限制（比如「如果只能用一次」）。",
+                    "强行问：从这个角度出发，会怎么做？先不评判对错。",
+                    "生成一批之后，再用纵向思考检验哪些可行。"],
+              example: "想让开会少一半时间，随机限制「不许说话」，就会逼出书面预读、静默投票这类做法。" },
             { name: "金字塔与 MECE", book: "金字塔原理", author: "明托",
               use: "结论先摆出来，再把支撑切成不重叠、不遗漏的几块。",
               talk: "讲一次「说了半天对方还是没听懂」的表达。",
-              guess: "结论先行，下面互相独立、合起来不漏。" },
+              guess: "结论先行，下面互相独立、合起来不漏。",
+              principle: "听者的注意力有限，需要先知道「你要说什么」，才有力气听理由。结构上要求支撑之间互相独立（不重叠）、合起来穷尽（不遗漏），这样既便于听者检验，也便于自己发现漏洞。",
+              how: ["开头一句话给结论，别铺垫。",
+                    "下面列 2-4 个支撑，每个支撑能独立成立。",
+                    "自检：有没有重叠？有没有遗漏？（可以用「其他」兜底自查）"],
+              example: "汇报不说过程，先给建议：「我建议延后上线」，再给三条理由。" },
             { name: "假设驱动", book: "麦肯锡结构化战略思维", author: "周国元",
               use: "先给一个能被打脸的假设，再去验证它或者推翻它。",
               talk: "讲一个被事实推翻、被迫改方向的假设。",
-              guess: "先猜一个答案，再去找证据证明自己错。" },
+              guess: "先猜一个答案，再去找证据证明自己错。",
+              principle: "不做假设就穷举分析，成本和范围都没有上限。先给出一个明确的、可以被证伪的假设，把工作聚焦到「能区分真假」的证据上，无论证实还是推翻都在推进，避免无效收集。",
+              how: ["写下假设，加上它成立需要的条件。",
+                    "列出「什么证据能推翻它」，只找这类证据。",
+                    "被推翻就换假设；反复几轮，剩下的假设精度会高很多。"],
+              example: "「用户流失是因为价格」→ 去看比价行为数据；如果没有比价，说明假设错了，省下改价的钱。" },
             { name: "反馈回路与延迟", book: "系统之美", author: "梅多斯",
               use: "找出这件事里的回路：什么在推动它自己？延迟多久才看见结果？",
               talk: "讲一个「越用力越糟」的循环。",
-              guess: "结果会绕回来影响原因，而且要过一阵子才看见。" },
+              guess: "结果会绕回来影响原因，而且要过一阵子才看见。",
+              principle: "系统的行为由回路决定：增强回路让变化自我放大，调节回路把系统拉回原位。加上时间延迟，因果在时间上错位，人就容易误判——在延迟期间继续加码，于是过度反应，然后摇摆。",
+              how: ["画出回路：谁影响谁，绕回来没有。",
+                    "标出每一段的延迟大概多久。",
+                    "问：现在的措施，会不会因为延迟而过度或不足？先等一个延迟周期再加码。"],
+              example: "节食 → 更饿 → 暴食 → 自责 → 更严格节食；越用力越糟，因为效果有延迟，看不见时就加大力度。" },
             { name: "杠杆点", book: "系统之美", author: "梅多斯",
               use: "在整条链上找那个「动一下，其他地方跟着变」的点。",
               talk: "讲一次小改动带来大变化的事。",
-              guess: "整条链上只有一个地方，动它比使劲推都管用。" },
+              guess: "整条链上只有一个地方，动它比使劲推都管用。",
+              principle: "系统里不同位置的干预效力相差几个量级。调整数字（参数）效力最弱，改变信息流、规则、目标、乃至观念，效力逐级变强。多数人把力气花在参数上，所以费力而无效。",
+              how: ["列出所有可动的地方，从「数字」到「流程、规则、目标、观念」排一遍。",
+                    "优先动靠后的（规则、信息流、目标）。",
+                    "动完等一个反馈周期，看是否真的带动了别处。"],
+              example: "天天催员工提高效率（推参数）不如改考核规则（改规则）：规则一变，行为自己变。" },
             { name: "心智模式", book: "第五项修炼", author: "圣吉",
               use: "把「我以为是事实的」改成「这是我的假设」，然后去找反例。",
               talk: "讲一个被自己推翻的「我一直以为」。",
-              guess: "挡住改变的往往不是做法，是心里那张没说出口的地图。" },
+              guess: "挡住改变的往往不是做法，是心里那张没说出口的地图。",
+              principle: "人不是按事实行动，而是按心里对事实的假设（心智模式）行动。地图不更新，做法换了也走回老路。而且这些假设大多没被说出来过，所以无法被检验，也就无法被修正。",
+              how: ["把「事实上……」改写成「我假设……」。",
+                    "主动找三个反例，看看能不能站住。",
+                    "设计一个小实验去检验这个假设，用结果改地图。"],
+              example: "「客户只看价格」——如果这个假设不成立，真正的障碍可能是信任、安装、售后，方向完全不同。" },
             { name: "灰度决策", book: "灰度决策", author: "巴达拉克",
               use: "在不能两全的选择里，先问「我真正在乎的是什么」。",
               talk: "讲一个没有标准答案、只能在两个代价里选一个的决定。",
-              guess: "没有正确答案，只有你愿意承担哪个代价。" },
+              guess: "没有正确答案，只有你愿意承担哪个代价。",
+              principle: "重大决策往往没有正确答案：信息不全、涉及多方利益冲突、两个选项都有真实代价。这时「找出最优解」是假问题，真问题是识别自己真正在乎什么、承担相应代价，并保留可修正的余地。",
+              how: ["三问：谁会被影响？我真正在乎的是什么？这个决定能不能改回来？",
+                    "给两个选项各写清「代价是什么、谁承担」。",
+                    "选愿意承担的代价，并设好回头条件。"],
+              example: "关停一条产品线：保住团队士气还是保住现金？没有两全，只能选愿意承担的那一边，并约定复盘时间点。" },
             { name: "概率视角", book: "黑天鹅", author: "塔勒布",
               use: "先问这个判断有多大概率会错，错了会怎样。",
               talk: "讲一次极小概率、却毁掉整个计划的意外。",
-              guess: "先算「我错了会怎样」，再算「我对了能赚多少」。" },
+              guess: "先算「我错了会怎样」，再算「我对了能赚多少」。",
+              principle: "世界由少数小概率、大影响的事件驱动。单次结果无法预测，但「暴露程度」可以控制。多数计划只算成功概率，不算失败后果的量级，于是被一次极端事件清零。",
+              how: ["给判断加上概率和影响量级，而不是只给结论。",
+                    "先问「如果我错了，损失有多大」，先把下行封住。",
+                    "再问「如果对了，收益多大」，判断值不值得下注。"],
+              example: "一场火灾、一次断供、一个核心员工离职——概率很低，但后果无法承受，所以要先买保险、留备份。" },
             { name: "杠铃策略", book: "反脆弱", author: "塔勒布",
               use: "大部分资源放极稳的一头，小部分放极冒险的一头，中间不碰。",
               talk: "讲一次「小成本试错换来大机会」的经历。",
-              guess: "两头都极端，中间是空的。" },
+              guess: "两头都极端，中间是空的。",
+              principle: "把资源集中在两个极端：极稳的一端保证不会死，极冒险但损失有限的一端保留高上行可能。放弃中间地带——那里风险看起来温和，实际既没有保底的确定性，也没有爆发的弹性，是最容易亏掉本金的位置。",
+              how: ["把钱、时间或精力分成两份：一份几乎不可能归零，一份亏损上限明确。",
+                    "小注多押，允许大多数尝试失败。",
+                    "不碰中等风险、中高仓位的「看起来稳妥」的选项。"],
+              example: "大部分存成保本资产，小部分投早期项目；不重仓「稳健理财产品」这类风险说不清的东西。" },
             { name: "领先者的窘境", book: "创新者的窘境", author: "克里斯坦森",
               use: "换个身份想：如果我是挑战者，会从哪个「看不上」的小市场切进来？",
               talk: "讲一个被「合理决策」拖住、没能转身的例子。",
-              guess: "做得越对、越听得懂老客户，越容易看不见下一个小市场。" },
+              guess: "做得越对、越听得懂老客户，越容易看不见下一个小市场。",
+              principle: "领先企业按理性逻辑运作：听最优质客户的话、把资源投向利润更高的市场。但颠覆性技术初期性能差、利润低、市场小，理性评估必然被否掉。于是「做得越对」，越会主动放弃未来。",
+              how: ["换挑战者身份，找出「现在看不上、利润低、但增长快」的小市场。",
+                    "如果自己要做，就用独立小团队、独立考核，别放在主力流程里。",
+                    "否则就盯着谁在做，判断它会不会从下面吃掉你。"],
+              example: "硬盘厂放弃小容量新架构、功能机厂商看不上智能手机、传统车厂轻视电动车——都是同一套逻辑。" },
         ];
         const CAT_LABEL = { all: "随机模型", use: "用一下", talk: "讲一遍", guess: "猜模型" };
         const $ = (id) => document.getElementById(id);
@@ -444,6 +685,41 @@
             if (cat !== "guess" || revealed || !current) return;
             revealed = true;
             render(current, currentIdx, pool().length);
+        });
+
+        // ---- 详细解释面板 ----
+        function openSheet() {
+            if (!current) return;
+            $("sheetTitle").textContent = current.name;
+            $("sheetMeta").textContent = "《" + current.book + "》· " + current.author;
+            $("sheetPrinciple").textContent = current.principle;
+            $("sheetExample").textContent = current.example;
+            const how = $("sheetHow");
+            how.textContent = "";
+            current.how.forEach((step) => {
+                const li = document.createElement("li");
+                li.textContent = step;
+                how.appendChild(li);
+            });
+            $("sheetBackdrop").hidden = false;
+            $("detailSheet").hidden = false;
+            $("detailSheet").scrollTop = 0;
+            $("sheetClose").focus();
+            document.body.style.overflow = "hidden";
+        }
+
+        function closeSheet() {
+            $("sheetBackdrop").hidden = true;
+            $("detailSheet").hidden = true;
+            document.body.style.overflow = "";
+            $("explainBtn").focus();
+        }
+
+        $("explainBtn").addEventListener("click", openSheet);
+        $("sheetClose").addEventListener("click", closeSheet);
+        $("sheetBackdrop").addEventListener("click", closeSheet);
+        document.addEventListener("keydown", (e) => {
+            if (e.key === "Escape" && !$("detailSheet").hidden) closeSheet();
         });
 
         $("nextBtn").addEventListener("click", next);
