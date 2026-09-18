@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#c27a3a">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="思维模型卡">
+    <link rel="apple-touch-icon" href="../heart-talk/icons/icon-192.png">
+    <title>思维模型卡</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;600;700&family=Noto+Serif+SC:wght@500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../shared/theme.css">
+    <style>
+
+
+        body {
+            font-family: 'Noto Sans SC', 'Microsoft YaHei', sans-serif;
+            color: var(--text-primary);
+            background:
+                radial-gradient(circle at 12% 14%, rgba(255, 240, 220, 0.9) 0%, rgba(255, 240, 220, 0) 36%),
+                radial-gradient(circle at 86% 18%, rgba(244, 216, 183, 0.75) 0%, rgba(244, 216, 183, 0) 34%),
+                linear-gradient(160deg, var(--bg-main) 0%, var(--bg-secondary) 100%);
+            /* 背景画在 body 上，内容比视口矮时下方会露白出现接缝，撑满视口 */
+            min-height: 100vh;
+            min-height: 100dvh;
+            display: flex;
+            justify-content: center;
+            padding: 28px 18px calc(40px + env(safe-area-inset-bottom));
+            line-height: 1.55;
+            -webkit-tap-highlight-color: transparent;
+            transition: background 0.26s ease, color 0.2s ease;
+        }
+
+        .container { width: 100%; max-width: 760px; position: relative; }
+
+        .topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 18px;
+            animation: rise-in 0.4s ease-out both;
+        }
+        .back-link {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 0.9rem;
+            padding: 6px 10px;
+            border-radius: 999px;
+            transition: color 0.2s ease;
+        }
+        .back-link:hover { color: var(--accent-strong); }
+        .theme-toggle-btn { min-width: 104px; padding: 9px 14px; }
+
+        header { text-align: center; margin-bottom: 26px; animation: rise-in 0.5s ease-out both; }
+
+        header h1 {
+            font-family: 'Noto Serif SC', 'Songti SC', serif;
+            font-size: clamp(2rem, 4.3vw, 2.8rem);
+            letter-spacing: 0.04em;
+            color: #5c3d24;
+            margin-bottom: 8px;
+        }
+
+        header p { color: var(--text-secondary); font-size: 1.02rem; }
+
+        .filter-section {
+            background: var(--paper);
+            border: 1px solid rgba(228, 204, 176, 0.78);
+            box-shadow: var(--shadow-soft);
+            border-radius: var(--radius-lg);
+            padding: 14px 18px;
+            margin-bottom: 18px;
+            animation: rise-in 0.55s ease-out both;
+        }
+        .filter-buttons { display: flex; flex-wrap: wrap; gap: 10px; }
+        .filter-btn {
+            border: 1px solid #d6b58f;
+            background: #fff7ee;
+            color: #80583a;
+            border-radius: 999px;
+            padding: 9px 15px;
+            font-size: 0.9rem;
+            min-height: 40px;
+            cursor: pointer;
+            transition: transform 0.18s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.18s ease, background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+        }
+        .filter-btn:hover, .filter-btn.active {
+            background: linear-gradient(160deg, #d3955a 0%, #be7736 100%);
+            color: #fff;
+            border-color: #b46a2d;
+            box-shadow: 0 7px 14px rgba(167, 101, 44, 0.24);
+            transform: translateY(-1px);
+        }
+        .filter-btn:active { transform: scale(0.98); }
+
+        .progress {
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            margin-bottom: 14px;
+            animation: rise-in 0.55s ease-out both;
+        }
+
+        .card-container {
+            background: var(--paper);
+            border: 1px solid rgba(228, 204, 176, 0.78);
+            box-shadow: var(--shadow-soft);
+            border-radius: var(--radius-xl);
+            padding: 34px 28px;
+            min-height: 312px;
+            margin-bottom: 18px;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            animation: rise-in 0.6s ease-out both;
+        }
+
+        .card-container::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            background:
+                linear-gradient(130deg, rgba(255, 244, 228, 0.75) 0%, rgba(255, 244, 228, 0) 46%),
+                repeating-linear-gradient(0deg, rgba(191, 147, 107, 0.035) 0, rgba(191, 147, 107, 0.035) 1px, transparent 1px, transparent 6px);
+        }
+
+        .card-category, .card-content, .card-hint, .card-source { position: relative; z-index: 1; }
+
+        .card-source {
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 0.86rem;
+            margin-top: 12px;
+        }
+
+        .card-container.is-guess { cursor: pointer; }
+
+        .card-category {
+            font-size: 0.9rem;
+            color: #896a4d;
+            margin-bottom: 12px;
+            text-align: center;
+        }
+
+        .card-content {
+            font-family: 'Noto Serif SC', 'Songti SC', serif;
+            font-size: clamp(1.28rem, 2.7vw, 1.68rem);
+            line-height: 1.75;
+            color: #422c1a;
+            text-align: center;
+        }
+
+        .card-hint {
+            margin-top: 16px;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            text-align: center;
+            line-height: 1.7;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 20px;
+            animation: rise-in 0.65s ease-out both;
+        }
+
+        .btn {
+            border: none;
+            border-radius: 999px;
+            min-height: 44px;
+            padding: 12px 28px;
+            font-size: 0.98rem;
+            font-weight: 600;
+            cursor: pointer;
+            letter-spacing: 0.02em;
+            transition: transform 0.18s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.2s ease, filter 0.2s ease;
+        }
+        .btn:hover { transform: translateY(-1px); }
+        .btn:active { transform: translateY(0) scale(0.98); }
+        .btn {
+            background: linear-gradient(160deg, var(--accent) 0%, var(--accent-strong) 100%);
+            color: #fff;
+            box-shadow: 0 8px 18px rgba(166, 98, 38, 0.3);
+        }
+        .btn-secondary {
+            background: #fff3e5;
+            color: #875734;
+            border: 1px solid #e0bf9b;
+            box-shadow: 0 8px 16px rgba(113, 76, 40, 0.12);
+        }
+        .btn:focus-visible { outline: 2px solid #b96a2b; outline-offset: 2px; }
+
+        .footer-note {
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            animation: rise-in 0.7s ease-out both;
+        }
+
+        @keyframes rise-in {
+            from { opacity: 0; transform: translateY(14px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @media (max-width: 600px) {
+            body { padding: 16px 12px calc(26px + env(safe-area-inset-bottom)); }
+            header { margin-bottom: 18px; }
+            header p { font-size: 0.95rem; }
+            .card-container { padding: 26px 18px; min-height: 280px; }
+            .card-content { font-size: clamp(1.12rem, 4.7vw, 1.35rem); line-height: 1.66; }
+            .btn { width: 100%; min-height: 46px; padding-top: 11px; padding-bottom: 11px; }
+            .controls { flex-direction: column; align-items: stretch; gap: 8px; }
+            .filter-btn { min-height: 44px; padding: 8px 14px; }
+        }
+
+        @media (max-width: 360px) {
+            body { padding: 14px 10px calc(20px + env(safe-area-inset-bottom)); }
+            header h1 { font-size: 1.82rem; letter-spacing: 0.02em; }
+            header p { font-size: 0.9rem; }
+            .card-container { min-height: 248px; padding: 20px 14px; }
+            .card-content { font-size: 1.05rem; line-height: 1.62; }
+            .btn { min-height: 46px; font-size: 0.94rem; }
+        }
+
+        @media (max-width: 420px) {
+            .filter-buttons .filter-btn { flex: 1 1 calc(50% - 8px); text-align: center; }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after { animation: none !important; transition: none !important; }
+        }
+
+        :root[data-theme='dark'] .card-content { color: #f7e7d2; }
+        :root[data-theme='dark'] .card-category { color: #d4b493; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="topbar">
+            <a class="back-link" href="../">← 返回工具箱</a>
+            <button class="btn-secondary btn theme-toggle-btn" id="themeToggleBtn" type="button" aria-label="切换夜间护眼模式">夜间护眼</button>
+        </div>
+        <header>
+            <h1>🧩 思维模型卡</h1>
+            <p>抽一个思维模型，套到眼前的事上</p>
+        </header>
+        <div class="filter-section">
+            <div class="filter-buttons" id="categoryFilters">
+                <button class="filter-btn active" data-cat="all">全部</button>
+                <button class="filter-btn" data-cat="use">用一下</button>
+                <button class="filter-btn" data-cat="talk">讲一遍</button>
+                <button class="filter-btn" data-cat="guess">猜模型</button>
+            </div>
+        </div>
+        <div class="progress" id="progress"></div>
+        <div class="card-container" id="cardContainer">
+            <div class="card-category" id="cardCategory"></div>
+            <div class="card-content" id="cardContent"></div>
+            <div class="card-source" id="cardSource"></div>
+            <div class="card-hint" id="cardHint"></div>
+        </div>
+        <div class="controls">
+            <button class="btn" id="nextBtn">换一张卡</button>
+        </div>
+        <div class="footer-note">用法：先有一件真的事 → 再挑一个模型 → 问它逼你看见什么。25 个模型，来自 16 本书</div>
+    </div>
+    <script>
+        const MODELS = [
+            { name: "系统 1 / 系统 2", book: "思考，快与慢", author: "卡尼曼",
+              use: "这个判断是脱口而出的，还是想过的？先分清楚再往下走。",
+              talk: "讲一次「第一反应」后来被证明是错的经历。",
+              guess: "我把一个决定拆成「脱口而出的判断」和「想了半天的判断」两半。" },
+            { name: "损失厌恶", book: "思考，快与慢", author: "卡尼曼",
+              use: "找出这件事里「怕失去什么」，这个恐惧可能被放大过。",
+              talk: "讲一次「亏了比赚了更难受」的经历。",
+              guess: "同等的得和失摆在面前，我更怕失去那一个。" },
+            { name: "锚定效应", book: "思考，快与慢", author: "卡尼曼",
+              use: "找出这件事里第一个出现的数字，问：如果没有它，我会估多少？",
+              talk: "讲一次被一个报价、一句话带偏的经历。",
+              guess: "第一个出现的数字，定住了后面所有判断。" },
+            { name: "多元思维模型", book: "穷查理宝典", author: "芒格",
+              use: "换三个学科的角度各看一次：心理、经济、生物，随便挑三个。",
+              talk: "讲一次「手里只有锤子，看什么都是钉子」的经历。",
+              guess: "我要求自己用心理学、经济学、物理学的常识一起验证一个判断。" },
+            { name: "反过来想", book: "穷查理宝典", author: "芒格",
+              use: "不问怎么成功，先问怎么会彻底搞砸，然后避开那条路。",
+              talk: "讲一次用「先想失败」避掉的坑。",
+              guess: "我只想知道将来会死在哪里，这样我就永远不去那个地方。" },
+            { name: "能力圈", book: "穷查理宝典", author: "芒格",
+              use: "先划出「我真的懂」和「我真的不懂」的边界，别跨过去。",
+              talk: "讲一次承认「这个我不懂」的经历。",
+              guess: "只在懂的范围内下重注，不懂就不碰。" },
+            { name: "互惠与承诺一致", book: "影响力", author: "西奥迪尼",
+              use: "找出自己「因为先答应过小要求，所以停不下来」的地方。",
+              talk: "讲一次被「先小后大」套路过的经历。",
+              guess: "答应过的小事，会绑住后面的大事。" },
+            { name: "社会认同", book: "影响力", author: "西奥迪尼",
+              use: "找出这件事里「因为别人都这么做」才这么做的部分。",
+              talk: "讲一次跟着人群走、后来后悔的事。",
+              guess: "人越多的地方，越容易不带判断地跟随。" },
+            { name: "论题与结论", book: "学会提问", author: "尼尔·布朗",
+              use: "先问清对方到底主张什么，再问他的理由撑不撑得住。",
+              talk: "讲一次吵了半天、其实根本没对上焦的争论。",
+              guess: "先找结论，再找理由，再找理由的漏洞。" },
+            { name: "灰度思维", book: "学会提问", author: "尼尔·布朗",
+              use: "把「对/错」改成「什么条件下对、什么条件下错」。",
+              talk: "讲一件曾经觉得非黑即白、现在能看出中间地带的事。",
+              guess: "大多数问题不是对错题，是条件题。" },
+            { name: "思维格栅", book: "模型思维", author: "斯科特·佩奇",
+              use: "挑三个模型分别解释这件事，看哪个更能预测下一步。",
+              talk: "讲一个模型解释不了、被另一个模型解释通的现象。",
+              guess: "一个模型不够，就上三个互相检验。" },
+            { name: "非线性与凸性", book: "模型思维", author: "斯科特·佩奇",
+              use: "找出这件事里「投入翻倍、结果不翻倍」或者相反的地方。",
+              talk: "讲一次小事引发大变化的经历。",
+              guess: "输入和输出不成比例，中间还有拐点。" },
+            { name: "逆向求解", book: "怎样解题", author: "波利亚",
+              use: "从要的结果往回推，看需要什么前提才能到。",
+              talk: "讲一次从目标倒着推、反而推通了的事。",
+              guess: "从答案往回走，找通向它的路。" },
+            { name: "特例与类比", book: "怎样解题", author: "波利亚",
+              use: "先把它缩小成一个最简单的小例子，或找一个像它的旧问题。",
+              talk: "讲一次用「以前那件类似的事」解决新问题。",
+              guess: "先试最简单的小例子，再找像它的旧问题。" },
+            { name: "六顶思考帽", book: "六顶思考帽", author: "德·波诺",
+              use: "轮流只戴一顶：事实、感受、风险、好处、创意、总结，不许混着说。",
+              talk: "讲一次因为「事实和情绪混着说」而谈崩的讨论。",
+              guess: "一次谈话分成六轮，每轮只许用一种角度。" },
+            { name: "水平思考", book: "水平思考法", author: "德·波诺",
+              use: "故意换一个荒谬的切入角度，先不管对不对。",
+              talk: "讲一个当时莫名其妙、后来真管用的想法。",
+              guess: "不在同一条路上挖深，而是横着跳到另一条路。" },
+            { name: "金字塔与 MECE", book: "金字塔原理", author: "明托",
+              use: "结论先摆出来，再把支撑切成不重叠、不遗漏的几块。",
+              talk: "讲一次「说了半天对方还是没听懂」的表达。",
+              guess: "结论先行，下面互相独立、合起来不漏。" },
+            { name: "假设驱动", book: "麦肯锡结构化战略思维", author: "周国元",
+              use: "先给一个能被打脸的假设，再去验证它或者推翻它。",
+              talk: "讲一个被事实推翻、被迫改方向的假设。",
+              guess: "先猜一个答案，再去找证据证明自己错。" },
+            { name: "反馈回路与延迟", book: "系统之美", author: "梅多斯",
+              use: "找出这件事里的回路：什么在推动它自己？延迟多久才看见结果？",
+              talk: "讲一个「越用力越糟」的循环。",
+              guess: "结果会绕回来影响原因，而且要过一阵子才看见。" },
+            { name: "杠杆点", book: "系统之美", author: "梅多斯",
+              use: "在整条链上找那个「动一下，其他地方跟着变」的点。",
+              talk: "讲一次小改动带来大变化的事。",
+              guess: "整条链上只有一个地方，动它比使劲推都管用。" },
+            { name: "心智模式", book: "第五项修炼", author: "圣吉",
+              use: "把「我以为是事实的」改成「这是我的假设」，然后去找反例。",
+              talk: "讲一个被自己推翻的「我一直以为」。",
+              guess: "挡住改变的往往不是做法，是心里那张没说出口的地图。" },
+            { name: "灰度决策", book: "灰度决策", author: "巴达拉克",
+              use: "在不能两全的选择里，先问「我真正在乎的是什么」。",
+              talk: "讲一个没有标准答案、只能在两个代价里选一个的决定。",
+              guess: "没有正确答案，只有你愿意承担哪个代价。" },
+            { name: "概率视角", book: "黑天鹅", author: "塔勒布",
+              use: "先问这个判断有多大概率会错，错了会怎样。",
+              talk: "讲一次极小概率、却毁掉整个计划的意外。",
+              guess: "先算「我错了会怎样」，再算「我对了能赚多少」。" },
+            { name: "杠铃策略", book: "反脆弱", author: "塔勒布",
+              use: "大部分资源放极稳的一头，小部分放极冒险的一头，中间不碰。",
+              talk: "讲一次「小成本试错换来大机会」的经历。",
+              guess: "两头都极端，中间是空的。" },
+            { name: "领先者的窘境", book: "创新者的窘境", author: "克里斯坦森",
+              use: "换个身份想：如果我是挑战者，会从哪个「看不上」的小市场切进来？",
+              talk: "讲一个被「合理决策」拖住、没能转身的例子。",
+              guess: "做得越对、越听得懂老客户，越容易看不见下一个小市场。" },
+        ];
+        const CAT_LABEL = { all: "随机模型", use: "用一下", talk: "讲一遍", guess: "猜模型" };
+        const $ = (id) => document.getElementById(id);
+        let cat = "all";
+        let revealed = true;
+        const queues = {};
+
+        // 夜间护眼模式（与各工具一致）
+        function applyTheme(theme) {
+            document.documentElement.setAttribute('data-theme', theme);
+            $("themeToggleBtn").textContent = theme === 'dark' ? '暖色模式' : '夜间护眼';
+            $("themeToggleBtn").setAttribute('aria-pressed', String(theme === 'dark'));
+            try { localStorage.setItem('mental-models-theme', theme); } catch (e) {}
+        }
+        $("themeToggleBtn").addEventListener("click", () => {
+            const current = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
+            applyTheme(current === 'dark' ? 'light' : 'dark');
+        });
+        (function initTheme() {
+            let saved = null;
+            try { saved = localStorage.getItem('mental-models-theme'); } catch (e) {}
+            const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+            applyTheme(saved || (prefersDark ? 'dark' : 'light'));
+        })();
+
+        function shuffle(arr) {
+            for (let i = arr.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [arr[i], arr[j]] = [arr[j], arr[i]];
+            }
+            return arr;
+        }
+
+        function pool() { return MODELS; }
+
+        function render(m, idx, total) {
+            const guessing = cat === "guess";
+            $("cardContainer").classList.toggle("is-guess", guessing);
+            $("cardCategory").textContent = "「" + CAT_LABEL[cat] + "」";
+            if (guessing && !revealed) {
+                $("cardContent").textContent = m.guess;
+                $("cardSource").textContent = "";
+                $("cardHint").textContent = "点卡片看答案";
+            } else {
+                $("cardContent").textContent = m.name;
+                $("cardSource").textContent = "《" + m.book + "》· " + m.author;
+                if (cat === "talk") $("cardHint").textContent = "讲一个：" + m.talk;
+                else if (cat === "guess") $("cardHint").textContent = "答案如上。讲一个：" + m.talk;
+                else $("cardHint").textContent = "问自己：" + m.use;
+            }
+            $("progress").textContent = `第 ${idx} / ${total} 个模型`;
+        }
+
+        let current = null;
+        let currentIdx = 1;
+
+        function next() {
+            const p = pool();
+            if (!queues[cat] || !queues[cat].length) queues[cat] = shuffle(p.slice());
+            current = queues[cat].pop();
+            currentIdx = p.length - queues[cat].length;
+            revealed = cat !== "guess";
+            render(current, currentIdx, p.length);
+        }
+
+        $("cardContainer").addEventListener("click", () => {
+            if (cat !== "guess" || revealed || !current) return;
+            revealed = true;
+            render(current, currentIdx, pool().length);
+        });
+
+        $("nextBtn").addEventListener("click", next);
+        $("categoryFilters").addEventListener("click", (e) => {
+            const btn = e.target.closest(".filter-btn");
+            if (!btn) return;
+            cat = btn.dataset.cat;
+            document.querySelectorAll("#categoryFilters .filter-btn").forEach((b) => b.classList.toggle("active", b === btn));
+            next();
+        });
+        next();
+    </script>
+</body>
+</html>
