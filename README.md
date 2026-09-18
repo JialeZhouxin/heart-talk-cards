@@ -15,7 +15,7 @@
 
 ## 使用方式
 
-1. 在线访问：https://jialezhouxin.github.io/heart-talk-cards/
+1. 在线访问：https://jialezhouxin.github.io/toolbox/
 2. 本地使用：直接打开 `index.html`（聚合首页），点卡片进工具
 
 ## 新增工具

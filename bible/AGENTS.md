@@ -1,6 +1,6 @@
 # 圣经金句 · 仓库约定
 
-> 本目录（`bible/`）是 heart-talk-cards 仓库的子项目，拥有自己的
+> 本目录（`bible/`）是 toolbox 仓库的子项目，拥有自己的
 > `src/`、`scripts/`、PWA 配置与文档。改动本目录时只需关注本文件，
 > 但注意整个仓库共用一个源（localStorage 共享），见 `src/core/storage-migration.js`。
 

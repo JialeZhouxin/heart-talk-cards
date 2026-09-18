@@ -17,7 +17,7 @@
 
 ## 使用方式
 
-1. 打开 https://jialezhouxin.github.io/heart-talk-cards/bible/ ，
+1. 打开 https://jialezhouxin.github.io/toolbox/bible/ ，
    或直接双击 `index.html`。
 2. 「今日经文」卡片上写下今天的感受。
 3. 或点「抽取金句」随机抽一节，点「记一节经文」记录自己读到的经文。
@@ -63,7 +63,7 @@ node scripts/build-bible-full.js  # 从 books.txt 重新生成全本经文模块
 
 ## 与工具箱的关系
 
-本工具是 [heart-talk-cards](https://github.com/JialeZhouxin/heart-talk-cards)
+本工具是 [toolbox](https://github.com/JialeZhouxin/toolbox)
 仓库的一个子目录（`bible/`），与心语卡牌、婚前辅导等并列。
 返回入口在页面左上角的「← 返回工具箱」。
 
