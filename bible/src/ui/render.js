@@ -1,4 +1,6 @@
-﻿function createElement(tag, className, text) {
+﻿import { getCardThemeId } from '../core/card-service.js';
+
+function createElement(tag, className, text) {
     const node = document.createElement(tag);
     if (className) node.className = className;
     if (text !== undefined) node.textContent = text;
@@ -26,7 +28,8 @@ export function renderCard({ currentCard, categoryNames, elements }) {
 
     emptyState.style.display = 'none';
     cardContent.style.display = 'block';
-    cardCategory.textContent = categoryNames[currentCard.category] || currentCard.category;
+    const themeId = getCardThemeId(currentCard);
+    cardCategory.textContent = categoryNames[themeId] || currentCard.category || '';
 
     // 副标题显示经文出处
     cardLevel.textContent = currentCard.reference || '';
@@ -100,8 +103,10 @@ export function renderHistory({ history, categoryNames, historyList, onEdit, onD
             tagsRow.appendChild(sourceTag);
         }
         if (card.category && card.category !== 'note') {
-            const categoryName = categoryNames[card.category] || card.category;
-            const categoryTag = createElement('span', `category-tag category-${card.category}`, categoryName);
+            // CSS 类名与显示名都按主题 id 取，不能拿中文 category 拼类名
+            const themeId = getCardThemeId(card);
+            const categoryName = categoryNames[themeId] || card.category;
+            const categoryTag = createElement('span', `category-tag category-${themeId || 'unknown'}`, categoryName);
             tagsRow.appendChild(categoryTag);
         }
 

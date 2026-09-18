@@ -1,5 +1,5 @@
 ﻿import { cards, categories } from './data/cards.js';
-import { filterCards, drawRandomCard } from './core/card-service.js';
+import { filterCards, drawRandomCard, getCardThemeId } from './core/card-service.js';
 import { loadHistory, saveHistory, clearHistoryStore, updateHistoryItem, deleteHistoryItem } from './core/history-store.js';
 import { filterHistory, exportToJSON, downloadJSON } from './core/history-filter.js';
 import { generateHistoryAlbumImage, downloadAlbumImage } from './core/history-export.js';
@@ -501,7 +501,7 @@ async function generateShareImage() {
         showToast('正在生成分享图片...', 'info');
 
         // 更新分享卡片模板内容
-        elements.shareCardCategory.textContent = categoryNames[state.currentCard.category] || state.currentCard.category;
+        elements.shareCardCategory.textContent = categoryNames[getCardThemeId(state.currentCard)] || state.currentCard.category || '';
         elements.shareCardQuestion.textContent = state.currentCard.text || state.currentCard.question || '';
         const shareRefEl = document.getElementById('shareCardRef');
         if (shareRefEl) shareRefEl.textContent = state.currentCard.reference ? `—— ${state.currentCard.reference}` : '';

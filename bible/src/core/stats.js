@@ -4,6 +4,7 @@
  */
 
 import { categories } from '../data/cards.js';
+import { getCardThemeId } from './card-service.js';
 
 // 主题名称/配色（以 cards.js 的 categories 为唯一真源）
 const CATEGORY_NAMES = {};
@@ -93,7 +94,7 @@ export function calculateCategoryDistribution(history) {
 
     const counts = {};
     history.forEach(item => {
-        const cat = item.card?.category || 'unknown';
+        const cat = getCardThemeId(item.card) || 'unknown';
         counts[cat] = (counts[cat] || 0) + 1;
     });
 

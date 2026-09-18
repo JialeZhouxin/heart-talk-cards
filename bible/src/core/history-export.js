@@ -85,7 +85,9 @@ export async function generateHistoryAlbumImage(history, categoryNames) {
     // 添加每条记录
     history.slice(0, 20).forEach((item, index) => {
         const card = item.card || {};
-        const categoryName = categoryNames[card.category] || card.category || '';
+        // 主题名与配色都按英文 id 取（card.category 是中文，只作显示回退）
+        const themeId = getCardThemeId(card);
+        const categoryName = categoryNames[themeId] || card.category || '';
         
         albumHTML += `
             <div style="
@@ -99,7 +101,7 @@ export async function generateHistoryAlbumImage(history, categoryNames) {
                     <span style="
                         font-size: 12px;
                         color: #fff;
-                        background: ${getCategoryColor(card.category)};
+                        background: ${getCategoryColor(themeId)};
                         padding: 4px 12px;
                         border-radius: 20px;
                     ">${categoryName}</span>

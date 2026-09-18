@@ -32,9 +32,14 @@ const LEGACY_KEYS = {
     dailyCard: 'heartTalkDailyCard'
 };
 
-/** 7 个经文主题，用于判定某条记录是否属于圣经应用 */
+/** 7 个经文主题 id，用于判定某条记录是否属于圣经应用 */
 const VERSE_CATEGORIES = new Set([
     'comfort', 'love', 'faith', 'strength', 'wisdom', 'forgiveness', 'hope'
+]);
+
+/** 对应的中文名（老数据可能只存了中文） */
+const VERSE_CATEGORY_NAMES = new Set([
+    '安慰', '爱心', '信心', '力量', '智慧', '宽恕', '盼望'
 ]);
 
 /**
@@ -52,8 +57,10 @@ export function isVerseRecord(item) {
     const hasVerseFields = typeof card.reference === 'string' && card.reference
         && typeof card.text === 'string' && card.text;
     if (hasVerseFields) return true;
-    // 主题属于 7 个经文主题，且不是心语卡牌的关系类类别
-    return typeof card.category === 'string' && VERSE_CATEGORIES.has(card.category);
+    // 主题属于 7 个经文主题（或其中文名），且不是心语卡牌的关系类类别
+    if (typeof card.category !== 'string') return false;
+    if (card.categoryEn && VERSE_CATEGORIES.has(card.categoryEn)) return true;
+    return VERSE_CATEGORY_NAMES.has(card.category);
 }
 
 /**

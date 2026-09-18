@@ -2048,15 +2048,37 @@ function getCardById(id) {
 
 // ==================== src/core/card-service.js ====================
 /**
- * 按类别筛选经文
+ * 经文主题服务
+ * 提供主题 id 解析、按主题筛选、随机抽取
+ */
+
+/**
+ * 取一张卡的主题 id（英文，如 'comfort'）
+ *
+ * 卡的 `category` 字段是中文名（如「安慰」），仅供显示；而所有查找表
+ * ——categories[].id、CSS 类名、data-category、筛选下拉、统计配色——
+ * 用的都是英文 id。这两套命名混用是本项目出错最多的地方，统一从这里取值。
+ *
+ * @param {Object} card
+ * @returns {string} 主题 id；取不到时返回 ''
+ */
+function getCardThemeId(card) {
+    if (!card) return '';
+    if (card.categoryEn) return card.categoryEn;
+    // 回退：老数据可能只存了中文名，反查 categories 得到 id
+    const match = categories.find((c) => c.name === card.category);
+    return match ? match.id : '';
+}
+
+/**
+ * 按主题筛选经文
  * @param {Array} cards - 经文数组
- * @param {string} category - 主题类别筛选（'all' 表示全部）
+ * @param {string} category - 主题 id（'comfort'），'all' 或空表示全部
  * @returns {Array} 筛选后的经文数组
  */
 function filterCards(cards, category) {
-    return cards.filter((card) => {
-        return category === 'all' || card.category === category;
-    });
+    if (category === 'all' || !category) return cards;
+    return cards.filter((card) => getCardThemeId(card) === category);
 }
 
 /**
@@ -2105,9 +2127,14 @@ const LEGACY_KEYS = {
     dailyCard: 'heartTalkDailyCard'
 };
 
-/** 7 个经文主题，用于判定某条记录是否属于圣经应用 */
+/** 7 个经文主题 id，用于判定某条记录是否属于圣经应用 */
 const VERSE_CATEGORIES = new Set([
     'comfort', 'love', 'faith', 'strength', 'wisdom', 'forgiveness', 'hope'
+]);
+
+/** 对应的中文名（老数据可能只存了中文） */
+const VERSE_CATEGORY_NAMES = new Set([
+    '安慰', '爱心', '信心', '力量', '智慧', '宽恕', '盼望'
 ]);
 
 /**
@@ -2125,8 +2152,10 @@ function isVerseRecord(item) {
     const hasVerseFields = typeof card.reference === 'string' && card.reference
         && typeof card.text === 'string' && card.text;
     if (hasVerseFields) return true;
-    // 主题属于 7 个经文主题，且不是心语卡牌的关系类类别
-    return typeof card.category === 'string' && VERSE_CATEGORIES.has(card.category);
+    // 主题属于 7 个经文主题（或其中文名），且不是心语卡牌的关系类类别
+    if (typeof card.category !== 'string') return false;
+    if (card.categoryEn && VERSE_CATEGORIES.has(card.categoryEn)) return true;
+    return VERSE_CATEGORY_NAMES.has(card.category);
 }
 
 /**
@@ -2384,7 +2413,7 @@ function filterByCategory(history, categoryFilter) {
     if (categoryFilter === 'all' || !categoryFilter) {
         return history;
     }
-    return history.filter(item => (item.card || {}).category === categoryFilter);
+    return history.filter(item => getCardThemeId(item.card) === categoryFilter);
 }
 
 /**
@@ -2475,7 +2504,7 @@ function generateHistoryStats(history) {
     history.forEach(item => {
         const card = item.card || {};
 
-        const category = card.category || 'unknown';
+        const category = getCardThemeId(card) || 'unknown';
         stats.byCategory[category] = (stats.byCategory[category] || 0) + 1;
 
         const source = item.source || 'draw';
@@ -2576,7 +2605,9 @@ async function generateHistoryAlbumImage(history, categoryNames) {
     // 添加每条记录
     history.slice(0, 20).forEach((item, index) => {
         const card = item.card || {};
-        const categoryName = categoryNames[card.category] || card.category || '';
+        // 主题名与配色都按英文 id 取（card.category 是中文，只作显示回退）
+        const themeId = getCardThemeId(card);
+        const categoryName = categoryNames[themeId] || card.category || '';
         
         albumHTML += `
             <div style="
@@ -2590,7 +2621,7 @@ async function generateHistoryAlbumImage(history, categoryNames) {
                     <span style="
                         font-size: 12px;
                         color: #fff;
-                        background: ${getCategoryColor(card.category)};
+                        background: ${getCategoryColor(themeId)};
                         padding: 4px 12px;
                         border-radius: 20px;
                     ">${categoryName}</span>
@@ -2781,7 +2812,8 @@ function renderCard({ currentCard, categoryNames, elements }) {
 
     emptyState.style.display = 'none';
     cardContent.style.display = 'block';
-    cardCategory.textContent = categoryNames[currentCard.category] || currentCard.category;
+    const themeId = getCardThemeId(currentCard);
+    cardCategory.textContent = categoryNames[themeId] || currentCard.category || '';
 
     // 副标题显示经文出处
     cardLevel.textContent = currentCard.reference || '';
@@ -2855,8 +2887,10 @@ function renderHistory({ history, categoryNames, historyList, onEdit, onDelete }
             tagsRow.appendChild(sourceTag);
         }
         if (card.category && card.category !== 'note') {
-            const categoryName = categoryNames[card.category] || card.category;
-            const categoryTag = createElement('span', `category-tag category-${card.category}`, categoryName);
+            // CSS 类名与显示名都按主题 id 取，不能拿中文 category 拼类名
+            const themeId = getCardThemeId(card);
+            const categoryName = categoryNames[themeId] || card.category;
+            const categoryTag = createElement('span', `category-tag category-${themeId || 'unknown'}`, categoryName);
             tagsRow.appendChild(categoryTag);
         }
 
@@ -3080,6 +3114,7 @@ function renderExportControls({ container, onExportJSON, onExportImage, onExport
  * 提供灵修记录的数据分析和报告生成功能
  */
 
+
 // 主题名称/配色（以 cards.js 的 categories 为唯一真源）
 const CATEGORY_NAMES = {};
 const CATEGORY_COLORS = {};
@@ -3168,7 +3203,7 @@ function calculateCategoryDistribution(history) {
 
     const counts = {};
     history.forEach(item => {
-        const cat = item.card?.category || 'unknown';
+        const cat = getCardThemeId(item.card) || 'unknown';
         counts[cat] = (counts[cat] || 0) + 1;
     });
 
@@ -5767,7 +5802,7 @@ async function generateShareImage() {
         showToast('正在生成分享图片...', 'info');
 
         // 更新分享卡片模板内容
-        elements.shareCardCategory.textContent = categoryNames[state.currentCard.category] || state.currentCard.category;
+        elements.shareCardCategory.textContent = categoryNames[getCardThemeId(state.currentCard)] || state.currentCard.category || '';
         elements.shareCardQuestion.textContent = state.currentCard.text || state.currentCard.question || '';
         const shareRefEl = document.getElementById('shareCardRef');
         if (shareRefEl) shareRefEl.textContent = state.currentCard.reference ? `—— ${state.currentCard.reference}` : '';

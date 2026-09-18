@@ -2,6 +2,8 @@
  * 灵修记录的筛选与导出
  */
 
+import { getCardThemeId } from './card-service.js';
+
 const SOURCE_LABELS = {
     draw: '抽取金句',
     daily: '今日经文',
@@ -87,7 +89,7 @@ export function filterByCategory(history, categoryFilter) {
     if (categoryFilter === 'all' || !categoryFilter) {
         return history;
     }
-    return history.filter(item => (item.card || {}).category === categoryFilter);
+    return history.filter(item => getCardThemeId(item.card) === categoryFilter);
 }
 
 /**
@@ -178,7 +180,7 @@ export function generateHistoryStats(history) {
     history.forEach(item => {
         const card = item.card || {};
 
-        const category = card.category || 'unknown';
+        const category = getCardThemeId(card) || 'unknown';
         stats.byCategory[category] = (stats.byCategory[category] || 0) + 1;
 
         const source = item.source || 'draw';
